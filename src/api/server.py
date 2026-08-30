@@ -298,6 +298,18 @@ class MitigateRequest(BaseModel):
 def startup_event():
     load_system_assets()
 
+@app.get("/")
+def root_status():
+    """Root entrypoint returning ShieldNet API status and documentation links."""
+    return {
+        "name": "ShieldNet Neural World Model Predictive API",
+        "status": "online",
+        "version": "2.0.0",
+        "docs_url": "/docs",
+        "health_check": "/api/health",
+        "architecture": "ShieldNet Dual-Engine Ensemble (GRU+Attention 60% + Tabular Linear 40%)"
+    }
+
 @app.get("/api/health")
 def health_check():
     """Health check for local offline verification."""
