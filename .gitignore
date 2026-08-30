@@ -34,7 +34,11 @@ dataset/
 models/checkpoints/*.pt
 models/checkpoints/*.pth
 models/checkpoints/*.joblib
+!models/checkpoints/world_model_v1.pt
+!models/checkpoints/ensemble_logreg.joblib
+!models/checkpoints/scaler.joblib
 !models/checkpoints/.gitkeep
+
 
 # IDE
 .vscode/
