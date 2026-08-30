@@ -23,7 +23,7 @@ from src.world_model.model import WorldModel
 from src.world_model.dataset import extract_temporal_sequences_from_parquet
 
 print("=" * 110)
-print("NETGUARD FORENSIC AUDIT: DECONSTRUCTION OF DUAL-ENGINE ENSEMBLE (83.12% BAL-ACC)")
+print("SHIELDNET FORENSIC AUDIT: DECONSTRUCTION OF DUAL-ENGINE ENSEMBLE (83.12% BAL-ACC)")
 print("=" * 110)
 
 DEVICE = torch.device("cpu")

@@ -1,5 +1,5 @@
 """
-NetGuard Phase 4: Concrete Counterfactual Scenarios & Safety Shield Demonstration.
+ShieldNet Phase 4: Concrete Counterfactual Scenarios & Safety Shield Demonstration.
 
 Uses genuine empirical test sequences for:
 1. SSH-Patator (Brute Force)
@@ -52,7 +52,7 @@ def get_real_host_sequence(df: pd.DataFrame, label: str, min_len: int = 3) -> tu
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 4: EMPIRICAL COUNTERFACTUAL SCENARIOS & SAFETY SHIELD")
+    print("SHIELDNET PHASE 4: EMPIRICAL COUNTERFACTUAL SCENARIOS & SAFETY SHIELD")
     print("=" * 80)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

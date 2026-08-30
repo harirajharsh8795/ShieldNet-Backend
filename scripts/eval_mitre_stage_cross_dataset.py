@@ -1,5 +1,5 @@
 """
-NetGuard Coarser Cross-Dataset Evaluation (MITRE-Stage Killchain Level).
+ShieldNet Coarser Cross-Dataset Evaluation (MITRE-Stage Killchain Level).
 
 Collapses fine-grained attack tool names to 6 standardized MITRE ATT&CK Stages:
 - Stage 0: Benign / Normal

@@ -1,4 +1,4 @@
-# NetGuard: Neural World Model for Proactive Network Threat Defense
+# ShieldNet: Neural World Model for Proactive Network Threat Defense
 **System Architecture Specification (2-Page Executive Brief) · SIH 2026 / PS 153**
 
 ---
@@ -7,7 +7,7 @@
 
 Conventional Network Intrusion Detection Systems (NIDS) are **reactive and memoryless**: they analyze isolated flow vectors $f(S_t) \to y_t$ after attack completion, providing zero forward foresight and no ability to simulate defensive interventions. 
 
-**NetGuard** reformulates network defense as a **continuous state-space world modeling problem**:
+**ShieldNet** reformulates network defense as a **continuous state-space world modeling problem**:
 $$\mathcal{M}_\theta : S_{t-L:t} \mapsto \left( \hat{S}_{t+1}, \hat{y}_{t+1}, \hat{m}_{t+1}, \hat{p}_{\text{order}} \right)$$
 where $S_t \in \mathbb{R}^{84}$ represents a standardized host-level state vector, $\hat{S}_{t+1}$ is the predicted continuous future state, $\hat{y}_{t+1} \in \{0..12\}$ is the predicted attack class, $\hat{m}_{t+1} \in \{0..5\}$ is the predicted MITRE ATT&CK tactical stage, and $\hat{p}_{\text{order}}$ is the sequence order discrimination signal.
 
@@ -21,7 +21,7 @@ NETFLOW CSV ──────┘   (84-dim S_t)       (L=3 Context Window)     
 
 ## 2. Dual Telemetry Ingestion & Standardized State Representation
 
-NetGuard fuses dual-level network telemetry into a standardized 84-dimensional physical state vector:
+ShieldNet fuses dual-level network telemetry into a standardized 84-dimensional physical state vector:
 1. **Flow-Level Telemetry (77 features):** Microsecond flow duration, forward/backward segment lengths, inter-arrival time (IAT) statistics (mean, std, max, min), TCP header flags (SYN, ACK, RST, FIN, PSH, URG), and bulk throughput metrics.
 2. **Packet-Level PCAP Telemetry (7 features):** IP Time-to-Live variance (`ttl_variance`), mean TTL (`ttl_mean`), TCP advertised window dynamics (`swin_mean`, `swin_min`, `swin_max`), IP fragmentation flags, and TCP sequence backward jump retransmission counts.
 3. **Temporal Standardization:** Continuous streaming sliding windows (10s step, $L=3$) z-score normalized against legitimate baseline statistics.
@@ -74,7 +74,7 @@ $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{state}}(\hat{S}_{t+1}, S_{t+1}
 
 ```
 +--------------------------------------------------------------------------------------------------+
-| Metric                      | Baseline (Logistic Reg) | NetGuard World Model | Performance Gain  |
+| Metric                      | Baseline (Logistic Reg) | ShieldNet World Model | Performance Gain  |
 |-----------------------------|-------------------------|----------------------|-------------------|
 | Multi-Class Macro F1 (Raw)  | 0.0652                  | 0.2926               | +0.2274 (4.5x)    |
 | Balanced Accuracy           | 50.12%                  | 79.15%               | +29.03% absolute  |
@@ -87,4 +87,4 @@ $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{state}}(\hat{S}_{t+1}, S_{t+1}
 ```
 
 ### Sovereign Air-Gap Compliance (Constraint C4)
-NetGuard is self-contained: all model checkpoints, local feature extractors, SQLite/Parquet stores, FastAPI REST endpoints, and React 18 frontend run completely offline with zero external network connectivity.
+ShieldNet is self-contained: all model checkpoints, local feature extractors, SQLite/Parquet stores, FastAPI REST endpoints, and React 18 frontend run completely offline with zero external network connectivity.

@@ -1,5 +1,5 @@
 """
-Data ingestion module for NetGuard.
+Data ingestion module for ShieldNet.
 Handles loading from CSV files (CIC-IDS-2018, CTU-13) and normalizing to the shared schema.
 Also supports PCAP ingestion via Scapy when raw packet data is available.
 """
@@ -243,7 +243,7 @@ def load_csv_upload(filepath: str) -> pd.DataFrame:
     if validation['flow_present'] == 0 and validation['packet_present'] == 0:
         raise ValueError(
             "Uploaded CSV has no recognizable flow-level or packet-level features. "
-            "Please provide a CICFlowMeter-style CSV or a file matching the NetGuard schema."
+            "Please provide a CICFlowMeter-style CSV or a file matching the ShieldNet schema."
         )
     
     return df

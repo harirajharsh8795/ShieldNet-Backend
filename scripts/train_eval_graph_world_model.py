@@ -1,5 +1,5 @@
 """
-NetGuard Phase 9 (Optional Stretch Goal): Network-Graph World Model Variant.
+ShieldNet Phase 9 (Optional Stretch Goal): Network-Graph World Model Variant.
 
 1. Graph Construction: Builds window-level communication graphs (Nodes = IPs, Edges = Flow attributes).
 2. Pure PyTorch GraphSAGE Encoder: Neighborhood aggregation without heavy torch_geometric C++ dependencies.

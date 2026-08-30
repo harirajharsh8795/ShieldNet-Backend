@@ -1,23 +1,23 @@
-# NetGuard — Comprehensive Benchmark & Evaluation Report
+# ShieldNet — Comprehensive Benchmark & Evaluation Report
 
 **Target PS:** SIH26153 (NTRO) — *AI-Based Network Attack Forecasting from Network Traffic Data*  
 **Evaluation Role:** Forensic ML Evaluation Auditor  
 **Date:** August 30, 2026  
 **Locked Submission Model:** `models/checkpoints/world_model_v1.pt` (Single-Scale $L=3$ GRU World Model, SHA-256: `dfbbb33026dec5b640a933400eecad2feb0b3329fb3fb8159e42d34548604371`)  
-**Ground Truth Source File:** [`models/checkpoints/GROUND_TRUTH_FINAL.json`](file:///e:/Desktop/ps%20153/netguard/models/checkpoints/GROUND_TRUTH_FINAL.json)
+**Ground Truth Source File:** [`models/checkpoints/GROUND_TRUTH_FINAL.json`](file:///e:/Desktop/ps%20153/shieldnet/models/checkpoints/GROUND_TRUTH_FINAL.json)
 
 ---
 
 ## 1. Executive Summary & Core Evaluation Findings
 
-NetGuard was evaluated under verified experimental protocols directly addressing the official SIH26153 evaluation criteria:
+ShieldNet was evaluated under verified experimental protocols directly addressing the official SIH26153 evaluation criteria:
 
 1. **Measurable Improvement over Memoryless Baseline (Constraint C5 & R7):**
-   - **Balanced Accuracy:** NetGuard World Model achieves **79.15%** vs. Logistic Regression **50.12%** ($\mathbf{+29.03\%}$ absolute improvement).
-   - **Multi-Class Macro F1:** NetGuard achieves **0.2926** vs. Logistic Regression **0.0652** ($\mathbf{+0.2274}$ / $\mathbf{4.5\times}$ relative boost).
-   - **Threat Detection ROC-AUC:** NetGuard achieves **0.9798** vs. Logistic Regression **0.5764** ($\mathbf{+0.4034}$ gain).
-   - **Overall Classification Accuracy:** NetGuard achieves **89.50%** vs. Logistic Regression **81.35%** ($\mathbf{+8.15\%}$ gain).
-   - **Weighted F1-Score:** NetGuard achieves **0.9377** vs. Logistic Regression **0.8402** ($\mathbf{+0.0975}$ gain).
+   - **Balanced Accuracy:** ShieldNet World Model achieves **79.15%** vs. Logistic Regression **50.12%** ($\mathbf{+29.03\%}$ absolute improvement).
+   - **Multi-Class Macro F1:** ShieldNet achieves **0.2926** vs. Logistic Regression **0.0652** ($\mathbf{+0.2274}$ / $\mathbf{4.5\times}$ relative boost).
+   - **Threat Detection ROC-AUC:** ShieldNet achieves **0.9798** vs. Logistic Regression **0.5764** ($\mathbf{+0.4034}$ gain).
+   - **Overall Classification Accuracy:** ShieldNet achieves **89.50%** vs. Logistic Regression **81.35%** ($\mathbf{+8.15\%}$ gain).
+   - **Weighted F1-Score:** ShieldNet achieves **0.9377** vs. Logistic Regression **0.8402** ($\mathbf{+0.0975}$ gain).
 
 2. **Temporal Dynamics Verification (Constraint C1 & R2):**
    - 5-seed shuffle permutation ablation proves that scrambling temporal sequence ordering degrades Balanced Accuracy from **79.15%** to a mean of **68.93%** ($\mathbf{-10.22\%}$ drop, $\mathbf{+3.28\sigma}$ significance), verifying genuine temporal dynamics learning $P(S_{t+1} \mid S_t, \dots, S_{t-k})$ over memoryless static classification.
@@ -30,9 +30,9 @@ NetGuard was evaluated under verified experimental protocols directly addressing
 
 ## 2. Side-by-Side Model Benchmark (Locked Submission Baseline)
 
-Both the Logistic Regression Baseline and the NetGuard World Model (`world_model_v1.pt`) were evaluated on the **exact same held-out test distribution** ($N = 10,909$ sequential state transitions, standardized 84-dimensional state vectors):
+Both the Logistic Regression Baseline and the ShieldNet World Model (`world_model_v1.pt`) were evaluated on the **exact same held-out test distribution** ($N = 10,909$ sequential state transitions, standardized 84-dimensional state vectors):
 
-| Evaluation Metric | Simple Baseline (Logistic Regression) | NetGuard World Model (`world_model_v1.pt`) | NetGuard Gain ($\Delta$) | Verification Protocol & Support |
+| Evaluation Metric | Simple Baseline (Logistic Regression) | ShieldNet World Model (`world_model_v1.pt`) | ShieldNet Gain ($\Delta$) | Verification Protocol & Support |
 | :--- | :---: | :---: | :---: | :--- |
 | **Multi-Class Macro F1** | 0.0652 | **0.2926** | **+0.2274** ($4.5\times$) | Argmax on 13-class test set ($N = 10,909$) |
 | **Balanced Accuracy** | 50.12% | **79.15%** | **+29.03%** gain | Arithmetic mean of per-class recalls ($N = 10,909$) |
@@ -68,7 +68,7 @@ Evaluated across all 13 canonical network traffic classes on held-out test trans
 
 ## 4. Cross-Dataset Generalization Empirical Findings
 
-Source File: [`models/checkpoints/GROUND_TRUTH_CROSS_DATASET.json`](file:///e:/Desktop/ps%20153/netguard/models/checkpoints/GROUND_TRUTH_CROSS_DATASET.json)
+Source File: [`models/checkpoints/GROUND_TRUTH_CROSS_DATASET.json`](file:///e:/Desktop/ps%20153/shieldnet/models/checkpoints/GROUND_TRUTH_CROSS_DATASET.json)
 
 | Dataset | Evaluated Sequences | Matched Features | ROC-AUC | Macro-F1 | Empirical Finding |
 | :--- | :---: | :---: | :---: | :---: | :--- |

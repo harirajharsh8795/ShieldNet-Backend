@@ -1,5 +1,5 @@
 """
-MITRE ATT&CK Stage Mapping for NetGuard.
+MITRE ATT&CK Stage Mapping for ShieldNet.
 
 Maps predicted network states and classification probabilities to the
 5 simplified MITRE ATT&CK phases required by the problem statement:

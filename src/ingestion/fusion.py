@@ -1,5 +1,5 @@
 """
-Real Dataset Fusion Engine (Phase 0.5) — NetGuard
+Real Dataset Fusion Engine (Phase 0.5) — ShieldNet
 Fuses TrafficLabelling (Flow Engine) and CIC-IDS2017 Packet-Fields (Packet Engine).
 
 Persona: Data Engineer specializing in record-linkage across independently-generated datasets.
@@ -422,7 +422,7 @@ def generate_fusion_report(
     out_dir = Path(output_path).parent
     out_dir.mkdir(parents=True, exist_ok=True)
     
-    report_content = r"""# NetGuard Phase 0.5 — Real Dataset Fusion Engine Report
+    report_content = r"""# ShieldNet Phase 0.5 — Real Dataset Fusion Engine Report
 
 ## 1. Executive Summary & Match Rate Scope
 

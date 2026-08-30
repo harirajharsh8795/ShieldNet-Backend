@@ -1,5 +1,5 @@
 """
-NetGuard Phase 2 Baseline Training & Evaluation Script.
+ShieldNet Phase 2 Baseline Training & Evaluation Script.
 
 Trains Logistic Regression on:
 1. Config A (Fused Flow + Packet, 84 numeric features) using scaler.joblib
@@ -53,7 +53,7 @@ def load_and_scale_split(split_path: str,
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 2: BASELINE MODELING & EVALUATION (CONFIG A vs CONFIG B)")
+    print("SHIELDNET PHASE 2: BASELINE MODELING & EVALUATION (CONFIG A vs CONFIG B)")
     print("=" * 80)
     
     checkpoint_dir = Path("models/checkpoints")

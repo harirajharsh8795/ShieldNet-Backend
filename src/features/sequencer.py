@@ -1,5 +1,5 @@
 """
-Time-Windowed Sequencer for NetGuard World Model.
+Time-Windowed Sequencer for ShieldNet World Model.
 
 Groups network flows into configurable time windows (default: 10 seconds),
 producing ordered temporal state vectors S_t that the World Model consumes to learn

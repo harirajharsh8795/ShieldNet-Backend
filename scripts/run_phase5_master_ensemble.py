@@ -1,5 +1,5 @@
 """
-NetGuard Phase 5: Master Combination Matrix & Full Ensemble Tournament.
+ShieldNet Phase 5: Master Combination Matrix & Full Ensemble Tournament.
 
 Executes:
 1. Step 1: World Model Variant 1 (Locked Baseline) + Variant 2 (Temporal Transformer)
@@ -107,7 +107,7 @@ def run_shuffle_ablation(predict_fn, X_te: np.ndarray, y_te: np.ndarray, L: int 
 
 def main():
     print("=" * 115)
-    print("NETGUARD PHASE 5: MASTER COMBINATION MATRIX & FULL ENSEMBLE TOURNAMENT")
+    print("SHIELDNET PHASE 5: MASTER COMBINATION MATRIX & FULL ENSEMBLE TOURNAMENT")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 115)
     

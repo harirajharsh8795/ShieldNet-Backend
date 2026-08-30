@@ -1,4 +1,4 @@
-# NetGuard Architectural Decisions & Open Forensic Findings
+# ShieldNet Architectural Decisions & Open Forensic Findings
 
 ---
 
@@ -22,7 +22,7 @@
 ---
 
 ## 4. Production Champion Model & Shuffle-Significance Reconciliation
-- **Decision:** The **NetGuard Dual-Engine Ensemble (World Model GRU+Attention + Balanced Logistic Regression, Soft Averaging $w=0.6$)** is confirmed as the official primary production champion system, achieving:
+- **Decision:** The **ShieldNet Dual-Engine Ensemble (World Model GRU+Attention + Balanced Logistic Regression, Soft Averaging $w=0.6$)** is confirmed as the official primary production champion system, achieving:
   - **Balanced Accuracy:** **83.12%** (+3.97% over standalone World Model)
   - **Multi-Class Macro-F1:** **0.4203** (+0.1277 over standalone World Model)
   - **Overall Accuracy:** **93.69%**

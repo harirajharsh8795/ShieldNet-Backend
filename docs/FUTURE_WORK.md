@@ -1,4 +1,4 @@
-# NetGuard: Future Work & Architectural Extensions
+# ShieldNet: Future Work & Architectural Extensions
 
 ---
 
@@ -9,12 +9,12 @@ In accordance with SIH Problem Statement #153 guidelines and tournament time-box
 ### A. Spatio-Temporal Graph Neural Networks (GraphSAGE / GAT + GRU)
 - **PS Clause Reference:** *"Represent network state using feature vectors or graphs."*
 - **Status:** **HONESTLY DEFERRED.**
-- **Rationale:** The PS explicitly specifies network state representation using *"feature vectors OR graphs"*. NetGuard fully satisfies this requirement through an 84-dimensional continuous fused feature-vector representation (77 flow-level + 7 packet-level aggregates). Graph-based topological message passing across host IP nodes requires multi-host graph construction overhead, which was deferred to maintain sub-millisecond per-sample inference latency ($0.0155\text{ ms}$).
+- **Rationale:** The PS explicitly specifies network state representation using *"feature vectors OR graphs"*. ShieldNet fully satisfies this requirement through an 84-dimensional continuous fused feature-vector representation (77 flow-level + 7 packet-level aggregates). Graph-based topological message passing across host IP nodes requires multi-host graph construction overhead, which was deferred to maintain sub-millisecond per-sample inference latency ($0.0155\text{ ms}$).
 
 ### B. Latent Generative World Models (VAE + MDN-RNN)
 - **PS Clause Reference:** *"Learn state-transition dynamics using LSTM, Transformer, GNN, latent state models, or other AI techniques."*
 - **Status:** **HONESTLY DEFERRED.**
-- **Rationale:** The tournament evaluated GRU, Transformer, and Tabular Ensemble architectures. Mixture Density Networks (MDN-RNN) and Variational Autoencoder (VAE) latent state sampling introduce non-deterministic stochastic variance during forward trajectory rollouts. NetGuard's deterministic Recurrent State-Space World Model (RSS-WM) achieved superior state reconstruction stability (MSE $1.1997$) and verified $+2.53\sigma$ to $+3.92\sigma$ temporal significance.
+- **Rationale:** The tournament evaluated GRU, Transformer, and Tabular Ensemble architectures. Mixture Density Networks (MDN-RNN) and Variational Autoencoder (VAE) latent state sampling introduce non-deterministic stochastic variance during forward trajectory rollouts. ShieldNet's deterministic Recurrent State-Space World Model (RSS-WM) achieved superior state reconstruction stability (MSE $1.1997$) and verified $+2.53\sigma$ to $+3.92\sigma$ temporal significance.
 
 ### C. Authentication Log Ingestion (LANL Cyber Dataset Fusion)
 - **PS Clause Reference:** *"May utilise flow records, packet captures, authentication logs or other publicly available telemetry."*

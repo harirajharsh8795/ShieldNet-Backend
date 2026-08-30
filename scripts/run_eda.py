@@ -1,5 +1,5 @@
 """
-EDA Script for NetGuard — Exploratory Data Analysis of Network Traffic Datasets.
+EDA Script for ShieldNet — Exploratory Data Analysis of Network Traffic Datasets.
 Covers: class distribution, missing values, feature ranges, and attack type summary.
 
 This script generates the EDA analysis that would normally be in a Jupyter notebook.
@@ -129,7 +129,7 @@ def analyze_dataset(csv_files, dataset_name):
 def write_eda_summary(all_results, output_path):
     """Write EDA summary to markdown file."""
     with open(output_path, 'w') as f:
-        f.write("# NetGuard — Exploratory Data Analysis Summary\n\n")
+        f.write("# ShieldNet — Exploratory Data Analysis Summary\n\n")
         f.write(f"**Generated:** {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M')}\n\n")
         
         for res in all_results:

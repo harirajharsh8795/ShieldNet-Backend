@@ -1,5 +1,5 @@
 """
-NetGuard Step 3: DARPA 1998/99 Intrusion Detection Evaluation Integration.
+ShieldNet Step 3: DARPA 1998/99 Intrusion Detection Evaluation Integration.
 
 1. Tests connection to MIT Lincoln Lab 1998 data repository.
 2. Downloads the 4-hour training subset tcpdump / sample pcap.

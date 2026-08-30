@@ -1,5 +1,5 @@
 """
-NetGuard World Model Dataset and Sequence Preparation Utilities.
+ShieldNet World Model Dataset and Sequence Preparation Utilities.
 
 Extracts ordered historical context sequences and next-state targets (S_{t-L:t} -> S_{t+1}, y_{t+1}, m_{t+1})
 from sequence parquets without cross-host boundary contamination.

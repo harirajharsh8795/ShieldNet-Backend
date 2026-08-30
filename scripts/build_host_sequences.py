@@ -1,5 +1,5 @@
 """
-NetGuard Host-Level Temporal Sequence Builder (Corrected Window-First Order, Memory-Optimized).
+ShieldNet Host-Level Temporal Sequence Builder (Corrected Window-First Order, Memory-Optimized).
 
 Methodology:
 1. Group the FULL Config A (2,194,284 flows) into whole host-level 10-second windows FIRST.
@@ -174,7 +174,7 @@ def stratified_split_windows(windows_df: pd.DataFrame,
 
 def main():
     print("=" * 80)
-    print("NETGUARD WORKSTREAM 2 (CORRECTED): WHOLE-WINDOW HOST SEQUENCE BUILDER")
+    print("SHIELDNET WORKSTREAM 2 (CORRECTED): WHOLE-WINDOW HOST SEQUENCE BUILDER")
     print("=" * 80)
     
     config_a_path = "data/processed/fused_matched_v1.parquet"

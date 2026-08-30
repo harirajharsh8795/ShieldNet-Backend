@@ -1,5 +1,5 @@
 """
-NetGuard configuration loader.
+ShieldNet configuration loader.
 Loads and validates config from YAML files with defaults.
 """
 

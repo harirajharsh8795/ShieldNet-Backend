@@ -1,8 +1,8 @@
 """
-NetGuard High-Performance FastAPI Production Backend Server.
+ShieldNet High-Performance FastAPI Production Backend Server.
 
 Serves the Locked Champion System:
-- NetGuard Dual-Engine Ensemble:
+- ShieldNet Dual-Engine Ensemble:
   1. Primary Sequence Engine: Neural World Model (GRU + Temporal Attention Pooling, world_model_v1.pt, 60% weight)
   2. Instantaneous Tabular Engine: Balanced Linear Flow Classifier (ensemble_logreg.joblib, 40% weight)
 
@@ -36,7 +36,7 @@ from src.mitigation.actions import MitigationAction
 from src.explainability.feature_attribution import IntegratedGradientsExplainer, DualEngineExplainer
 
 app = FastAPI(
-    title="NetGuard Predictive World Model API",
+    title="ShieldNet Predictive World Model API",
     description="Offline-capable Neural World Model & Dual-Engine Ensemble for Proactive Threat Defense",
     version="2.0.0"
 )
@@ -149,7 +149,7 @@ def load_system_assets():
         
     # 5. Verified Benchmark Data for Champion System
     cached_benchmark_data = {
-        "locked_model": "NetGuard Dual-Engine Ensemble (World Model 60% + Tabular Linear 40%)",
+        "locked_model": "ShieldNet Dual-Engine Ensemble (World Model 60% + Tabular Linear 40%)",
         "system_architecture": "Dual-Engine Architecture: 30s Temporal GRU+Attention Pooling (60%) blended with Instantaneous Tabular Linear Boundaries (40%)",
         "verified_metrics": {
             "macro_f1_raw": 0.4203,
@@ -166,12 +166,12 @@ def load_system_assets():
         },
         "baseline_comparison": {
             "metrics": [
-                {"name": "Balanced Accuracy", "baseline": 0.4781, "netguard": 0.8312, "gain": "+35.31% Absolute (+73.9% Relative)"},
-                {"name": "Multi-Class Macro F1", "baseline": 0.4691, "netguard": 0.4203, "gain": "High-Sensitivity Balanced Blend"},
-                {"name": "Weighted F1-Score", "baseline": 0.9898, "netguard": 0.9369, "gain": "0.9369 (Weighted Balance)"},
-                {"name": "Threat ROC-AUC", "baseline": 0.9190, "netguard": 0.9800, "gain": "+0.0610 (0.9800 AUC)"},
-                {"name": "Temporal Significance (20 Seeds)", "baseline": 0.00, "netguard": 3.92, "gain": "+3.92 sigma"},
-                {"name": "Inference Latency", "baseline": 0.0009, "netguard": 0.0155, "gain": "0.0155 ms / sample (64k ops/s)"}
+                {"name": "Balanced Accuracy", "baseline": 0.4781, "shieldnet": 0.8312, "gain": "+35.31% Absolute (+73.9% Relative)"},
+                {"name": "Multi-Class Macro F1", "baseline": 0.4691, "shieldnet": 0.4203, "gain": "High-Sensitivity Balanced Blend"},
+                {"name": "Weighted F1-Score", "baseline": 0.9898, "shieldnet": 0.9369, "gain": "0.9369 (Weighted Balance)"},
+                {"name": "Threat ROC-AUC", "baseline": 0.9190, "shieldnet": 0.9800, "gain": "+0.0610 (0.9800 AUC)"},
+                {"name": "Temporal Significance (20 Seeds)", "baseline": 0.00, "shieldnet": 3.92, "gain": "+3.92 sigma"},
+                {"name": "Inference Latency", "baseline": 0.0009, "shieldnet": 0.0155, "gain": "0.0155 ms / sample (64k ops/s)"}
             ]
         },
         "per_class_table": [
@@ -307,7 +307,7 @@ def health_check():
         "device": str(DEVICE),
         "world_model_loaded": world_model is not None,
         "secondary_model_loaded": secondary_model is not None,
-        "system_architecture": "NetGuard Dual-Engine Ensemble (60% WM GRU+Attention + 40% Balanced Tabular Classifier)",
+        "system_architecture": "ShieldNet Dual-Engine Ensemble (60% WM GRU+Attention + 40% Balanced Tabular Classifier)",
         "timestamp": pd.Timestamp.now().isoformat()
     }
 
@@ -429,7 +429,7 @@ def predict_sequence(req: PredictRequest):
             "blended_threat_prob": threat_prob,
             "weights": "60% World Model + 40% Tabular Linear"
         },
-        "system_architecture": "NetGuard Dual-Engine Ensemble"
+        "system_architecture": "ShieldNet Dual-Engine Ensemble"
     }
 
 @app.post("/api/explain")

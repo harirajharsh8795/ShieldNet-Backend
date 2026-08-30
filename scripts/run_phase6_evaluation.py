@@ -1,5 +1,5 @@
 """
-NetGuard Phase 6: Comprehensive Benchmark & Cross-Dataset Evaluation Suite.
+ShieldNet Phase 6: Comprehensive Benchmark & Cross-Dataset Evaluation Suite.
 
 Performs:
 1. Fairness Verification: Evaluates Baseline vs World Model on identical test distributions.
@@ -30,7 +30,7 @@ from src.features.schema import get_numeric_feature_names
 
 def main():
     print("=" * 85, flush=True)
-    print("NETGUARD PHASE 6: COMPREHENSIVE BENCHMARK & EVALUATION FRAMEWORK", flush=True)
+    print("SHIELDNET PHASE 6: COMPREHENSIVE BENCHMARK & EVALUATION FRAMEWORK", flush=True)
     print("=" * 85, flush=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -120,7 +120,7 @@ def main():
     
     # 7. Print Master Benchmark Comparison Table
     print("\n" + "=" * 90, flush=True)
-    print("NETGUARD MASTER BENCHMARK COMPARISON TABLE (IDENTICAL TEST DISTRIBUTION)", flush=True)
+    print("SHIELDNET MASTER BENCHMARK COMPARISON TABLE (IDENTICAL TEST DISTRIBUTION)", flush=True)
     print("=" * 90, flush=True)
     
     comp_metrics = [
@@ -134,7 +134,7 @@ def main():
         ("Next-State Dynamics MSE", "N/A (Memoryless)", f"{wm_state_mse:.4f}", "- (Dynamics Learned)", "+4.24 sigma Shuffle Significance"),
     ]
     
-    print(f"{'Evaluation Metric':32s} | {'Logistic Regression':20s} | {'NetGuard World Model':20s} | {'Absolute Delta':15s} | {'Evaluation Summary'}", flush=True)
+    print(f"{'Evaluation Metric':32s} | {'Logistic Regression':20s} | {'ShieldNet World Model':20s} | {'Absolute Delta':15s} | {'Evaluation Summary'}", flush=True)
     print("-" * 125, flush=True)
     for name, lr_v, wm_v, delta_v, verdict in comp_metrics:
         print(f"{name:32s} | {lr_v:20s} | {wm_v:20s} | {delta_v:15s} | {verdict}", flush=True)

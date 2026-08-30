@@ -1,5 +1,5 @@
 """
-Synthetic Network Traffic Data Generator for NetGuard.
+Synthetic Network Traffic Data Generator for ShieldNet.
 
 Generates realistic network traffic data following CIC-IDS-2018 and CTU-13 schemas.
 Used for development and testing when real datasets aren't available locally.
@@ -415,7 +415,7 @@ def main():
     raw_dir = PROJECT_ROOT / "data" / "raw"
     
     print("=" * 60)
-    print("NetGuard Synthetic Data Generator")
+    print("ShieldNet Synthetic Data Generator")
     print("=" * 60)
     print(f"Output directory: {raw_dir}")
     print()

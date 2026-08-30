@@ -1,5 +1,5 @@
 """
-NetGuard World Model Disentanglement Ablation (Live Terminal Streaming).
+ShieldNet World Model Disentanglement Ablation (Live Terminal Streaming).
 
 Evaluates the 3 experimental conditions:
 Condition A: Original (lambda_class=0.5, no order-head)
@@ -184,7 +184,7 @@ def evaluate_condition(cond_name: str,
 
 def main():
     print("=" * 80, flush=True)
-    print("NETGUARD PHASE 3: DISENTANGLEMENT ABLATION (REWEIGHTING vs ORDER-HEAD)", flush=True)
+    print("SHIELDNET PHASE 3: DISENTANGLEMENT ABLATION (REWEIGHTING vs ORDER-HEAD)", flush=True)
     print("=" * 80, flush=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

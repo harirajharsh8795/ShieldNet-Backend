@@ -13,7 +13,7 @@ from src.features.schema import PACKET_LEVEL, FLOW_LEVEL, CONFIG_A_COLUMNS
 
 def main():
     print("=" * 85, flush=True)
-    print("NETGUARD PHASE 5: EXPLAINABLE & TRUSTWORTHY AI (XAI) SYNTHESIS", flush=True)
+    print("SHIELDNET PHASE 5: EXPLAINABLE & TRUSTWORTHY AI (XAI) SYNTHESIS", flush=True)
     print("=" * 85, flush=True)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

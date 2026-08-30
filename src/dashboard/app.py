@@ -1,5 +1,5 @@
 """
-NetGuard Dashboard — Streamlit-based Offline Demo Interface.
+ShieldNet Dashboard — Streamlit-based Offline Demo Interface.
 
 Screens:
 (a) Data source selector (upload CSV/PCAP or use bundled sample)
@@ -35,7 +35,7 @@ from plotly.subplots import make_subplots
 
 # ─── Page Configuration ──────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="NetGuard — Network Attack Forecasting",
+    page_title="ShieldNet — Network Attack Forecasting",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -138,7 +138,7 @@ def load_models():
 
 def render_header():
     """Render the main header."""
-    st.markdown('<h1 class="main-header">🛡️ NetGuard</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header">🛡️ ShieldNet</h1>', unsafe_allow_html=True)
     st.markdown(
         '<p style="text-align:center; color:#888; font-size:1.1rem;">'
         'AI-Based Network Attack Forecasting using World Models</p>',
@@ -502,7 +502,7 @@ def main():
     st.markdown("---")
     st.markdown(
         '<p style="text-align:center; color:#666; font-size:0.8rem;">'
-        'NetGuard v0.1.0 — SIH26153 · Built for NTRO · 100% Offline Operation'
+        'ShieldNet v0.1.0 — SIH26153 · Built for NTRO · 100% Offline Operation'
         '</p>',
         unsafe_allow_html=True
     )

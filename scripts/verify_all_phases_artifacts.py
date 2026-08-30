@@ -1,5 +1,5 @@
 """
-NetGuard Comprehensive Artifact Verification Script.
+ShieldNet Comprehensive Artifact Verification Script.
 Checks existence and status of every artifact from Phase 0 to Phase 8.
 """
 
@@ -90,7 +90,7 @@ ARTIFACTS = {
 
 def main():
     print("=" * 95)
-    print("NETGUARD PHASE-BY-PHASE ARTIFACT EXISTENCE VERIFICATION")
+    print("SHIELDNET PHASE-BY-PHASE ARTIFACT EXISTENCE VERIFICATION")
     print("=" * 95)
     
     total_files = 0

@@ -30,7 +30,7 @@ from src.evaluation.evaluate import evaluate_world_model
 
 def run_cross_dataset_evaluation(train_ds='cic-ids-2018', test_ds='ctu-13'):
     print("=" * 70)
-    print(f"  NetGuard — Cross-Dataset Generalisation Test")
+    print(f"  ShieldNet — Cross-Dataset Generalisation Test")
     print(f"  Train Source: {train_ds}  -->  Test Target: {test_ds}")
     print("=" * 70)
 

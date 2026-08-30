@@ -1,6 +1,6 @@
 """
-NetGuard Slide Workflow Image Generator:
-Renders 9 pixel-perfect, dark-mode cybersecurity UI images matching the exact NetGuard frontend theme:
+ShieldNet Slide Workflow Image Generator:
+Renders 9 pixel-perfect, dark-mode cybersecurity UI images matching the exact ShieldNet frontend theme:
 - Dark Slate (#0B0F19 / #111827)
 - Cyan (#00F0FF), Emerald (#10B981), Purple/Indigo (#818CF8), Rose/Red (#F43F5E), Amber (#F59E0B)
 - macOS window header dots
@@ -418,12 +418,12 @@ def make_box08():
         ax.text(6, y+2, name, color=TEXT_WHITE, fontsize=7.5, fontfamily='monospace', fontweight='bold')
         ax.text(70, y+2, gain_lbl, color=ACCENT_CYAN, fontsize=7.2, fontfamily='monospace', fontweight='bold', ha='right')
         
-        # Dual Bar (Baseline vs NetGuard)
+        # Dual Bar (Baseline vs ShieldNet)
         ax.add_patch(patches.Rectangle((6, y-2), base_val * 0.4, 2.5, facecolor="#475569", edgecolor=None))
         ax.text(6 + base_val * 0.4 + 1.5, y-1, f"{base_val:.1f}{unit} (Baseline)", color=TEXT_MUTED, fontsize=6.5, fontfamily='monospace')
         
         ax.add_patch(patches.Rectangle((6, y-5), wm_val * 0.4, 2.5, facecolor=ACCENT_CYAN, edgecolor=None))
-        ax.text(6 + wm_val * 0.4 + 1.5, y-4, f"{wm_val:.1f}{unit} (NetGuard)", color=ACCENT_CYAN, fontsize=6.5, fontfamily='monospace', fontweight='bold')
+        ax.text(6 + wm_val * 0.4 + 1.5, y-4, f"{wm_val:.1f}{unit} (ShieldNet)", color=ACCENT_CYAN, fontsize=6.5, fontfamily='monospace', fontweight='bold')
         
         y -= 10.5
         
@@ -443,7 +443,7 @@ def make_box08():
 # 9. BOX 09: OFFLINE DASHBOARD (FULL SOC COMMAND UI)
 # ==================================================================================================
 def make_box09():
-    fig, ax = create_base_card("[NETGUARD SOC COMMAND DASHBOARD // V2.0]", "100% AIR-GAPPED OFFLINE")
+    fig, ax = create_base_card("[SHIELDNET SOC COMMAND DASHBOARD // V2.0]", "100% AIR-GAPPED OFFLINE")
     
     # Top Status Bar
     ax.add_patch(patches.FancyBboxPatch((6, 73), 88, 12, boxstyle="round,pad=0.4,rounding_size=2",

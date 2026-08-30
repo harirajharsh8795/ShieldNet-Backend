@@ -1,5 +1,5 @@
 """
-Unified feature schema for NetGuard.
+Unified feature schema for ShieldNet.
 Defines the canonical 100-feature set for Config A (Fused Flow+Packet)
 and the 90-feature set for Config B (Flow-Only Baseline).
 """
@@ -156,7 +156,7 @@ def generate_data_dictionary(output_path: str) -> str:
     meta_features = schema_df[schema_df["Level"] == META_LEVEL]
     
     content = [
-        "# NetGuard — Unified Feature Data Dictionary\n",
+        "# ShieldNet — Unified Feature Data Dictionary\n",
         "*Auto-generated from `src/features/schema.py` for CIC-IDS2017 Fusion Engine.*\n",
         "## 1. Overview & Architecture\n",
         f"- **Total Dataset Columns:** {len(schema_df)}",

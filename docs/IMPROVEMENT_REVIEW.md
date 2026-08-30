@@ -1,4 +1,4 @@
-# NetGuard Technical Architecture & Modeling Strategy Review
+# ShieldNet Technical Architecture & Modeling Strategy Review
 **Smart India Hackathon 2026 — Problem Statement SIH26153**  
 **Posting Organization:** National Technical Research Organisation (NTRO) · **Theme:** Blockchain & Cybersecurity  
 

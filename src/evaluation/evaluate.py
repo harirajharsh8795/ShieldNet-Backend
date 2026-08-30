@@ -1,5 +1,5 @@
 """
-Evaluation harness for NetGuard.
+Evaluation harness for ShieldNet.
 
 Computes F1, precision, recall, false-positive-rate for both the 
 World Model and the Logistic Regression baseline, ensuring fair comparison

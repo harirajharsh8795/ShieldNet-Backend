@@ -1,5 +1,5 @@
 """
-NetGuard Attention-GRU World Model Training, Multi-Seed Audit, and Threshold Tuning.
+ShieldNet Attention-GRU World Model Training, Multi-Seed Audit, and Threshold Tuning.
 
 Implements:
 1. GRU + Temporal Attention-Pooling Architecture
@@ -38,7 +38,7 @@ def set_seed(seed: int = 42):
 
 def main():
     print("=" * 85, flush=True)
-    print("NETGUARD LEVER 3, 4 & 5: ATTENTION-GRU WORLD MODEL + FOCAL LOSS + THRESHOLD TUNING", flush=True)
+    print("SHIELDNET LEVER 3, 4 & 5: ATTENTION-GRU WORLD MODEL + FOCAL LOSS + THRESHOLD TUNING", flush=True)
     print("=" * 85, flush=True)
     
     set_seed(42)

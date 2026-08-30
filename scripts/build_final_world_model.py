@@ -1,5 +1,5 @@
 """
-NetGuard Final World Model Pipeline: Training, 5-Seed Shuffle Audit, Threshold Tuning, and Metric Packaging.
+ShieldNet Final World Model Pipeline: Training, 5-Seed Shuffle Audit, Threshold Tuning, and Metric Packaging.
 
 Architecture: RSS-WM (2-layer GRU with Temporal Attention Pooling & Order Conditioning)
 Objective: Dynamics MSE (State) + Class CE (alpha-balanced) + MITRE CE + Order BCE
@@ -35,7 +35,7 @@ def set_seed(seed: int = 42):
 
 def main():
     print("=" * 85, flush=True)
-    print("NETGUARD FINAL WORLD MODEL PIPELINE (TRAINING + AUDIT + THRESHOLD TUNING)", flush=True)
+    print("SHIELDNET FINAL WORLD MODEL PIPELINE (TRAINING + AUDIT + THRESHOLD TUNING)", flush=True)
     print("=" * 85, flush=True)
     
     set_seed(42)

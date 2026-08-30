@@ -1,5 +1,5 @@
 """
-NetGuard World Model Training & Evaluation Pipeline (Phase 3).
+ShieldNet World Model Training & Evaluation Pipeline (Phase 3).
 
 Trains the Recurrent State-Space World Model on sequences_train.parquet,
 validates on sequences_val.parquet, and evaluates 1-step forecasting on sequences_test.parquet.
@@ -32,7 +32,7 @@ def set_seed(seed: int = 42):
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 3: WORLD MODEL TRAINING (TEMPORAL DYNAMICS & NEXT-STATE FORECASTING)")
+    print("SHIELDNET PHASE 3: WORLD MODEL TRAINING (TEMPORAL DYNAMICS & NEXT-STATE FORECASTING)")
     print("=" * 80)
     
     set_seed(42)

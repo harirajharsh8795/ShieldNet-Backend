@@ -1,4 +1,4 @@
-# NetGuard - SIH26153 AI-Based Network Attack Forecasting
+# ShieldNet - SIH26153 AI-Based Network Attack Forecasting
 # Pinned dependencies for reproducibility
 
 # Core data

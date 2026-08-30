@@ -1,5 +1,5 @@
 """
-NetGuard Step 1: Locked World Model Re-Verification Script.
+ShieldNet Step 1: Locked World Model Re-Verification Script.
 1. Computes SHA-256 of models/checkpoints/world_model_v1.pt
 2. Checks file modification timestamps and sizes for data/processed/sequences_test.parquet
 3. Evaluates world_model_v1.pt on sequences_test.parquet (N=10,909)
@@ -34,7 +34,7 @@ def compute_sha256(filepath: Path) -> str:
 
 def main():
     print("=" * 90)
-    print("STEP 1: NETGUARD LOCKED WORLD MODEL RE-VERIFICATION")
+    print("STEP 1: SHIELDNET LOCKED WORLD MODEL RE-VERIFICATION")
     print("=" * 90)
     
     ckpt_path = Path("models/checkpoints/world_model_v1.pt")

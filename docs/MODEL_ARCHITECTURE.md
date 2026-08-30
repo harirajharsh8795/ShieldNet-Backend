@@ -1,14 +1,14 @@
-# NetGuard Dual-Engine Ensemble Architecture Specification
+# ShieldNet Dual-Engine Ensemble Architecture Specification
 
 ## 1. Executive Summary & Design Decision
 
-NetGuard implements a **Dual-Engine Predictive Architecture** combining deep temporal sequence modeling with instantaneous tabular feature discrimination:
+ShieldNet implements a **Dual-Engine Predictive Architecture** combining deep temporal sequence modeling with instantaneous tabular feature discrimination:
 1. **Engine 1 (Temporal Sequence World Model, 60% weight):** Recurrent State-Space World Model (RSS-WM) with 2-layer GRU, Temporal Attention Pooling, and Multi-Task Heads (`world_model_v1.pt`).
 2. **Engine 2 (Instantaneous Tabular Classifier, 40% weight):** Balanced Linear Flow Discriminator (`ensemble_logreg.joblib`).
 
 > [!IMPORTANT]
 > **Locked Champion Submission Model Declaration:**
-> **NetGuard Dual-Engine Ensemble (Soft Averaging $w=0.6$) is the official primary submission model.**
+> **ShieldNet Dual-Engine Ensemble (Soft Averaging $w=0.6$) is the official primary submission model.**
 > - **Balanced Accuracy:** **83.12%** (+35.31% over memoryless baseline, +3.97% over standalone World Model)
 > - **Multi-Class Macro F1:** **0.4203**
 > - **Classification Accuracy:** **93.69%**
@@ -19,7 +19,7 @@ NetGuard implements a **Dual-Engine Predictive Architecture** combining deep tem
 
 ```
                                   ┌────────────────────────────────────────────────────────┐
-                                  │            NetGuard Dual-Engine System                 │
+                                  │            ShieldNet Dual-Engine System                 │
                                   └────────────────────────────────────────────────────────┘
                                                               │
                                       Historical Context [S_{t-2}, S_{t-1}, S_t] (3 x 84)
@@ -84,13 +84,13 @@ Evaluated on `data/processed/sequences_test.parquet` (SHA-256: `a7b9d405...`):
 | **Temporal Transformer World Model** | 0.4757 | 68.91% | 0.9296 | 0.9720 | 0.3581 | $+3.31\sigma$ | 0.0241 ms |
 | **Standalone XGBoost** | 0.5597 | 54.68% | 0.9925 | 0.9847 | 0.6582 | $0.00\sigma$ | 0.0055 ms |
 | **Standalone LightGBM** | 0.5868 | 62.05% | 0.9921 | 0.9814 | 0.6201 | $0.00\sigma$ | 0.0207 ms |
-| **NetGuard Dual-Engine Ensemble (CHAMPION)** | **0.4203** | **83.12%** | **0.9369** | **0.9800** | **0.5571** | **+3.92$\sigma$** | **0.0155 ms** |
+| **ShieldNet Dual-Engine Ensemble (CHAMPION)** | **0.4203** | **83.12%** | **0.9369** | **0.9800** | **0.5571** | **+3.92$\sigma$** | **0.0155 ms** |
 
 ---
 
 ## 4. Dual-Engine Explainability & XAI Architecture
 
-NetGuard provides dual-path explainability for SOC triage:
+ShieldNet provides dual-path explainability for SOC triage:
 1. **Temporal Attribution Path (Captum Integrated Gradients):** Explains how historical state rate-of-change ($\Delta S / \Delta t$) across the 30-second context window triggered the sequence prediction.
 2. **Instantaneous Feature Attribution Path (Linear Model Weights):** Explains the exact telemetry features in the most recent flow $S_t$ driving boundary separation.
 3. **Analyst Natural-Language Synthesis:** Generates plain-English threat narratives combining temporal trajectory evidence with instantaneous protocol anomalies.

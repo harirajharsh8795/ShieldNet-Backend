@@ -1,5 +1,5 @@
 """
-NetGuard Phase 1 Master Pipeline Execution Script (Memory-Optimized).
+ShieldNet Phase 1 Master Pipeline Execution Script (Memory-Optimized).
 
 Performs:
 1. Window-size density diagnostics on Config A.
@@ -33,7 +33,7 @@ from src.features.sequencer import analyze_window_density
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 1: DUAL-LEVEL FEATURE ENGINEERING & PARSING")
+    print("SHIELDNET PHASE 1: DUAL-LEVEL FEATURE ENGINEERING & PARSING")
     print("=" * 80)
     
     config_a_path = "data/processed/fused_matched_v1.parquet"

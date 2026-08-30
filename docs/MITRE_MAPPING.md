@@ -1,7 +1,7 @@
-# NetGuard — MITRE ATT&CK Stage Mapping Specification
+# ShieldNet — MITRE ATT&CK Stage Mapping Specification
 
 ## Overview
-This document specifies the defensible mapping logic used by NetGuard to map state-vector dynamics and model predictions to five simplified **MITRE ATT&CK Enterprise Tactic Stages** as required by SIH26153 (NTRO).
+This document specifies the defensible mapping logic used by ShieldNet to map state-vector dynamics and model predictions to five simplified **MITRE ATT&CK Enterprise Tactic Stages** as required by SIH26153 (NTRO).
 
 ---
 
@@ -48,7 +48,7 @@ This document specifies the defensible mapping logic used by NetGuard to map sta
 
 ## 2. Dual-Signal Decision Engine
 
-NetGuard uses a **hybrid decision engine** combining neural classification logits with domain-rule validation:
+ShieldNet uses a **hybrid decision engine** combining neural classification logits with domain-rule validation:
 
 $$\text{Score}(\text{Stage}_k) = w_{\text{clf}} \cdot P_{\text{neural}}(\text{Stage}_k) + w_{\text{rule}} \cdot S_{\text{rule}}(\text{Stage}_k)$$
 

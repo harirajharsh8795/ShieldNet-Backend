@@ -1,5 +1,5 @@
 """
-Explainability Layer for NetGuard.
+Explainability Layer for ShieldNet.
 
 Provides feature attribution for every prediction using:
 1. SHAP (DeepExplainer or KernelExplainer) — primary method

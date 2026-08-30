@@ -22,40 +22,40 @@
     {
       "metric": "Multi-Class Macro F1",
       "baseline": 0.2475,
-      "netguard_mean": 0.4345,
-      "netguard_std": 0.0376,
+      "shieldnet_mean": 0.4345,
+      "shieldnet_std": 0.0376,
       "gain": "+0.1870 (1.76x)",
       "note": "Significant gain across multi-class distribution"
     },
     {
       "metric": "Balanced Accuracy",
       "baseline": 0.4555,
-      "netguard_mean": 0.5402,
-      "netguard_std": 0.0498,
+      "shieldnet_mean": 0.5402,
+      "shieldnet_std": 0.0498,
       "gain": "+8.47%",
       "note": "Moderate gain; limited by N=1 to N=9 rare attack support"
     },
     {
       "metric": "Weighted F1-Score",
       "baseline": 0.8683,
-      "netguard_mean": 0.9778,
-      "netguard_std": 0.0054,
+      "shieldnet_mean": 0.9778,
+      "shieldnet_std": 0.0054,
       "gain": "+0.1095",
       "note": "High overall volume precision"
     },
     {
       "metric": "Classification Accuracy",
       "baseline": 0.7779,
-      "netguard_mean": 0.9667,
-      "netguard_std": 0.01,
+      "shieldnet_mean": 0.9667,
+      "shieldnet_std": 0.01,
       "gain": "+18.88%",
       "note": "Superior benign filtering"
     },
     {
       "metric": "Next-State Dynamics MSE",
       "baseline": "N/A (Memoryless)",
-      "netguard_mean": 1.2012,
-      "netguard_std": 0.002,
+      "shieldnet_mean": 1.2012,
+      "shieldnet_std": 0.002,
       "gain": "MSE = 1.2012 (+6.01 sigma vs shuffled)",
       "note": "Continuous physical state trajectory modeling"
     }

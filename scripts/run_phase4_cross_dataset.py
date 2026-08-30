@@ -1,5 +1,5 @@
 """
-NetGuard Phase 4: Cross-Dataset Generalization & Domain Adaptation Evaluation.
+ShieldNet Phase 4: Cross-Dataset Generalization & Domain Adaptation Evaluation.
 
 Evaluates world_model_v1.pt across:
 1. CSE-CIC-IDS2018 (02-14-2018 / 02-15-2018):
@@ -166,7 +166,7 @@ def find_best_threshold(y_true: np.ndarray, threat_probs: np.ndarray):
 
 def main():
     print("=" * 85)
-    print("NETGUARD PHASE 4: CROSS-DATASET GENERALIZATION & DOMAIN ADAPTATION AUDIT")
+    print("SHIELDNET PHASE 4: CROSS-DATASET GENERALIZATION & DOMAIN ADAPTATION AUDIT")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 85)
     

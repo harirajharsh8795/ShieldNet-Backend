@@ -1,5 +1,5 @@
 """
-DEFINITIVE BASELINE EVALUATION — SIH26153 NetGuard (Phase 0)
+DEFINITIVE BASELINE EVALUATION — SIH26153 ShieldNet (Phase 0)
 Loads sequences_test.parquet (N=10,909) and evaluates Logistic Regression baseline
 on the exact same 84-dimensional standardized features and test split used by the World Model.
 Saves to models/checkpoints/DEFINITIVE_BASELINE.json and prints full literal content.
@@ -30,7 +30,7 @@ def sha256_file(path):
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 0: DEFINITIVE BASELINE EVALUATION (LOGISTIC REGRESSION)")
+    print("SHIELDNET PHASE 0: DEFINITIVE BASELINE EVALUATION (LOGISTIC REGRESSION)")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 80)
 

@@ -1,5 +1,5 @@
 """
-NetGuard Temporal Transformer World Model Variant.
+ShieldNet Temporal Transformer World Model Variant.
 
 Replaces the recurrent GRU backbone with a Multi-Head Self-Attention Temporal Transformer Encoder.
 1. Architecture: Input Linear Projection (84 -> 128) + Learnable Positional Encoding +
@@ -178,7 +178,7 @@ class TemporalTransformerWorldModel(nn.Module):
 
 def main():
     print("=" * 90)
-    print("NETGUARD PHASE 10: TEMPORAL TRANSFORMER WORLD MODEL VARIANT")
+    print("SHIELDNET PHASE 10: TEMPORAL TRANSFORMER WORLD MODEL VARIANT")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 90)
     

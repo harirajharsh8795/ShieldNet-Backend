@@ -1,11 +1,11 @@
-# NetGuard Explainable & Trustworthy AI (XAI) Architecture
+# ShieldNet Explainable & Trustworthy AI (XAI) Architecture
 **Non-Negotiable Constraint C2 Compliance & Technical Specification**
 
 ---
 
 ## 1. Executive Summary & Design Decision
 
-In strict compliance with the **SIH26153 Problem Statement** (*"Black-box outputs without interpretability are not acceptable"* and Constraint C2: *"Every single prediction must ship with an explanation object"*), NetGuard implements a dual-level Explainable AI architecture combining:
+In strict compliance with the **SIH26153 Problem Statement** (*"Black-box outputs without interpretability are not acceptable"* and Constraint C2: *"Every single prediction must ship with an explanation object"*), ShieldNet implements a dual-level Explainable AI architecture combining:
 
 1. **Axiomatic Path-Integral Feature Attribution (Integrated Gradients):** Evaluates input feature attribution with mathematical completeness and implementation invariance.
 2. **Native Temporal Attention Saliency:** Extracts time-window attention weights from the World Model's `TemporalAttentionPooling` layer, showing how historical states ($S_{t-2}, S_{t-1}, S_t$) influence the forward forecast.
@@ -14,7 +14,7 @@ In strict compliance with the **SIH26153 Problem Statement** (*"Black-box output
 
 ```
                   ┌──────────────────────────────────────────────┐
-                  │       NetGuard Inference Engine (S_{t-L:t})  │
+                  │       ShieldNet Inference Engine (S_{t-L:t})  │
                   └──────────────────────────────────────────────┘
                                           │
                      ┌────────────────────┴────────────────────┐

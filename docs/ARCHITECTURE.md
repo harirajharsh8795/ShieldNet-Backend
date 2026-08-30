@@ -1,12 +1,12 @@
-# NetGuard System Architecture Document
+# ShieldNet System Architecture Document
 **Smart India Hackathon 2026 — Problem Statement SIH26153 (NTRO)**
-**System Name:** NetGuard World-Model Network-Attack-Forecasting System
+**System Name:** ShieldNet World-Model Network-Attack-Forecasting System
 
 ---
 
 ## 1. System Overview & Paradigm Shift
 
-Static intrusion detection systems (IDS) classify historical network traffic as benign or malicious *after* compromise occurs. **NetGuard** introduces a generative **World Models** paradigm ($P(S_{t+1} \mid S_t)$) that models temporal network state dynamics, projecting multi-step future state trajectories to predict infiltration progression **before compromise completes**.
+Static intrusion detection systems (IDS) classify historical network traffic as benign or malicious *after* compromise occurs. **ShieldNet** introduces a generative **World Models** paradigm ($P(S_{t+1} \mid S_t)$) that models temporal network state dynamics, projecting multi-step future state trajectories to predict infiltration progression **before compromise completes**.
 
 ```
                            +-----------------------------------+
@@ -98,4 +98,4 @@ Static intrusion detection systems (IDS) classify historical network traffic as 
 | Model | F1-Score (Weighted) | Precision (Weighted) | Recall (Weighted) | False Positive Rate |
 |---|---|---|---|---|
 | **Logistic Regression Baseline** | ~0.82 | ~0.84 | ~0.81 | ~0.08 |
-| **NetGuard World Model (LSTM)** | **>0.92** | **>0.93** | **>0.91** | **<0.03** |
+| **ShieldNet World Model (LSTM)** | **>0.92** | **>0.93** | **>0.91** | **<0.03** |

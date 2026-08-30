@@ -7,11 +7,11 @@
 - **Problem Statement ID:** SIH26153
 - **Problem Statement Title:** AI-Based Network Attack Forecasting from Network Traffic Data
 - **Theme:** Blockchain & Cybersecurity | **Category:** Software
-- **Project Name:** **NetGuard** — Proactive Network Threat Defense via Recurrent State-Space World Models
-- **Team ID / Name:** NetGuard
+- **Project Name:** **ShieldNet** — Proactive Network Threat Defense via Recurrent State-Space World Models
+- **Team ID / Name:** ShieldNet
 
 > ### 🎯 Central Scientific Thesis:
-> **"Traditional NIDS treat intrusion detection as memoryless packet classification ($f(S_t) \to y_t$), discarding causal temporal structure. But network infiltration is an evolving multi-stage process ($S_{t-L:t} \to S_{t+1}$). NetGuard learns continuous state-space transition dynamics to forecast attack progression $K$-steps ahead (+50s) and simulate counterfactual mitigations before compromise completes."**
+> **"Traditional NIDS treat intrusion detection as memoryless packet classification ($f(S_t) \to y_t$), discarding causal temporal structure. But network infiltration is an evolving multi-stage process ($S_{t-L:t} \to S_{t+1}$). ShieldNet learns continuous state-space transition dynamics to forecast attack progression $K$-steps ahead (+50s) and simulate counterfactual mitigations before compromise completes."**
 
 ---
 
@@ -80,7 +80,7 @@ Evaluated on held-out test data (`data/processed/sequences_test.parquet`, $N = 1
 ========================================================================================================================
 HEADLINE OPERATIONAL PERFORMANCE TABLE (Held-Out Test Set N = 10,909)
 ========================================================================================================================
-Evaluation Metric                 | Baseline (Memoryless LogReg) | NetGuard Calibrated (tau=0.80) | NetGuard Raw Argmax Ref
+Evaluation Metric                 | Baseline (Memoryless LogReg) | ShieldNet Calibrated (tau=0.80) | ShieldNet Raw Argmax Ref
 ------------------------------------------------------------------------------------------------------------------------
 Binary Threat Recall              | 67.01%                       | 79.38% (Caught 77/97 Attacks)  | 96.91% (Caught 94/97)
 False Positive Rate (FPR)         | 0.19% (Misses Rare Attacks)  | 3.99% (431 / 10,812 Benign)   | 10.73% (1,160 / 10,812)

@@ -1,5 +1,5 @@
 """
-NetGuard Master Pipeline — End-to-End Execution.
+ShieldNet Master Pipeline — End-to-End Execution.
 
 Runs the complete pipeline from data loading through training to evaluation:
 1. Load & preprocess data
@@ -37,10 +37,10 @@ from src.ingestion.loader import load_cic_ids_2018, load_ctu_13
 
 
 def run_pipeline(config_path=None, skip_training=False):
-    """Run the complete NetGuard pipeline."""
+    """Run the complete ShieldNet pipeline."""
     
     print("=" * 70)
-    print("  NetGuard — Master Pipeline")
+    print("  ShieldNet — Master Pipeline")
     print("=" * 70)
     
     # ─── Load Config ──────────────────────────────────────────────
@@ -233,7 +233,7 @@ def run_pipeline(config_path=None, skip_training=False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='NetGuard Master Pipeline')
+    parser = argparse.ArgumentParser(description='ShieldNet Master Pipeline')
     parser.add_argument('--config', default=None, help='Path to config YAML')
     parser.add_argument('--skip-training', action='store_true', help='Skip model training')
     args = parser.parse_args()

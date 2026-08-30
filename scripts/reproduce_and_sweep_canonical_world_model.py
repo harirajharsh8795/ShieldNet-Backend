@@ -1,5 +1,5 @@
 """
-NetGuard Canonical Context Length Sweep & Direct Head-to-Head Audit.
+ShieldNet Canonical Context Length Sweep & Direct Head-to-Head Audit.
 
 Uses the EXACT canonical training pipeline of world_model_v1.pt:
 - WorldModelLoss with lambda_class=1.0, lambda_mitre=0.25, lambda_order=0.5
@@ -224,7 +224,7 @@ def train_canonical_model_for_L(L: int, classes: list, le: LabelEncoder, epochs:
 
 def main():
     print("=" * 85)
-    print("NETGUARD CANONICAL CONTEXT LENGTH SWEEP & BENCHMARK RECONCILIATION")
+    print("SHIELDNET CANONICAL CONTEXT LENGTH SWEEP & BENCHMARK RECONCILIATION")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 85)
     

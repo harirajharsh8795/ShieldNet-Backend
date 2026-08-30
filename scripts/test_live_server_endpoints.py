@@ -15,14 +15,14 @@ BASE_URL = "http://127.0.0.1:8000"
 
 def get(endpoint):
     url = f"{BASE_URL}{endpoint}"
-    req = urllib.request.Request(url, headers={"User-Agent": "NetGuard-Tester"})
+    req = urllib.request.Request(url, headers={"User-Agent": "ShieldNet-Tester"})
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
 def post(endpoint, data):
     url = f"{BASE_URL}{endpoint}"
     payload = json.dumps(data).encode("utf-8")
-    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "NetGuard-Tester"})
+    req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json", "User-Agent": "ShieldNet-Tester"})
     with urllib.request.urlopen(req) as resp:
         return json.loads(resp.read().decode("utf-8"))
 

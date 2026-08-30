@@ -1,5 +1,5 @@
 """
-Unit tests for NetGuard Phase 5 Explainable & Trustworthy AI (XAI) Pipeline.
+Unit tests for ShieldNet Phase 5 Explainable & Trustworthy AI (XAI) Pipeline.
 
 Verifies:
 1. IntegratedGradientsExplainer initialization and attribution tensor shapes.

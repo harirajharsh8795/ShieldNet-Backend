@@ -1,8 +1,8 @@
-# NetGuard - World-Model Network Attack Forecasting
+# ShieldNet - World-Model Network Attack Forecasting
 # Master configuration file
 
 project:
-  name: "NetGuard"
+  name: "ShieldNet"
   version: "0.1.0"
   description: "AI-Based Network Attack Forecasting from Network Traffic Data"
   problem_statement: "SIH26153"
@@ -147,7 +147,7 @@ explainability:
 # Dashboard
 dashboard:
   port: 8501
-  title: "NetGuard — Network Attack Forecasting"
+  title: "ShieldNet — Network Attack Forecasting"
   bundled_sample: "data/processed/v1/sample_demo.csv"
 
 # Evaluation

@@ -1,5 +1,5 @@
 """
-Packet-level feature extraction for NetGuard.
+Packet-level feature extraction for ShieldNet.
 
 Extracts features that require packet-level inspection:
 - TTL variance and statistics

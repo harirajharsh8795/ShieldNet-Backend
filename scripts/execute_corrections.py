@@ -19,7 +19,7 @@ from src.world_model.model import WorldModel
 from src.world_model.dataset import extract_temporal_sequences_from_parquet
 
 print("=" * 110)
-print("NETGUARD TIGHT CORRECTION PASS VERIFICATION (FIX 1, FIX 2, FIX 3)")
+print("SHIELDNET TIGHT CORRECTION PASS VERIFICATION (FIX 1, FIX 2, FIX 3)")
 print("=" * 110)
 
 DEVICE = torch.device("cpu")
@@ -173,7 +173,7 @@ pred_flow_only = np.argmax(lr_probs, axis=1)
 rec_stealth_flow = np.mean(pred_flow_only[stealth_mask] != benign_idx) if np.sum(stealth_mask) > 0 else 0
 rec_vol_flow = np.mean(pred_flow_only[volumetric_mask] != benign_idx) if np.sum(volumetric_mask) > 0 else 0
 
-# Model 2: NetGuard Fused Flow+Packet Ensemble
+# Model 2: ShieldNet Fused Flow+Packet Ensemble
 pred_fused = gated_preds if True else argmax_preds
 rec_stealth_fused = np.mean(argmax_preds[stealth_mask] != benign_idx) if np.sum(stealth_mask) > 0 else 0
 rec_vol_fused = np.mean(argmax_preds[volumetric_mask] != benign_idx) if np.sum(volumetric_mask) > 0 else 0

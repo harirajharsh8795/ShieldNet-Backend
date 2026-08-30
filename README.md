@@ -1,10 +1,10 @@
-# 🛡️ NetGuard — World-Model Network-Attack-Forecasting System
+# 🛡️ ShieldNet — World-Model Network-Attack-Forecasting System
 
 > **Smart India Hackathon 2026 — Problem Statement SIH26153**  
 > **Organization:** National Technical Research Organisation (NTRO)  
 > **Theme:** Blockchain & Cybersecurity  
 
-NetGuard is a submission-ready network security prototype that learns computer network temporal state transitions ($P(S_{t+1} \mid S_t)$) from traffic telemetry to predict the likelihood and progression of malicious activity **before compromise is completed**.
+ShieldNet is a submission-ready network security prototype that learns computer network temporal state transitions ($P(S_{t+1} \mid S_t)$) from traffic telemetry to predict the likelihood and progression of malicious activity **before compromise is completed**.
 
 ---
 
@@ -22,19 +22,19 @@ NetGuard is a submission-ready network security prototype that learns computer n
 
 ## 📂 Repository Deliverables Index
 
-- **Source Code:** [`src/`](file:///e:/Desktop/ps%20153/netguard/src/)
-  - Ingestion: [`src/ingestion/loader.py`](file:///e:/Desktop/ps%20153/netguard/src/ingestion/loader.py)
-  - Schema & Features: [`src/features/schema.py`](file:///e:/Desktop/ps%20153/netguard/src/features/schema.py), [`src/features/packet_level.py`](file:///e:/Desktop/ps%20153/netguard/src/features/packet_level.py), [`src/features/sequencer.py`](file:///e:/Desktop/ps%20153/netguard/src/features/sequencer.py)
-  - World Model Engine: [`src/world_model/model.py`](file:///e:/Desktop/ps%20153/netguard/src/world_model/model.py), [`src/world_model/trainer.py`](file:///e:/Desktop/ps%20153/netguard/src/world_model/trainer.py)
-  - K-Step Simulator: [`src/simulation/rollout.py`](file:///e:/Desktop/ps%20153/netguard/src/simulation/rollout.py), [`src/simulation/mitre_mapping.py`](file:///e:/Desktop/ps%20153/netguard/src/simulation/mitre_mapping.py)
-  - Explainability: [`src/explainability/explain.py`](file:///e:/Desktop/ps%20153/netguard/src/explainability/explain.py)
-  - Baseline & Evaluation: [`src/baseline/baseline_model.py`](file:///e:/Desktop/ps%20153/netguard/src/baseline/baseline_model.py), [`src/evaluation/evaluate.py`](file:///e:/Desktop/ps%20153/netguard/src/evaluation/evaluate.py)
-  - Dashboard: [`src/dashboard/app.py`](file:///e:/Desktop/ps%20153/netguard/src/dashboard/app.py)
-- **Architecture Document (max 2 pages):** [`docs/ARCHITECTURE.md`](file:///e:/Desktop/ps%20153/netguard/docs/ARCHITECTURE.md)
-- **Technical Presentation Outline (max 5 slides):** [`docs/slides_outline.md`](file:///e:/Desktop/ps%20153/netguard/docs/slides_outline.md)
-- **Demo Video Script (max 2 minutes):** [`docs/demo_video_script.md`](file:///e:/Desktop/ps%20153/netguard/docs/demo_video_script.md)
-- **MITRE Mapping Specification:** [`docs/MITRE_MAPPING.md`](file:///e:/Desktop/ps%20153/netguard/docs/MITRE_MAPPING.md)
-- **Phase Exit Reports:** [`docs/phase_reports/`](file:///e:/Desktop/ps%20153/netguard/docs/phase_reports/)
+- **Source Code:** [`src/`](file:///e:/Desktop/ps%20153/shieldnet/src/)
+  - Ingestion: [`src/ingestion/loader.py`](file:///e:/Desktop/ps%20153/shieldnet/src/ingestion/loader.py)
+  - Schema & Features: [`src/features/schema.py`](file:///e:/Desktop/ps%20153/shieldnet/src/features/schema.py), [`src/features/packet_level.py`](file:///e:/Desktop/ps%20153/shieldnet/src/features/packet_level.py), [`src/features/sequencer.py`](file:///e:/Desktop/ps%20153/shieldnet/src/features/sequencer.py)
+  - World Model Engine: [`src/world_model/model.py`](file:///e:/Desktop/ps%20153/shieldnet/src/world_model/model.py), [`src/world_model/trainer.py`](file:///e:/Desktop/ps%20153/shieldnet/src/world_model/trainer.py)
+  - K-Step Simulator: [`src/simulation/rollout.py`](file:///e:/Desktop/ps%20153/shieldnet/src/simulation/rollout.py), [`src/simulation/mitre_mapping.py`](file:///e:/Desktop/ps%20153/shieldnet/src/simulation/mitre_mapping.py)
+  - Explainability: [`src/explainability/explain.py`](file:///e:/Desktop/ps%20153/shieldnet/src/explainability/explain.py)
+  - Baseline & Evaluation: [`src/baseline/baseline_model.py`](file:///e:/Desktop/ps%20153/shieldnet/src/baseline/baseline_model.py), [`src/evaluation/evaluate.py`](file:///e:/Desktop/ps%20153/shieldnet/src/evaluation/evaluate.py)
+  - Dashboard: [`src/dashboard/app.py`](file:///e:/Desktop/ps%20153/shieldnet/src/dashboard/app.py)
+- **Architecture Document (max 2 pages):** [`docs/ARCHITECTURE.md`](file:///e:/Desktop/ps%20153/shieldnet/docs/ARCHITECTURE.md)
+- **Technical Presentation Outline (max 5 slides):** [`docs/slides_outline.md`](file:///e:/Desktop/ps%20153/shieldnet/docs/slides_outline.md)
+- **Demo Video Script (max 2 minutes):** [`docs/demo_video_script.md`](file:///e:/Desktop/ps%20153/shieldnet/docs/demo_video_script.md)
+- **MITRE Mapping Specification:** [`docs/MITRE_MAPPING.md`](file:///e:/Desktop/ps%20153/shieldnet/docs/MITRE_MAPPING.md)
+- **Phase Exit Reports:** [`docs/phase_reports/`](file:///e:/Desktop/ps%20153/shieldnet/docs/phase_reports/)
 
 ---
 
@@ -43,7 +43,7 @@ NetGuard is a submission-ready network security prototype that learns computer n
 ### 1. Environment Setup
 ```bash
 # Activate python environment
-cd netguard
+cd shieldnet
 python -m venv venv
 # On Windows:
 .\venv\Scripts\Activate.ps1
@@ -58,7 +58,7 @@ Download **CIC-IDS-2018** and/or **CTU-13** CSV files and place them into the re
 - `data/raw/cic-ids-2018/`
 - `data/raw/ctu-13/`
 
-*Refer to [`docs/DATASET_SETUP.md`](file:///e:/Desktop/ps%20153/netguard/docs/DATASET_SETUP.md) for full instructions.*
+*Refer to [`docs/DATASET_SETUP.md`](file:///e:/Desktop/ps%20153/shieldnet/docs/DATASET_SETUP.md) for full instructions.*
 
 To verify dataset integrity and generate file manifests:
 ```bash

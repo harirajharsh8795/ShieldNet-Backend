@@ -1,5 +1,5 @@
 """
-NetGuard Phase 2: Architecture & Context Length Sweep (L in {3, 5, 7, 10}).
+ShieldNet Phase 2: Architecture & Context Length Sweep (L in {3, 5, 7, 10}).
 
 Trains GRU+Temporal Attention on sequences_train.parquet across context lengths L in {3, 5, 7, 10}.
 Evaluates on sequences_test.parquet (N = 10,909, SHA-256: a7b9d405...) for each L.
@@ -28,7 +28,7 @@ from src.world_model.dataset import extract_temporal_sequences_from_parquet, Wor
 
 def train_and_eval_for_L(L: int, epochs: int = 15, batch_size: int = 256, lr: float = 1e-3):
     print(f"\n" + "=" * 80)
-    print(f"NETGUARD PHASE 2: TRAINING CONTEXT LENGTH L = {L}")
+    print(f"SHIELDNET PHASE 2: TRAINING CONTEXT LENGTH L = {L}")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 80)
     
@@ -292,7 +292,7 @@ def run_shuffle_ablation(model, X_te, y_cls_te, best_L: int, n_seeds: int = 5):
 
 def main():
     print("=" * 80)
-    print("NETGUARD PHASE 2: ARCHITECTURE & CONTEXT LENGTH SWEEP (L in {3, 5, 7, 10})")
+    print("SHIELDNET PHASE 2: ARCHITECTURE & CONTEXT LENGTH SWEEP (L in {3, 5, 7, 10})")
     print(f"Start Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 80)
     
@@ -330,7 +330,7 @@ def main():
     ablation = run_shuffle_ablation(model_best, X_te_best, y_cls_te_best, best_L=best_L, n_seeds=5)
     
     print("\n" + "=" * 80)
-    print("NETGUARD PHASE 2 COMPLETE")
+    print("SHIELDNET PHASE 2 COMPLETE")
     print(f"End Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 80)
 

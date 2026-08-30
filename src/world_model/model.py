@@ -1,5 +1,5 @@
 """
-NetGuard World Model Architecture (RSS-WM with Temporal Attention Pooling & Multi-Class Focal Loss).
+ShieldNet World Model Architecture (RSS-WM with Temporal Attention Pooling & Multi-Class Focal Loss).
 
 Combines:
 1. 2-layer Recurrent State-Space Backbone (GRU)
@@ -68,7 +68,7 @@ class MultiClassFocalLoss(nn.Module):
 
 
 class WorldModel(nn.Module):
-    """NetGuard Recurrent State-Space World Model with Attention Pooling."""
+    """ShieldNet Recurrent State-Space World Model with Attention Pooling."""
     
     def __init__(self,
                  input_size: int = 84,

@@ -1,10 +1,10 @@
-# NetGuard Presentation Deck Outline (5 Slides Max)
+# ShieldNet Presentation Deck Outline (5 Slides Max)
 **Smart India Hackathon 2026 — Problem Statement SIH26153 (NTRO)**
 
 ---
 
 ## Slide 1: Title & The Fundamental Problem
-- **Title:** NetGuard: World-Model AI Network-Attack Forecasting
+- **Title:** ShieldNet: World-Model AI Network-Attack Forecasting
 - **Problem Statement:** SIH26153 · National Technical Research Organisation (NTRO)
 - **Why Current Systems Fail:**
   - Traditional IDS/SIEM classify network traffic *statically* (benign vs malicious) after an attack has completed.

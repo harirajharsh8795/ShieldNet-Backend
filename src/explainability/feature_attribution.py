@@ -1,5 +1,5 @@
 """
-NetGuard Explainable & Trustworthy AI (XAI) Engine.
+ShieldNet Explainable & Trustworthy AI (XAI) Engine.
 
 Implements Dual-Engine Explainability:
 1. Axiomatic Feature Attribution via Integrated Gradients (Sundararajan et al., 2017) on the World Model.
@@ -211,5 +211,5 @@ class DualEngineExplainer:
             "tabular_secondary_attribution": tabular_top_features,
             "temporal_attention_weights": wm_explanation["temporal_attention_weights"],
             "plain_text_summary": synthesis,
-            "system_architecture": "NetGuard Dual-Engine Ensemble (60% GRU+Attention World Model + 40% Balanced Tabular Classifier)"
+            "system_architecture": "ShieldNet Dual-Engine Ensemble (60% GRU+Attention World Model + 40% Balanced Tabular Classifier)"
         }

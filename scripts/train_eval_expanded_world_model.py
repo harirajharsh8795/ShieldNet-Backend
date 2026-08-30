@@ -1,5 +1,5 @@
 """
-NetGuard Step 2: Dataset Expansion from CSE-CIC-IDS2018.
+ShieldNet Step 2: Dataset Expansion from CSE-CIC-IDS2018.
 1. Extracts real rare-class samples from CSE-CIC-IDS2018 CSVs.
 2. Standardizes features to 84 dimensions (77 flow + 7 packet).
 3. Adds rare-class sequences strictly to the training split.
@@ -24,7 +24,7 @@ from sklearn.metrics import (
     roc_auc_score, precision_recall_curve, auc, mean_squared_error
 )
 
-sys.path.insert(0, r"e:\Desktop\ps 153\netguard")
+sys.path.insert(0, r"e:\Desktop\ps 153\shieldnet")
 from src.world_model.model import WorldModel, WorldModelLoss
 from src.world_model.dataset import extract_temporal_sequences_from_parquet, WorldModelSequenceDataset
 

@@ -1,5 +1,5 @@
 """
-NetGuard World Model Trainer (Fast Vectorized Temporal Conditioning).
+ShieldNet World Model Trainer (Fast Vectorized Temporal Conditioning).
 
 Handles training, validation, checkpointing, and evaluation with
 auxiliary temporal order sensitivity.

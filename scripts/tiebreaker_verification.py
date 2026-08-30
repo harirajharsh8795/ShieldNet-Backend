@@ -1,5 +1,5 @@
 """
-NetGuard Final Tie-Breaker Verification:
+ShieldNet Final Tie-Breaker Verification:
 1. 20-Seed Shuffle Ablation on world_model_v1.pt vs WM_v1 + LogReg (Soft Avg, w=0.6)
 2. Rigorous Warmup Latency Benchmark
 3. 2 Real Test Samples with Divergent Predictions & Unified Explainability Synthesis
@@ -25,7 +25,7 @@ from src.world_model.dataset import extract_temporal_sequences_from_parquet
 
 def main():
     print("=" * 115)
-    print("NETGUARD FINAL TIE-BREAKER VERIFICATION: WM_v1 vs WM_v1 + LOGREG ENSEMBLE")
+    print("SHIELDNET FINAL TIE-BREAKER VERIFICATION: WM_v1 vs WM_v1 + LOGREG ENSEMBLE")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 115)
     

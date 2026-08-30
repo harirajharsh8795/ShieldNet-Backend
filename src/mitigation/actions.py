@@ -1,5 +1,5 @@
 """
-NetGuard Mitigation Action Space & State-Space Intervention Operators.
+ShieldNet Mitigation Action Space & State-Space Intervention Operators.
 
 Defines defensive network control actions and their formal mathematical intervention
 functions on 84-dimensional network state vectors S_t.

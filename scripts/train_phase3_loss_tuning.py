@@ -1,5 +1,5 @@
 """
-NetGuard Phase 3: Loss Function Tuning on Canonical Locked Baseline Pipeline.
+ShieldNet Phase 3: Loss Function Tuning on Canonical Locked Baseline Pipeline.
 
 Directly based on scripts/build_final_world_model.py:
 - Evaluates:
@@ -216,7 +216,7 @@ def train_loss_variant(name: str,
 
 def main():
     print("=" * 85)
-    print("NETGUARD PHASE 3: LOSS FUNCTION TUNING (CLASS-WEIGHTED & FOCAL LOSS SWEEP)")
+    print("SHIELDNET PHASE 3: LOSS FUNCTION TUNING (CLASS-WEIGHTED & FOCAL LOSS SWEEP)")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 85)
     

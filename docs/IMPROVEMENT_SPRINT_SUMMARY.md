@@ -1,4 +1,4 @@
-# NetGuard Phase 6.5 Model Improvement Sprint Summary
+# ShieldNet Phase 6.5 Model Improvement Sprint Summary
 
 ## Overview & Objectives
 This sprint evaluated three optimization levers on the World Model:
@@ -29,7 +29,7 @@ This sprint evaluated three optimization levers on the World Model:
 
 ## 4. Final Ground-Truth Benchmark (`GROUND_TRUTH_FINAL.json`)
 
-| Metric Description | NetGuard World Model (`world_model_v1.pt`) | Baseline (Logistic Regression) | Delta ($\Delta$) |
+| Metric Description | ShieldNet World Model (`world_model_v1.pt`) | Baseline (Logistic Regression) | Delta ($\Delta$) |
 | :--- | :---: | :---: | :---: |
 | **Multi-Class Macro F1 (13 Classes)** | **0.2926** | 0.0652 | +0.2274 ($4.5\times$) |
 | **Balanced Accuracy** | **79.15%** | 50.12% | +29.03% absolute |

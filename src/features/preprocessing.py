@@ -1,5 +1,5 @@
 """
-Feature preprocessing and stratified dataset splitting pipeline for NetGuard.
+Feature preprocessing and stratified dataset splitting pipeline for ShieldNet.
 
 Handles:
 1. Clean label normalization and Rare-Attack meta-class merging.

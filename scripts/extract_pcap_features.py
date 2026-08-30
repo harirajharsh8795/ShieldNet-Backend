@@ -2,7 +2,7 @@
 Standalone PCAP Feature Extraction Utility.
 
 Extracts flow-level and packet-level features directly from raw .pcap or .pcapng files
-using Scapy, generating a schema-compliant CSV ready for NetGuard inference or training.
+using Scapy, generating a schema-compliant CSV ready for ShieldNet inference or training.
 
 Usage:
     python scripts/extract_pcap_features.py input.pcap --output data/processed/extracted_pcap.csv
@@ -20,7 +20,7 @@ from src.features.schema import validate_dataframe
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract NetGuard features from raw PCAP file")
+    parser = argparse.ArgumentParser(description="Extract ShieldNet features from raw PCAP file")
     parser.add_argument("pcap_path", help="Path to input .pcap or .pcapng file")
     parser.add_argument("--output", "-o", default="data/processed/pcap_features.csv", help="Output CSV path")
     args = parser.parse_args()

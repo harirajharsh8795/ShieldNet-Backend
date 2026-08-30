@@ -1,5 +1,5 @@
 """
-NetGuard Counterfactual State-Space Trajectory Engine.
+ShieldNet Counterfactual State-Space Trajectory Engine.
 
 Simulates parallel 'what-if' future network trajectories under candidate mitigation actions
 (NO_ACTION, RATE_LIMIT, RESET_CONNECTIONS, BLOCK_IP, ISOLATE_HOST) using the trained Dual-Engine Ensemble
@@ -116,5 +116,5 @@ class CounterfactualTrajectoryEngine:
             "candidate_interventions": action_results,
             "optimal_recommended_action": best_action,
             "projected_risk_drop": float(baseline_final_risk - action_results[best_action]["final_attack_risk"]),
-            "system_engine": "NetGuard Dual-Engine Counterfactual Engine"
+            "system_engine": "ShieldNet Dual-Engine Counterfactual Engine"
         }

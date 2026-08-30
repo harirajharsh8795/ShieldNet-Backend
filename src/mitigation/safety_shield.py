@@ -1,5 +1,5 @@
 """
-NetGuard Operational Safety Shield & Mitigation Policy.
+ShieldNet Operational Safety Shield & Mitigation Policy.
 
 Enforces strict operational guardrails on autonomous network control actions:
 - Prevents false-positive IP blocking / isolation on high-volume benign hosts or critical assets.

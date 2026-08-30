@@ -1,5 +1,5 @@
 """
-Unit tests for NetGuard Phase 1 Feature Engineering and Parsing.
+Unit tests for ShieldNet Phase 1 Feature Engineering and Parsing.
 Tests schema, sequencer, rare-class merging, stratified splitting, and scaling on sample data.
 """
 

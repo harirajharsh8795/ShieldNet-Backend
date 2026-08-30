@@ -1,5 +1,5 @@
 """
-Unit tests for NetGuard World Model architecture, autoregressive rollout, and empirical validation suite.
+Unit tests for ShieldNet World Model architecture, autoregressive rollout, and empirical validation suite.
 """
 
 import pytest

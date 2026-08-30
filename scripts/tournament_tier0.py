@@ -1,5 +1,5 @@
 """
-NetGuard Phase 10 Model Tournament: Tier 0 (Tabular Reference Models).
+ShieldNet Phase 10 Model Tournament: Tier 0 (Tabular Reference Models).
 1. Logistic Regression: Verified baseline metrics.
 2. XGBoost: Trained fresh on standardized window features.
 """
@@ -62,7 +62,7 @@ def load_data():
 
 def run_tier0():
     print("=" * 80)
-    print("NETGUARD PHASE 10: TIER 0 EXECUTION (TABULAR REFERENCE)")
+    print("SHIELDNET PHASE 10: TIER 0 EXECUTION (TABULAR REFERENCE)")
     print(f"Timestamp (UTC): {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}")
     print("=" * 80)
     

@@ -27,7 +27,7 @@ FILE_OFFSETS = [
 ]
 
 def run_diagnostics():
-    print("=== NETGUARD FUSION ENGINE DIAGNOSTICS (FILE 1) ===")
+    print("=== SHIELDNET FUSION ENGINE DIAGNOSTICS (FILE 1) ===")
     
     # Load ONLY necessary columns from fused parquet to minimize memory usage
     fused_path = PROJECT_ROOT / "data" / "processed" / "fused_flow_packet_v1.parquet"
