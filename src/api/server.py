@@ -8,7 +8,7 @@ Serves the Locked Champion System:
 
 Provides REST endpoints for:
 - /api/health: Local offline status check (Constraint C4)
-- /api/benchmark: Single source of truth for Part A verified evaluation metrics (83.12% BA, +3.92 sigma)
+- /api/benchmark: Single source of truth for Part A verified evaluation metrics (Calibrated tau=0.80: 87.70% Binary BA, 76.40% Multi-Class BA, 79.38% Threat Recall, 3.99% FPR; Secondary Argmax Ref: 83.12% BA, +3.92 sigma)
 - /api/sample-sessions: Bundled multi-class attack and benign sample sessions for offline demo
 - /api/predict-sequence: Live dual-engine forward predictive simulation + K-step trajectory rollout + MITRE stage classification
 - /api/explain: Dual-Engine explainability (Captum Integrated Gradients + Tabular Linear attributions)
@@ -426,6 +426,48 @@ def predict_sequence(req: PredictRequest):
     ]
     class_distribution.sort(key=lambda x: x["probability"], reverse=True)
     
+    # 5. Explainability Synthesis & Enforcement (Mandatory Constraint C2)
+    driving_features = []
+    plain_narrative = ""
+    if dual_explainer is not None:
+        try:
+            explanation = dual_explainer.explain_dual_prediction(seq[-3:])
+            top_wm = explanation.get("temporal_world_model_attribution", [])
+            driving_features = [
+                {
+                    "feature": f.get("feature_name", ""),
+                    "score": round(float(f.get("attribution_score", 0.0)), 4),
+                    "rank": f.get("rank", idx + 1),
+                    "impact": f.get("impact_direction", "Elevating")
+                }
+                for idx, f in enumerate(top_wm[:5])
+            ]
+            plain_narrative = explanation.get("plain_text_summary", "")
+        except Exception:
+            pass
+            
+    # Fallback to linear model attribution if needed
+    if not driving_features and secondary_model is not None and hasattr(secondary_model, "coef_"):
+        coefs = secondary_model.coef_[pred_class_idx]
+        top_idx = np.argsort(np.abs(coefs * last_step[0]))[::-1][:5]
+        driving_features = [
+            {
+                "feature": features_list[i] if i < len(features_list) else f"feature_{i}",
+                "score": round(float(coefs[i] * last_step[0][i]), 4),
+                "rank": rank + 1,
+                "impact": "Elevating" if coefs[i] * last_step[0][i] > 0 else "Mitigating"
+            }
+            for rank, i in enumerate(top_idx)
+        ]
+        plain_narrative = f"Top telemetry forensic drivers for {pred_class_name} based on instant feature contributions."
+        
+    # Constraint C2 Enforcement Gate: Fail if prediction lacks explanation
+    if not driving_features:
+        raise HTTPException(
+            status_code=500,
+            detail="CONSTRAINT C2 VIOLATION: Prediction returned without an explanation object. PS explicitly requires: 'Black-box outputs without interpretability are not acceptable.'"
+        )
+
     return {
         "timestamp": pd.Timestamp.now().isoformat(),
         "host_ip": req.host_ip,
@@ -435,6 +477,8 @@ def predict_sequence(req: PredictRequest):
         "predicted_mitre_stage": MITRE_STAGE_MAP.get(pred_stage_idx, {"id": pred_stage_idx, "name": "Unknown", "tactic": "Unknown", "color": "#22D3EE"}),
         "class_distribution": class_distribution[:6],
         "k_step_rollout": rollout_trajectory,
+        "top_contributing_features": driving_features,
+        "forensic_narrative": plain_narrative,
         "dual_engine_breakdown": {
             "wm_threat_prob": float(1.0 - wm_probs[0]),
             "tabular_threat_prob": float(1.0 - sec_probs[0]),

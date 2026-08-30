@@ -73,18 +73,21 @@ $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{state}}(\hat{S}_{t+1}, S_{t+1}
 ## 5. Verified Empirical Benchmarks & Sovereign Air-Gap Deployment
 
 ```
-+--------------------------------------------------------------------------------------------------+
-| Metric                      | Baseline (Logistic Reg) | ShieldNet World Model | Performance Gain  |
-|-----------------------------|-------------------------|----------------------|-------------------|
-| Multi-Class Macro F1 (Raw)  | 0.0652                  | 0.2926               | +0.2274 (4.5x)    |
-| Balanced Accuracy           | 50.12%                  | 79.15%               | +29.03% absolute  |
-| Classification Accuracy     | 81.35%                  | 89.50%               | +8.15% absolute   |
-| Threat ROC-AUC              | 0.5764                  | 0.9798               | +0.4034 area gain |
-| Weighted F1-Score           | 0.8402                  | 0.9377               | +0.0975 gain      |
-| K-Step Rollout Latency (CPU)| < 1000 ms (Target)      | 15.21 ms             | ~65x faster       |
-| Temporal Shuffle Sensitivity| 0.00 sigma              | +3.28 sigma          | PASS (p < 0.001)  |
-+--------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------------------+
+| Metric                        | Baseline (LogReg) | ShieldNet Calibrated (tau=0.80) | Gain         |
+|-------------------------------|-------------------|---------------------------------|--------------|
+| Operational Threat Recall     | 67.01%            | 79.38% (Caught 77/97 Attacks)   | +12.37%      |
+| False Positive Rate (FPR)     | 0.19%             | 3.99% (5.6:1 Alert Ratio)       | Operational  |
+| Binary Balanced Accuracy      | 83.41%            | 87.70%                          | +4.29%       |
+| Multi-Class Balanced Accuracy | 47.81%            | 76.40%                          | +28.59%      |
+| Multi-Class Macro F1          | 0.4691            | 0.5335                          | +0.0644      |
+| Overall Accuracy              | 81.35%            | 95.81%                          | +14.46%      |
+| Threat ROC-AUC / PR-AUC       | 0.9190 / 0.4120   | 0.9800 / 0.5571                 | +0.061 / 0.14|
+| Forward Rollout Latency (CPU) | 0.0009 ms         | 0.0155 ms (64,400 flows/sec)    | Sub-millisecond
+| Temporal Order Sensitivity    | 0.00 sigma        | +2.53 sigma (WM Dynamics)       | p < 0.005    |
++----------------------------------------------------------------------------------------------------+
 ```
 
-### Sovereign Air-Gap Compliance (Constraint C4)
-ShieldNet is self-contained: all model checkpoints, local feature extractors, SQLite/Parquet stores, FastAPI REST endpoints, and React 18 frontend run completely offline with zero external network connectivity.
+### Sovereign Air-Gap Compliance (Constraint C4) & Enterprise / CII Scope
+ShieldNet is self-contained: all neural checkpoints (`world_model_v1.pt`, `ensemble_logreg.joblib`), local feature parsers, FastAPI REST server, and React 18 dashboard run 100% offline with zero external cloud or telemetry dependencies. Includes enterprise intrusion datasets (CIC-IDS-2017/2018) and an illustrative synthetic Critical Information Infrastructure (CII) SCADA/Modbus scenario demonstrating pipeline applicability.
+

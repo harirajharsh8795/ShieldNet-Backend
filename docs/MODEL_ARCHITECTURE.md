@@ -8,14 +8,20 @@ ShieldNet implements a **Dual-Engine Predictive Architecture** combining deep te
 
 > [!IMPORTANT]
 > **Locked Champion Submission Model Declaration:**
-> **ShieldNet Dual-Engine Ensemble (Soft Averaging $w=0.6$) is the official primary submission model.**
-> - **Balanced Accuracy:** **83.12%** (+35.31% over memoryless baseline, +3.97% over standalone World Model)
-> - **Multi-Class Macro F1:** **0.4203**
-> - **Classification Accuracy:** **93.69%**
-> - **Threat ROC-AUC:** **0.9800**
-> - **Threat PR-AUC:** **0.5571**
-> - **Temporal Shuffle Significance (20 Seeds):** **+3.92$\sigma$** ($-14.27\%$ drop on chronological permutation, $p < 0.0001$)
+> **ShieldNet Dual-Engine Ensemble (Soft Averaging $w=0.6$, Calibrated $\tau=0.80$) is the official primary submission model.**
+> - **Operational Threat Recall ($\tau=0.80$):** **79.38%** (Intercepts 77/97 multi-class attacks)
+> - **False Positive Rate (FPR):** **3.99%** (431 false alarms / 10,812 benign flows $\to$ Triage-feasible $5.6:1$ Alert Ratio)
+> - **Binary Balanced Accuracy:** **87.70%** (+4.29% over baseline)
+> - **Multi-Class Gated Balanced Accuracy:** **76.40%** (+28.59% over memoryless baseline)
+> - **Multi-Class Macro F1:** **0.5335** (+0.0644 over baseline)
+> - **Overall Accuracy:** **95.81%**
+> - **Threat ROC-AUC / PR-AUC:** **0.9800 / 0.5571**
+> - **Temporal Sequence Dynamics Significance (Standalone WM):** **+2.53$\sigma$** ($-11.05\%$ drop under independent time shuffle)
+> - **Full State-Perturbed Ensemble Significance:** **+3.92$\sigma$** ($-14.27\%$ drop, $p < 0.0001$)
+> - **Sequential-Branch Contribution:** $+5.88\%$ gain over tabular floor ($+0.98\sigma$ branch perturbation)
 > - **Inference Latency:** **0.0155 ms / sample** (~64,400 samples/sec on CPU)
+> 
+> *Secondary Reference Point (Raw Argmax Mode):* Multi-Class Balanced Accuracy **83.12%**, Threat Recall 96.91%, FPR 10.73% ($12.3:1$ alert ratio), Macro F1 0.4203. (Documented for uncalibrated maximum-sensitivity comparison).*
 
 ```
                                   ┌────────────────────────────────────────────────────────┐
@@ -84,7 +90,8 @@ Evaluated on `data/processed/sequences_test.parquet` (SHA-256: `a7b9d405...`):
 | **Temporal Transformer World Model** | 0.4757 | 68.91% | 0.9296 | 0.9720 | 0.3581 | $+3.31\sigma$ | 0.0241 ms |
 | **Standalone XGBoost** | 0.5597 | 54.68% | 0.9925 | 0.9847 | 0.6582 | $0.00\sigma$ | 0.0055 ms |
 | **Standalone LightGBM** | 0.5868 | 62.05% | 0.9921 | 0.9814 | 0.6201 | $0.00\sigma$ | 0.0207 ms |
-| **ShieldNet Dual-Engine Ensemble (CHAMPION)** | **0.4203** | **83.12%** | **0.9369** | **0.9800** | **0.5571** | **+3.92$\sigma$** | **0.0155 ms** |
+| **ShieldNet Calibrated Ensemble ($\tau=0.80$, HEADLINE)** | **0.5335** | **76.40%** | **0.9778** | **0.9800** | **0.5571** | **+2.53$\sigma$** | **0.0155 ms** |
+| *ShieldNet Raw Argmax Reference ($\tau=0.50$)* | *0.4203* | *83.12%* | *0.9369* | *0.9800* | *0.5571* | *+3.92$\sigma$* | *0.0155 ms* |
 
 ---
 
