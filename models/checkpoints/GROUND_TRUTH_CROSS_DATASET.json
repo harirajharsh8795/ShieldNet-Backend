@@ -1,0 +1,23 @@
+{
+  "audit_timestamp_utc": "2026-08-30T06:23:59Z",
+  "audit_note": "ALL metrics from real inference on world_model_v1.pt. ZERO hardcoded numbers.",
+  "checkpoint_sha256": "dfbbb33026dec5b640a933400eecad2feb0b3329fb3fb8159e42d34548604371",
+  "unsw_nb15": {
+    "data_file": "dataset/UNSW/UNSW_NB15_testing-set.csv",
+    "data_sha256": "734fe6642edf758f7c94d7d9149426b49d202fe8e7bf0bef47392489c3c0a559",
+    "n_sequences": 20000,
+    "feature_columns_matched": 0,
+    "roc_auc": 0.5,
+    "macro_f1": 0.011906526357393409,
+    "balanced_accuracy": 0.5
+  },
+  "cic_ids_2018": {
+    "data_file": "dataset/data 1/02-14-2018.csv",
+    "data_sha256": "acff8bc61376ee031d80878ee6099e0b1a87a1bd711d8068298421418c9f8147",
+    "n_sequences": 19998,
+    "feature_columns_matched": 77,
+    "roc_auc": 0.0360992823166851,
+    "macro_f1": 0.14780079747395636,
+    "balanced_accuracy": 0.13875803939302583
+  }
+}

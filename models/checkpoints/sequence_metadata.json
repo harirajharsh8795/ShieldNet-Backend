@@ -1,0 +1,95 @@
+{
+  "total_windows": 139908,
+  "reconciliation_passed": true,
+  "sanity_check_passed": true,
+  "splits": [
+    {
+      "split": "train",
+      "total_windows": 97935,
+      "sequence_eligible_windows": 45633,
+      "sequence_eligible_pct": 46.59519068770103,
+      "single_flow_windows": 52302,
+      "single_flow_pct": 53.40480931229897,
+      "class_distribution_eligible": {
+        "BENIGN": 45221,
+        "Bot": 198,
+        "SSH-Patator": 44,
+        "FTP-Patator": 37,
+        "Web Attack - Brute Force": 31,
+        "DoS slowloris": 19,
+        "PortScan": 15,
+        "DoS Hulk": 15,
+        "DDoS": 15,
+        "Web Attack - XSS": 15,
+        "DoS Slowhttptest": 13,
+        "DoS GoldenEye": 5,
+        "Rare-Attack": 5
+      },
+      "class_distribution_single": {
+        "BENIGN": 52247,
+        "Bot": 43,
+        "Rare-Attack": 8,
+        "PortScan": 3,
+        "FTP-Patator": 1
+      }
+    },
+    {
+      "split": "val",
+      "total_windows": 20986,
+      "sequence_eligible_windows": 9821,
+      "sequence_eligible_pct": 46.797865243495664,
+      "single_flow_windows": 11165,
+      "single_flow_pct": 53.202134756504336,
+      "class_distribution_eligible": {
+        "BENIGN": 9731,
+        "Bot": 43,
+        "SSH-Patator": 9,
+        "FTP-Patator": 8,
+        "Web Attack - Brute Force": 6,
+        "DDoS": 4,
+        "PortScan": 4,
+        "DoS slowloris": 4,
+        "DoS Slowhttptest": 3,
+        "Web Attack - XSS": 3,
+        "DoS Hulk": 3,
+        "Rare-Attack": 2,
+        "DoS GoldenEye": 1
+      },
+      "class_distribution_single": {
+        "BENIGN": 11155,
+        "Bot": 9,
+        "Rare-Attack": 1
+      }
+    },
+    {
+      "split": "test",
+      "total_windows": 20987,
+      "sequence_eligible_windows": 9736,
+      "sequence_eligible_pct": 46.39062276647448,
+      "single_flow_windows": 11251,
+      "single_flow_pct": 53.609377233525514,
+      "class_distribution_eligible": {
+        "BENIGN": 9650,
+        "Bot": 41,
+        "SSH-Patator": 10,
+        "FTP-Patator": 9,
+        "Web Attack - Brute Force": 7,
+        "DoS slowloris": 3,
+        "DDoS": 3,
+        "Web Attack - XSS": 3,
+        "DoS Slowhttptest": 3,
+        "DoS Hulk": 3,
+        "PortScan": 2,
+        "DoS GoldenEye": 1,
+        "Rare-Attack": 1
+      },
+      "class_distribution_single": {
+        "BENIGN": 11236,
+        "Bot": 11,
+        "Rare-Attack": 2,
+        "DoS slowloris": 1,
+        "PortScan": 1
+      }
+    }
+  ]
+}

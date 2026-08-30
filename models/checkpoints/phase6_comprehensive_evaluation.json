@@ -1,0 +1,51 @@
+{
+  "world_model_verified_metrics": {
+    "checkpoint": "models/checkpoints/world_model_v1.pt",
+    "checkpoint_sha256": "dfbbb33026dec5b640a933400eecad2feb0b3329fb3fb8159e42d34548604371",
+    "total_test_samples": 10909,
+    "raw_accuracy": 0.8950,
+    "balanced_accuracy": 0.7915,
+    "macro_f1_raw_argmax": 0.2926,
+    "macro_f1_high_support_ge_10": 0.5247,
+    "macro_f1_threat_calibrated": 0.5232,
+    "weighted_f1": 0.9377,
+    "roc_auc_threat": 0.9798,
+    "pr_auc_threat": 0.5523,
+    "false_positive_rate_tau_050": 0.1141,
+    "false_positive_rate_tau_099": 0.0026,
+    "dynamics_reconstruction_mse": 1.1959,
+    "shuffle_significance_sigma": 4.24
+  },
+  "baseline_logistic_regression_metrics": {
+    "total_test_samples": 10909,
+    "raw_accuracy": 0.7783,
+    "balanced_accuracy": 0.4747,
+    "macro_f1": 0.2458,
+    "weighted_f1": 0.8685,
+    "roc_auc_threat": 0.5764,
+    "pr_auc_threat": 0.0624,
+    "false_positive_rate_tau_050": 0.2175,
+    "dynamics_reconstruction_mse": null
+  },
+  "per_class_breakdown": [
+    {"class": "BENIGN", "support_n": 10812, "precision": 0.9995, "recall": 0.8953, "f1_score": 0.9445, "stratum": "N >= 10"},
+    {"class": "Bot", "support_n": 51, "precision": 0.0556, "recall": 0.9216, "f1_score": 0.1049, "stratum": "N >= 10"},
+    {"class": "DDoS", "support_n": 3, "precision": 0.6000, "recall": 1.0000, "f1_score": 0.7500, "stratum": "N < 10"},
+    {"class": "DoS GoldenEye", "support_n": 1, "precision": 0.0588, "recall": 1.0000, "f1_score": 0.1111, "stratum": "N < 10"},
+    {"class": "DoS Hulk", "support_n": 3, "precision": 0.1538, "recall": 0.6667, "f1_score": 0.2500, "stratum": "N < 10"},
+    {"class": "DoS Slowhttptest", "support_n": 3, "precision": 0.0000, "recall": 0.0000, "f1_score": 0.0000, "stratum": "N < 10"},
+    {"class": "DoS slowloris", "support_n": 4, "precision": 0.0508, "recall": 0.7500, "f1_score": 0.0952, "stratum": "N < 10"},
+    {"class": "FTP-Patator", "support_n": 9, "precision": 0.1127, "recall": 0.8889, "f1_score": 0.2000, "stratum": "N < 10"},
+    {"class": "PortScan", "support_n": 2, "precision": 0.1538, "recall": 1.0000, "f1_score": 0.2667, "stratum": "N < 10"},
+    {"class": "Rare-Attack", "support_n": 3, "precision": 0.0357, "recall": 0.6667, "f1_score": 0.0678, "stratum": "N < 10"},
+    {"class": "SSH-Patator", "support_n": 9, "precision": 0.0978, "recall": 1.0000, "f1_score": 0.1782, "stratum": "N < 10"},
+    {"class": "Web Attack - Brute Force", "support_n": 6, "precision": 0.2941, "recall": 0.8333, "f1_score": 0.4348, "stratum": "N < 10"},
+    {"class": "Web Attack - XSS", "support_n": 3, "precision": 0.2857, "recall": 0.6667, "f1_score": 0.4000, "stratum": "N < 10"}
+  ],
+  "exit_checklist_part_a": {
+    "unverified_projections_deleted": true,
+    "macro_f1_discrepancy_reconciled": true,
+    "evaluation_report_updated": true,
+    "metrics_paired_with_support_n": true
+  }
+}

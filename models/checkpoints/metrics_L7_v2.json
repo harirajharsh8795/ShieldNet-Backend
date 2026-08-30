@@ -1,0 +1,291 @@
+{
+  "context_length": 7,
+  "timestamp_utc": "2026-08-30T07:49:58Z",
+  "checkpoint_path": "models/checkpoints/world_model_L7_v2.pt",
+  "training_time_seconds": 177.32,
+  "parameter_count": 260904,
+  "test_samples": 10909,
+  "macro_f1": 0.474298040243594,
+  "weighted_f1": 0.9799471115786725,
+  "balanced_accuracy": 59.49,
+  "accuracy": 97.01,
+  "threat_roc_auc": 0.9823,
+  "next_state_mse": 1.20131,
+  "confusion_matrix": [
+    [
+      10515,
+      271,
+      0,
+      1,
+      3,
+      2,
+      15,
+      1,
+      0,
+      1,
+      1,
+      2,
+      0
+    ],
+    [
+      15,
+      36,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      8,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0
+    ]
+  ],
+  "per_class": {
+    "BENIGN": {
+      "precision": 0.9984,
+      "recall": 0.9725,
+      "f1": 0.9853,
+      "support": 10812
+    },
+    "Bot": {
+      "precision": 0.1173,
+      "recall": 0.7059,
+      "f1": 0.2011,
+      "support": 51
+    },
+    "DDoS": {
+      "precision": 1.0,
+      "recall": 0.6667,
+      "f1": 0.8,
+      "support": 3
+    },
+    "DoS GoldenEye": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 1
+    },
+    "DoS Hulk": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 3
+    },
+    "DoS Slowhttptest": {
+      "precision": 0.2,
+      "recall": 0.3333,
+      "f1": 0.25,
+      "support": 3
+    },
+    "DoS slowloris": {
+      "precision": 0.1053,
+      "recall": 0.5,
+      "f1": 0.1739,
+      "support": 4
+    },
+    "FTP-Patator": {
+      "precision": 0.8889,
+      "recall": 0.8889,
+      "f1": 0.8889,
+      "support": 9
+    },
+    "PortScan": {
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "support": 2
+    },
+    "Rare-Attack": {
+      "precision": 0.4,
+      "recall": 0.6667,
+      "f1": 0.5,
+      "support": 3
+    },
+    "SSH-Patator": {
+      "precision": 0.8182,
+      "recall": 1.0,
+      "f1": 0.9,
+      "support": 9
+    },
+    "Web Attack - Brute Force": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "support": 6
+    },
+    "Web Attack - XSS": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 3
+    }
+  }
+}

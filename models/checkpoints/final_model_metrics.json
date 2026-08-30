@@ -1,0 +1,151 @@
+{
+  "architecture": "RSS-WM (2-Layer GRU + Temporal Attention Pooling)",
+  "loss_function": "MSE (State) + CE (Class, alpha-balanced) + CE (MITRE) + BCE (Order)",
+  "ordered_metrics": {
+    "macro_f1": 0.5231835073355156,
+    "weighted_f1": 0.9618710544719505,
+    "balanced_accuracy": 0.714780348520637,
+    "raw_accuracy": 0.9364744706205885,
+    "state_mse": 1.1959149837493896
+  },
+  "shuffle_ablation_5_seeds": {
+    "shuffled_f1_mean": 0.46620786565151223,
+    "shuffled_f1_std": 0.030454440053835935,
+    "f1_significance_sigma": 1.8708484405979702,
+    "shuffled_mse_mean": 1.197101640701294,
+    "shuffled_mse_std": 0.00027992050680826947,
+    "mse_significance_sigma": 4.239264087633057
+  },
+  "threshold_tuning": {
+    "roc_auc": 0.9864964853866074,
+    "pr_auc": 0.6068461700123987,
+    "operating_points": [
+      {
+        "threshold": 0.5,
+        "mode": "Default Balanced (0.50)",
+        "attack_recall": 0.9381443298969072,
+        "precision": 0.11681643132220795,
+        "binary_f1": 0.20776255707762556,
+        "false_positive_rate": 0.06363300036995931,
+        "true_positives": 91,
+        "false_positives": 688,
+        "false_negatives": 6
+      },
+      {
+        "threshold": 0.9943611025810242,
+        "mode": "Optimal PR-F1",
+        "attack_recall": 0.4845360824742268,
+        "precision": 0.6266666666666667,
+        "binary_f1": 0.5465116279069767,
+        "false_positive_rate": 0.002589715131335553,
+        "true_positives": 47,
+        "false_positives": 28,
+        "false_negatives": 50
+      },
+      {
+        "threshold": 0.25,
+        "mode": "SOC High-Recall Sentinel (0.25)",
+        "attack_recall": 0.979381443298969,
+        "precision": 0.09134615384615384,
+        "binary_f1": 0.16710642040457344,
+        "false_positive_rate": 0.08740288568257491,
+        "true_positives": 95,
+        "false_positives": 945,
+        "false_negatives": 2
+      }
+    ]
+  },
+  "classification_report": {
+    "BENIGN": {
+      "precision": 0.9994084590357882,
+      "recall": 0.9375693673695893,
+      "f1-score": 0.9675017895490337,
+      "support": 10812.0
+    },
+    "Bot": {
+      "precision": 0.0661764705882353,
+      "recall": 0.8823529411764706,
+      "f1-score": 0.12311901504787962,
+      "support": 51.0
+    },
+    "DDoS": {
+      "precision": 1.0,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.8,
+      "support": 3.0
+    },
+    "DoS GoldenEye": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 1.0
+    },
+    "DoS Hulk": {
+      "precision": 0.1111111111111111,
+      "recall": 0.6666666666666666,
+      "f1-score": 0.19047619047619047,
+      "support": 3.0
+    },
+    "DoS Slowhttptest": {
+      "precision": 0.14285714285714285,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.2,
+      "support": 3.0
+    },
+    "DoS slowloris": {
+      "precision": 0.16666666666666666,
+      "recall": 0.25,
+      "f1-score": 0.2,
+      "support": 4.0
+    },
+    "FTP-Patator": {
+      "precision": 0.6153846153846154,
+      "recall": 0.8888888888888888,
+      "f1-score": 0.7272727272727273,
+      "support": 9.0
+    },
+    "PortScan": {
+      "precision": 0.2857142857142857,
+      "recall": 1.0,
+      "f1-score": 0.4444444444444444,
+      "support": 2.0
+    },
+    "Rare-Attack": {
+      "precision": 0.25,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.2857142857142857,
+      "support": 3.0
+    },
+    "SSH-Patator": {
+      "precision": 0.5625,
+      "recall": 1.0,
+      "f1-score": 0.72,
+      "support": 9.0
+    },
+    "Web Attack - Brute Force": {
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 6.0
+    },
+    "Web Attack - XSS": {
+      "precision": 0.25,
+      "recall": 0.3333333333333333,
+      "f1-score": 0.2857142857142857,
+      "support": 3.0
+    },
+    "accuracy": 0.9364744706205885,
+    "macro avg": {
+      "precision": 0.4769091347198342,
+      "recall": 0.714780348520637,
+      "f1-score": 0.5231835073355156,
+      "support": 10909.0
+    },
+    "weighted avg": {
+      "precision": 0.9929031277507934,
+      "recall": 0.9364744706205885,
+      "f1-score": 0.9618710544719505,
+      "support": 10909.0
+    }
+  }
+}

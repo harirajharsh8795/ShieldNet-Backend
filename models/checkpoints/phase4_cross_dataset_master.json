@@ -1,0 +1,86 @@
+{
+  "timestamp_utc": "2026-08-30T10:15:55Z",
+  "model": "world_model_v1.pt (Locked Baseline)",
+  "datasets": {
+    "CSE_CIC_IDS2018_Balanced": {
+      "data_file": "dataset/data 1/02-14-2018.csv",
+      "sample_count": 19998,
+      "attack_samples": 10000,
+      "benign_samples": 9998,
+      "features_mapped": "77/77",
+      "roc_auc": 0.5616,
+      "pr_auc": 0.5420,
+      "macro_f1": 0.5259,
+      "balanced_accuracy": 54.05,
+      "decision_threshold": 0.5,
+      "notes": "Balanced 50/50 sample across true benign and true attack flows with domain-adapted standardization."
+    },
+    "CSE_CIC_IDS2018_FullHead": {
+      "sample_count": 49998,
+      "attack_samples": 49830,
+      "benign_samples": 168,
+      "features_mapped": "77/77",
+      "level1_zero_shot_raw": {
+        "roc_auc": 0.1915,
+        "pr_auc": 0.9938,
+        "binary_f1": 0.6779,
+        "macro_f1": 0.339,
+        "balanced_accuracy": 25.73,
+        "accuracy": 51.28,
+        "decision_threshold": 0.5
+      },
+      "level2_domain_adapted_scaling": {
+        "roc_auc": 0.4452,
+        "pr_auc": 0.9923,
+        "binary_f1": 0.8789,
+        "macro_f1": 0.4448,
+        "balanced_accuracy": 56.84,
+        "accuracy": 78.42,
+        "decision_threshold": 0.5
+      },
+      "level3_calibrated_threshold": {
+        "roc_auc": 0.4452,
+        "pr_auc": 0.9923,
+        "binary_f1": 0.8578,
+        "macro_f1": 0.4342,
+        "balanced_accuracy": 57.27,
+        "accuracy": 75.14,
+        "decision_threshold": 0.6
+      }
+    },
+    "UNSW_NB15": {
+      "data_file": "dataset/UNSW/UNSW_NB15_testing-set.csv",
+      "sample_count": 82330,
+      "attack_samples": 45332,
+      "benign_samples": 36998,
+      "semantic_features_mapped": "19 channels",
+      "level1_direct_name_match": {
+        "roc_auc": 0.5,
+        "pr_auc": 0.7753,
+        "binary_f1": 0.0,
+        "macro_f1": 0.3101,
+        "balanced_accuracy": 50.0,
+        "accuracy": 44.94,
+        "decision_threshold": 0.5
+      },
+      "level2_semantic_feature_mapping": {
+        "roc_auc": 0.2209,
+        "pr_auc": 0.4005,
+        "binary_f1": 0.0649,
+        "macro_f1": 0.3245,
+        "balanced_accuracy": 46.79,
+        "accuracy": 42.42,
+        "decision_threshold": 0.5
+      },
+      "level3_calibrated_threshold": {
+        "roc_auc": 0.2209,
+        "pr_auc": 0.4005,
+        "binary_f1": 0.003,
+        "macro_f1": 0.3082,
+        "balanced_accuracy": 49.25,
+        "accuracy": 44.28,
+        "decision_threshold": 0.95
+      }
+    }
+  }
+}

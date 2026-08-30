@@ -1,0 +1,46 @@
+# NetGuard - SIH26153 AI-Based Network Attack Forecasting
+# Pinned dependencies for reproducibility
+
+# Core data
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+
+# Network packet analysis
+scapy==2.5.0
+dpkt==1.9.8
+
+# ML / Classical
+scikit-learn==1.5.1
+joblib==1.4.2
+
+# Deep Learning
+torch==2.3.1
+torchvision==0.18.1
+
+# Explainability
+shap==0.45.1
+captum==0.7.0
+
+# Dashboard / Visualisation
+streamlit==1.36.0
+plotly==5.22.0
+
+# Configuration & Serialisation
+pyyaml==6.0.1
+python-dotenv==1.0.1
+
+# Testing
+pytest==8.2.2
+pytest-cov==5.0.0
+
+# Notebooks
+jupyter==1.0.0
+ipykernel==6.29.5
+nbformat==5.10.4
+nbconvert==7.16.4
+
+# Utilities
+tqdm==4.66.4
+matplotlib==3.9.1
+seaborn==0.13.2

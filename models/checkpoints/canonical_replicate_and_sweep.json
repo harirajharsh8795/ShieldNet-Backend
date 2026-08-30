@@ -1,0 +1,1579 @@
+{
+  "world_model_v1_locked": {
+    "macro_f1": 0.2925578535022716,
+    "weighted_f1": 0.9376692346332727,
+    "balanced_accuracy": 79.15,
+    "accuracy": 89.5,
+    "threat_roc_auc": 0.9798,
+    "next_state_mse": 1.199737,
+    "confusion_matrix": [
+      [
+        9680,
+        798,
+        2,
+        16,
+        11,
+        28,
+        54,
+        63,
+        11,
+        53,
+        82,
+        11,
+        3
+      ],
+      [
+        4,
+        47,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        5,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2
+      ]
+    ],
+    "per_class": {
+      "BENIGN": {
+        "precision": 0.9995,
+        "recall": 0.8953,
+        "f1": 0.9445,
+        "support": 10812
+      },
+      "Bot": {
+        "precision": 0.0556,
+        "recall": 0.9216,
+        "f1": 0.1049,
+        "support": 51
+      },
+      "DDoS": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1": 0.75,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "precision": 0.0588,
+        "recall": 1.0,
+        "f1": 0.1111,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "precision": 0.1538,
+        "recall": 0.6667,
+        "f1": 0.25,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "precision": 0.0508,
+        "recall": 0.75,
+        "f1": 0.0952,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "precision": 0.1127,
+        "recall": 0.8889,
+        "f1": 0.2,
+        "support": 9
+      },
+      "PortScan": {
+        "precision": 0.1538,
+        "recall": 1.0,
+        "f1": 0.2667,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "precision": 0.0357,
+        "recall": 0.6667,
+        "f1": 0.0678,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "precision": 0.0978,
+        "recall": 1.0,
+        "f1": 0.1782,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "precision": 0.2941,
+        "recall": 0.8333,
+        "f1": 0.4348,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "precision": 0.2857,
+        "recall": 0.6667,
+        "f1": 0.4,
+        "support": 3
+      }
+    },
+    "shuffle_ablation": {
+      "seeds": [
+        42,
+        101,
+        2024,
+        777,
+        999
+      ],
+      "intact_balanced_accuracy": 79.15,
+      "shuffled_balanced_accuracies": [
+        68.54,
+        70.33,
+        64.71,
+        73.97,
+        67.1
+      ],
+      "shuffled_macro_f1s": [
+        0.2576,
+        0.2614,
+        0.2512,
+        0.2607,
+        0.2623
+      ],
+      "mean_shuffled_bacc": 68.93,
+      "std_shuffled_bacc": 3.12,
+      "drop_percent": 10.22,
+      "sigma": 3.28
+    }
+  },
+  "exact_canonical_L3": {
+    "macro_f1": 0.5231835073355156,
+    "weighted_f1": 0.9618710544719505,
+    "balanced_accuracy": 71.48,
+    "accuracy": 93.65,
+    "threat_roc_auc": 0.9865,
+    "next_state_mse": 1.195954,
+    "confusion_matrix": [
+      [
+        10137,
+        635,
+        0,
+        0,
+        15,
+        5,
+        2,
+        5,
+        4,
+        1,
+        6,
+        0,
+        2
+      ],
+      [
+        6,
+        45,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        8,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1
+      ]
+    ],
+    "per_class": {
+      "BENIGN": {
+        "precision": 0.9994,
+        "recall": 0.9376,
+        "f1": 0.9675,
+        "support": 10812
+      },
+      "Bot": {
+        "precision": 0.0662,
+        "recall": 0.8824,
+        "f1": 0.1231,
+        "support": 51
+      },
+      "DDoS": {
+        "precision": 1.0,
+        "recall": 0.6667,
+        "f1": 0.8,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "precision": 0.1111,
+        "recall": 0.6667,
+        "f1": 0.1905,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.1429,
+        "recall": 0.3333,
+        "f1": 0.2,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "precision": 0.1667,
+        "recall": 0.25,
+        "f1": 0.2,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "precision": 0.6154,
+        "recall": 0.8889,
+        "f1": 0.7273,
+        "support": 9
+      },
+      "PortScan": {
+        "precision": 0.2857,
+        "recall": 1.0,
+        "f1": 0.4444,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "precision": 0.25,
+        "recall": 0.3333,
+        "f1": 0.2857,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "precision": 0.5625,
+        "recall": 1.0,
+        "f1": 0.72,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "precision": 0.25,
+        "recall": 0.3333,
+        "f1": 0.2857,
+        "support": 3
+      }
+    },
+    "shuffle_ablation": {
+      "seeds": [
+        42,
+        101,
+        2024,
+        777,
+        999
+      ],
+      "intact_balanced_accuracy": 71.48,
+      "shuffled_balanced_accuracies": [
+        64.08,
+        56.25,
+        66.34,
+        66.49,
+        66.79
+      ],
+      "shuffled_macro_f1s": [
+        0.4622,
+        0.4129,
+        0.4704,
+        0.4797,
+        0.5059
+      ],
+      "mean_shuffled_bacc": 63.99,
+      "std_shuffled_bacc": 3.99,
+      "drop_percent": 7.49,
+      "sigma": 1.88
+    },
+    "context_length": 3,
+    "checkpoint_path": "models/checkpoints/exact_canonical_L3.pt",
+    "training_time_seconds": 265.13
+  },
+  "exact_canonical_L5": {
+    "macro_f1": 0.46222045321802485,
+    "weighted_f1": 0.9568134023698236,
+    "balanced_accuracy": 69.42,
+    "accuracy": 92.74,
+    "threat_roc_auc": 0.9808,
+    "next_state_mse": 1.195716,
+    "confusion_matrix": [
+      [
+        10038,
+        733,
+        0,
+        5,
+        3,
+        2,
+        19,
+        5,
+        3,
+        1,
+        1,
+        2,
+        0
+      ],
+      [
+        5,
+        46,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    ],
+    "per_class": {
+      "BENIGN": {
+        "precision": 0.9993,
+        "recall": 0.9284,
+        "f1": 0.9626,
+        "support": 10812
+      },
+      "Bot": {
+        "precision": 0.0591,
+        "recall": 0.902,
+        "f1": 0.1108,
+        "support": 51
+      },
+      "DDoS": {
+        "precision": 1.0,
+        "recall": 0.6667,
+        "f1": 0.8,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "precision": 0.1667,
+        "recall": 1.0,
+        "f1": 0.2857,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "precision": 0.25,
+        "recall": 0.3333,
+        "f1": 0.2857,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.3333,
+        "recall": 0.3333,
+        "f1": 0.3333,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "precision": 0.12,
+        "recall": 0.75,
+        "f1": 0.2069,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "precision": 0.5833,
+        "recall": 0.7778,
+        "f1": 0.6667,
+        "support": 9
+      },
+      "PortScan": {
+        "precision": 0.3333,
+        "recall": 1.0,
+        "f1": 0.5,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "precision": 0.3333,
+        "recall": 0.3333,
+        "f1": 0.3333,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6667,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      }
+    },
+    "shuffle_ablation": {
+      "seeds": [
+        42,
+        101,
+        2024,
+        777,
+        999
+      ],
+      "intact_balanced_accuracy": 69.42,
+      "shuffled_balanced_accuracies": [
+        55.96,
+        56.11,
+        64.59,
+        59.62,
+        54.98
+      ],
+      "shuffled_macro_f1s": [
+        0.3698,
+        0.3668,
+        0.4718,
+        0.4063,
+        0.3932
+      ],
+      "mean_shuffled_bacc": 58.25,
+      "std_shuffled_bacc": 3.54,
+      "drop_percent": 11.17,
+      "sigma": 3.16
+    },
+    "context_length": 5,
+    "checkpoint_path": "models/checkpoints/exact_canonical_L5.pt",
+    "training_time_seconds": 437.89
+  },
+  "exact_canonical_L7": {
+    "macro_f1": 0.4453784860412296,
+    "weighted_f1": 0.9755153213134061,
+    "balanced_accuracy": 58.53,
+    "accuracy": 96.19,
+    "threat_roc_auc": 0.9847,
+    "next_state_mse": 1.19682,
+    "confusion_matrix": [
+      [
+        10422,
+        361,
+        2,
+        0,
+        3,
+        1,
+        19,
+        0,
+        0,
+        1,
+        1,
+        0,
+        2
+      ],
+      [
+        11,
+        40,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    ],
+    "per_class": {
+      "BENIGN": {
+        "precision": 0.9988,
+        "recall": 0.9639,
+        "f1": 0.981,
+        "support": 10812
+      },
+      "Bot": {
+        "precision": 0.0998,
+        "recall": 0.7843,
+        "f1": 0.177,
+        "support": 51
+      },
+      "DDoS": {
+        "precision": 0.5,
+        "recall": 0.6667,
+        "f1": 0.5714,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "precision": 0.12,
+        "recall": 0.75,
+        "f1": 0.2069,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "precision": 1.0,
+        "recall": 0.7778,
+        "f1": 0.875,
+        "support": 9
+      },
+      "PortScan": {
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "precision": 0.5,
+        "recall": 0.6667,
+        "f1": 0.5714,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "precision": 0.75,
+        "recall": 1.0,
+        "f1": 0.8571,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "precision": 0.6,
+        "recall": 1.0,
+        "f1": 0.75,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      }
+    },
+    "shuffle_ablation": {
+      "seeds": [
+        42,
+        101,
+        2024,
+        777,
+        999
+      ],
+      "intact_balanced_accuracy": 58.53,
+      "shuffled_balanced_accuracies": [
+        54.42,
+        54.48,
+        54.41,
+        50.63,
+        56.33
+      ],
+      "shuffled_macro_f1s": [
+        0.429,
+        0.4127,
+        0.4206,
+        0.404,
+        0.429
+      ],
+      "mean_shuffled_bacc": 54.05,
+      "std_shuffled_bacc": 1.86,
+      "drop_percent": 4.48,
+      "sigma": 2.41
+    },
+    "context_length": 7,
+    "checkpoint_path": "models/checkpoints/exact_canonical_L7.pt",
+    "training_time_seconds": 636.81
+  },
+  "exact_canonical_L10": {
+    "macro_f1": 0.39004535719792754,
+    "weighted_f1": 0.9785773913918164,
+    "balanced_accuracy": 51.21,
+    "accuracy": 96.82,
+    "threat_roc_auc": 0.9748,
+    "next_state_mse": 1.198417,
+    "confusion_matrix": [
+      [
+        10500,
+        279,
+        0,
+        4,
+        4,
+        1,
+        0,
+        3,
+        0,
+        18,
+        1,
+        2,
+        0
+      ],
+      [
+        16,
+        35,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0,
+        0,
+        3,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0
+      ]
+    ],
+    "per_class": {
+      "BENIGN": {
+        "precision": 0.9981,
+        "recall": 0.9711,
+        "f1": 0.9844,
+        "support": 10812
+      },
+      "Bot": {
+        "precision": 0.1115,
+        "recall": 0.6863,
+        "f1": 0.1918,
+        "support": 51
+      },
+      "DDoS": {
+        "precision": 1.0,
+        "recall": 0.6667,
+        "f1": 0.8,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "precision": 0.6667,
+        "recall": 0.6667,
+        "f1": 0.6667,
+        "support": 9
+      },
+      "PortScan": {
+        "precision": 0.6667,
+        "recall": 1.0,
+        "f1": 0.8,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "precision": 0.08,
+        "recall": 0.6667,
+        "f1": 0.1429,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "precision": 0.6923,
+        "recall": 1.0,
+        "f1": 0.8182,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6667,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      }
+    },
+    "shuffle_ablation": {
+      "seeds": [
+        42,
+        101,
+        2024,
+        777,
+        999
+      ],
+      "intact_balanced_accuracy": 51.21,
+      "shuffled_balanced_accuracies": [
+        52.97,
+        52.12,
+        52.12,
+        47.63,
+        50.36
+      ],
+      "shuffled_macro_f1s": [
+        0.4048,
+        0.3985,
+        0.3977,
+        0.3785,
+        0.3849
+      ],
+      "mean_shuffled_bacc": 51.04,
+      "std_shuffled_bacc": 1.91,
+      "drop_percent": 0.17,
+      "sigma": 0.09
+    },
+    "context_length": 10,
+    "checkpoint_path": "models/checkpoints/exact_canonical_L10.pt",
+    "training_time_seconds": 893.44
+  }
+}

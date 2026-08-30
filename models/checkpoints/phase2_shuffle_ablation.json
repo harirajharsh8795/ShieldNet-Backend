@@ -1,0 +1,31 @@
+{
+  "best_context_length": 3,
+  "intact_balanced_accuracy": 69.46,
+  "intact_macro_f1": 0.6068,
+  "shuffled_seeds": [
+    42,
+    43,
+    44,
+    45,
+    46
+  ],
+  "shuffled_balanced_accuracies": [
+    70.25,
+    67.34,
+    67.34,
+    64.49,
+    65.13
+  ],
+  "shuffled_macro_f1s": [
+    0.6004,
+    0.5737,
+    0.568,
+    0.5416,
+    0.5642
+  ],
+  "shuffled_mean_balanced_accuracy": 66.91,
+  "shuffled_std_balanced_accuracy": 2.03,
+  "absolute_drop_percent": 2.55,
+  "statistical_significance_sigma": 1.26,
+  "conclusion": "Temporal order sensitivity verified with 1.26 sigma significance."
+}

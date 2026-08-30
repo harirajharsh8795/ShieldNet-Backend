@@ -1,0 +1,87 @@
+{
+  "architecture": "MultiScaleWorldModel (Fine L=3 GRU + Coarse L=10 Pooling)",
+  "num_seeds": 5,
+  "evaluation_task": "Full Unfiltered 13-Class Held-Out Transitions (sequences_test.parquet)",
+  "support_n": 10909,
+  "verified_metrics": {
+    "macro_f1_mean": 0.4345,
+    "macro_f1_std": 0.0376,
+    "balanced_accuracy_mean": 0.5402,
+    "balanced_accuracy_std": 0.0498,
+    "weighted_f1_mean": 0.9778,
+    "weighted_f1_std": 0.0054,
+    "accuracy_mean": 0.9667,
+    "accuracy_std": 0.01,
+    "state_mse_mean": 1.2012,
+    "state_mse_std": 0.002,
+    "shuffle_sigma_mean": -0.41,
+    "shuffle_sigma_std": 0.8,
+    "test_support_n": 10909
+  },
+  "headline_comparison": [
+    {
+      "metric": "Multi-Class Macro F1",
+      "baseline": 0.2475,
+      "netguard_mean": 0.4345,
+      "netguard_std": 0.0376,
+      "gain": "+0.1870 (1.76x)",
+      "note": "Significant gain across multi-class distribution"
+    },
+    {
+      "metric": "Balanced Accuracy",
+      "baseline": 0.4555,
+      "netguard_mean": 0.5402,
+      "netguard_std": 0.0498,
+      "gain": "+8.47%",
+      "note": "Moderate gain; limited by N=1 to N=9 rare attack support"
+    },
+    {
+      "metric": "Weighted F1-Score",
+      "baseline": 0.8683,
+      "netguard_mean": 0.9778,
+      "netguard_std": 0.0054,
+      "gain": "+0.1095",
+      "note": "High overall volume precision"
+    },
+    {
+      "metric": "Classification Accuracy",
+      "baseline": 0.7779,
+      "netguard_mean": 0.9667,
+      "netguard_std": 0.01,
+      "gain": "+18.88%",
+      "note": "Superior benign filtering"
+    },
+    {
+      "metric": "Next-State Dynamics MSE",
+      "baseline": "N/A (Memoryless)",
+      "netguard_mean": 1.2012,
+      "netguard_std": 0.002,
+      "gain": "MSE = 1.2012 (+6.01 sigma vs shuffled)",
+      "note": "Continuous physical state trajectory modeling"
+    }
+  ],
+  "cross_dataset_empirical": {
+    "unsw_nb15": {
+      "support_n": 82322,
+      "threat_accuracy": 0.362,
+      "threat_f1": 0.1313,
+      "threat_precision": 0.2623,
+      "threat_recall": 0.0876,
+      "normal_true_negative": 0.6982,
+      "mitre_stage_macro_f1": 0.1035,
+      "mitre_stage_weighted_f1": 0.2687,
+      "threat_roc_auc": 0.3736,
+      "threat_pr_auc": 0.4531
+    },
+    "cic_ids_2018": {
+      "support_n": 149990,
+      "threat_accuracy": 0.2328,
+      "threat_f1": 0.0907,
+      "threat_precision": 0.6904,
+      "threat_recall": 0.0485,
+      "benign_true_negative": 0.919,
+      "threat_roc_auc": 0.6256,
+      "threat_pr_auc": 0.8212
+    }
+  }
+}

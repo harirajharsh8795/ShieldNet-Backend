@@ -1,0 +1,20 @@
+{
+  "step": "Step 1 Verification",
+  "timestamp_utc": "2026-08-29T13:13:04Z",
+  "checkpoint_sha256": "dfbbb33026dec5b640a933400eecad2feb0b3329fb3fb8159e42d34548604371",
+  "test_parquet_sha256": "a7b9d405ac218da4237bdb576afe3692d231efd2646a804cf1cccd4da55e1748",
+  "test_support_n": 10909,
+  "raw_macro_f1": 0.2926,
+  "calibrated_macro_f1": 0.0966,
+  "accuracy": 0.895,
+  "balanced_accuracy_raw": 0.7915,
+  "balanced_accuracy_calibrated": 0.7935,
+  "weighted_f1": 0.9377,
+  "roc_auc": 0.9798,
+  "pr_auc": 0.5523,
+  "fpr_at_50": 0.1141,
+  "fpr_at_99": 0.0036,
+  "state_mse": 1.1997,
+  "shuffled_mse": 1.2036,
+  "mse_sigma": 3.52
+}

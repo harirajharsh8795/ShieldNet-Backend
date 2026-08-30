@@ -1,0 +1,114 @@
+{
+  "checkpoint": "models\\checkpoints\\world_model_v1.pt",
+  "total_test_samples": 10909,
+  "classes": [
+    {
+      "class": "BENIGN",
+      "test_n": 10812,
+      "precision": 0.9994837377387713,
+      "recall": 0.8953015168331484,
+      "f1_score": 0.9445284675806216,
+      "stratum": "N >= 10"
+    },
+    {
+      "class": "Bot",
+      "test_n": 51,
+      "precision": 0.05562130177514793,
+      "recall": 0.9215686274509803,
+      "f1_score": 0.10491071428571429,
+      "stratum": "N >= 10"
+    },
+    {
+      "class": "DDoS",
+      "test_n": 3,
+      "precision": 0.6,
+      "recall": 1.0,
+      "f1_score": 0.75,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "DoS GoldenEye",
+      "test_n": 1,
+      "precision": 0.058823529411764705,
+      "recall": 1.0,
+      "f1_score": 0.1111111111111111,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "DoS Hulk",
+      "test_n": 3,
+      "precision": 0.15384615384615385,
+      "recall": 0.6666666666666666,
+      "f1_score": 0.25,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "DoS Slowhttptest",
+      "test_n": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "DoS slowloris",
+      "test_n": 4,
+      "precision": 0.05084745762711865,
+      "recall": 0.75,
+      "f1_score": 0.09523809523809523,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "FTP-Patator",
+      "test_n": 9,
+      "precision": 0.11267605633802817,
+      "recall": 0.8888888888888888,
+      "f1_score": 0.2,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "PortScan",
+      "test_n": 2,
+      "precision": 0.15384615384615385,
+      "recall": 1.0,
+      "f1_score": 0.26666666666666666,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "Rare-Attack",
+      "test_n": 3,
+      "precision": 0.03571428571428571,
+      "recall": 0.6666666666666666,
+      "f1_score": 0.06779661016949153,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "SSH-Patator",
+      "test_n": 9,
+      "precision": 0.09782608695652174,
+      "recall": 1.0,
+      "f1_score": 0.1782178217821782,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "Web Attack - Brute Force",
+      "test_n": 6,
+      "precision": 0.29411764705882354,
+      "recall": 0.8333333333333334,
+      "f1_score": 0.43478260869565216,
+      "stratum": "N < 10"
+    },
+    {
+      "class": "Web Attack - XSS",
+      "test_n": 3,
+      "precision": 0.2857142857142857,
+      "recall": 0.6666666666666666,
+      "f1_score": 0.4,
+      "stratum": "N < 10"
+    }
+  ],
+  "macro_f1_high_support_ge_10": 0.5247195909331679,
+  "macro_f1_ultra_rare_lt_10": 0.2503466285148359,
+  "overall_macro_f1": 0.2925578535022716,
+  "weighted_f1": 0.9376692346332727
+}

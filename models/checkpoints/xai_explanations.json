@@ -1,0 +1,344 @@
+{
+  "methodology": "Integrated Gradients (Riemann 50-step path integral) + Temporal Attention Saliency",
+  "scenario_explanations": [
+    {
+      "scenario_id": "SCENARIO_1_WEB_ATTACK_MITIGATION",
+      "host_identifier": "172.16.0.1 (External Ingress)",
+      "recommended_action": "RESET_CONNECTIONS",
+      "explanation": {
+        "predicted_class": "Web Attack - Brute Force",
+        "predicted_class_index": 11,
+        "confidence_score": 0.9909538626670837,
+        "top_features": [
+          {
+            "rank": 1,
+            "feature_name": "Init_Win_bytes_forward",
+            "attribution_score": 1.3666242361068726,
+            "standardized_value": 1.5582741498947144,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 2,
+            "feature_name": "PSH Flag Count",
+            "attribution_score": 0.8124299049377441,
+            "standardized_value": 1.3173078298568726,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 3,
+            "feature_name": "Total Length of Fwd Packets",
+            "attribution_score": 0.46714022755622864,
+            "standardized_value": 0.3001711368560791,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 4,
+            "feature_name": "Subflow Fwd Bytes",
+            "attribution_score": 0.4030364453792572,
+            "standardized_value": 0.3001711368560791,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 5,
+            "feature_name": "tcp_window_max",
+            "attribution_score": 0.3529389202594757,
+            "standardized_value": 0.837718665599823,
+            "impact_direction": "Elevates Attack Risk"
+          }
+        ],
+        "temporal_attention_weights": [
+          0.00962065439671278,
+          0.07138816267251968,
+          0.918991208076477
+        ],
+        "full_attributions_shape": [
+          3,
+          84
+        ],
+        "plain_text_explanation": "Proactive Threat Warning: Web Attack - Brute Force (Forecast Confidence: 99.1%). Prediction is primarily driven by anomalous elevation in: 'Init_Win_bytes_forward' (elevates attack risk, score: +1.367), 'PSH Flag Count' (elevates attack risk, score: +0.812), 'Total Length of Fwd Packets' (elevates attack risk, score: +0.467). Temporal attention model placed 91.9% focus on the latest telemetry window.",
+        "completeness_delta": 3.8699653148651123
+      }
+    },
+    {
+      "scenario_id": "SCENARIO_2_SSH_PATATOR_BLOCK",
+      "host_identifier": "172.16.0.1 (SSH Attacker)",
+      "recommended_action": "RESET_CONNECTIONS",
+      "explanation": {
+        "predicted_class": "SSH-Patator",
+        "predicted_class_index": 10,
+        "confidence_score": 0.9980531930923462,
+        "top_features": [
+          {
+            "rank": 1,
+            "feature_name": "ttl_mean",
+            "attribution_score": 0.9440364241600037,
+            "standardized_value": -0.7709026336669922,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 2,
+            "feature_name": "Init_Win_bytes_forward",
+            "attribution_score": 0.4209444522857666,
+            "standardized_value": 0.6642184257507324,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 3,
+            "feature_name": "PSH Flag Count",
+            "attribution_score": 0.33470281958580017,
+            "standardized_value": 0.4467271566390991,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 4,
+            "feature_name": "Min Packet Length",
+            "attribution_score": 0.32842811942100525,
+            "standardized_value": -0.6761223077774048,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 5,
+            "feature_name": "Bwd Packet Length Min",
+            "attribution_score": 0.29423651099205017,
+            "standardized_value": -0.6222435832023621,
+            "impact_direction": "Elevates Attack Risk"
+          }
+        ],
+        "temporal_attention_weights": [
+          0.0016490364214405417,
+          0.03950933367013931,
+          0.9588416218757629
+        ],
+        "full_attributions_shape": [
+          3,
+          84
+        ],
+        "plain_text_explanation": "Proactive Threat Warning: SSH-Patator (Forecast Confidence: 99.8%). Prediction is primarily driven by anomalous elevation in: 'ttl_mean' (elevates attack risk, score: +0.944), 'Init_Win_bytes_forward' (elevates attack risk, score: +0.421), 'PSH Flag Count' (elevates attack risk, score: +0.335). Temporal attention model placed 95.9% focus on the latest telemetry window.",
+        "completeness_delta": 3.4458372592926025
+      }
+    },
+    {
+      "scenario_id": "SCENARIO_3_BOTNET_QUARANTINE",
+      "host_identifier": "192.168.10.5 (Compromised Endpoint)",
+      "recommended_action": "NO_ACTION",
+      "explanation": {
+        "predicted_class": "BENIGN",
+        "predicted_class_index": 0,
+        "confidence_score": 0.9921321272850037,
+        "top_features": [
+          {
+            "rank": 1,
+            "feature_name": "PSH Flag Count",
+            "attribution_score": 0.5676699876785278,
+            "standardized_value": -0.6485194563865662,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 2,
+            "feature_name": "Fwd IAT Total",
+            "attribution_score": -0.1973138302564621,
+            "standardized_value": 1.2945055961608887,
+            "impact_direction": "Suppresses Attack Risk"
+          },
+          {
+            "rank": 3,
+            "feature_name": "Flow Duration",
+            "attribution_score": -0.15975543856620789,
+            "standardized_value": 1.2863131761550903,
+            "impact_direction": "Suppresses Attack Risk"
+          },
+          {
+            "rank": 4,
+            "feature_name": "Fwd Packet Length Max",
+            "attribution_score": -0.15085884928703308,
+            "standardized_value": 0.7628021836280823,
+            "impact_direction": "Suppresses Attack Risk"
+          },
+          {
+            "rank": 5,
+            "feature_name": "Total Length of Fwd Packets",
+            "attribution_score": -0.13851575553417206,
+            "standardized_value": 0.3101654052734375,
+            "impact_direction": "Suppresses Attack Risk"
+          }
+        ],
+        "temporal_attention_weights": [
+          0.00018985860515385866,
+          0.023442676290869713,
+          0.9763675332069397
+        ],
+        "full_attributions_shape": [
+          3,
+          84
+        ],
+        "plain_text_explanation": "Normal Network Telemetry (Confidence: 99.2%). Core traffic features match baseline stationary distributions with 97.6% temporal weight on the current window.",
+        "completeness_delta": -0.3975721001625061
+      }
+    },
+    {
+      "scenario_id": "SCENARIO_4_SAFETY_GUARDRAIL_PROTECTION",
+      "host_identifier": "192.168.10.9 (Core Production DB)",
+      "recommended_action": "RESET_CONNECTIONS",
+      "explanation": {
+        "predicted_class": "BENIGN",
+        "predicted_class_index": 0,
+        "confidence_score": 0.999329686164856,
+        "top_features": [
+          {
+            "rank": 1,
+            "feature_name": "Fwd PSH Flags",
+            "attribution_score": -0.6014840602874756,
+            "standardized_value": 4.923948764801025,
+            "impact_direction": "Suppresses Attack Risk"
+          },
+          {
+            "rank": 2,
+            "feature_name": "PSH Flag Count",
+            "attribution_score": 0.352533757686615,
+            "standardized_value": -0.6485194563865662,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 3,
+            "feature_name": "Flow Packets/s",
+            "attribution_score": 0.2641889452934265,
+            "standardized_value": 2.332209825515747,
+            "impact_direction": "Elevates Attack Risk"
+          },
+          {
+            "rank": 4,
+            "feature_name": "SYN Flag Count",
+            "attribution_score": -0.25888293981552124,
+            "standardized_value": 4.923948764801025,
+            "impact_direction": "Suppresses Attack Risk"
+          },
+          {
+            "rank": 5,
+            "feature_name": "ACK Flag Count",
+            "attribution_score": 0.22068732976913452,
+            "standardized_value": 1.5190539360046387,
+            "impact_direction": "Elevates Attack Risk"
+          }
+        ],
+        "temporal_attention_weights": [
+          0.00020584910816978663,
+          0.029566820710897446,
+          0.9702273607254028
+        ],
+        "full_attributions_shape": [
+          3,
+          84
+        ],
+        "plain_text_explanation": "Normal Network Telemetry (Confidence: 99.9%). Core traffic features match baseline stationary distributions with 97.0% temporal weight on the current window.",
+        "completeness_delta": -0.04201151430606842
+      }
+    }
+  ],
+  "global_feature_ranking": [
+    {
+      "rank": 1,
+      "feature_name": "PSH Flag Count",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.427808940410614,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 2,
+      "feature_name": "ttl_mean",
+      "source_level": "PACKET-LEVEL",
+      "mean_attribution": 0.17312000691890717,
+      "domain_validation": "VALIDATED: OS hop-distance variance from spoofed attack origins"
+    },
+    {
+      "rank": 3,
+      "feature_name": "tcp_window_max",
+      "source_level": "PACKET-LEVEL",
+      "mean_attribution": 0.127023845911026,
+      "domain_validation": "VALIDATED: Buffer exhaustion & packet loss during flooding"
+    },
+    {
+      "rank": 4,
+      "feature_name": "ACK Flag Count",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.11662428826093674,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 5,
+      "feature_name": "Packet Length Std",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.09809684753417969,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 6,
+      "feature_name": "Packet Length Mean",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.09628163278102875,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 7,
+      "feature_name": "Avg Bwd Segment Size",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.09456116706132889,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 8,
+      "feature_name": "Init_Win_bytes_backward",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.09283079952001572,
+      "domain_validation": "VALIDATED: High-volume volumetric flood signature"
+    },
+    {
+      "rank": 9,
+      "feature_name": "Init_Win_bytes_forward",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.08745817095041275,
+      "domain_validation": "VALIDATED: High-volume volumetric flood signature"
+    },
+    {
+      "rank": 10,
+      "feature_name": "Average Packet Size",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.08693153411149979,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 11,
+      "feature_name": "Bwd Packet Length Min",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.08642975986003876,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 12,
+      "feature_name": "tcp_window_mean",
+      "source_level": "PACKET-LEVEL",
+      "mean_attribution": 0.08445709198713303,
+      "domain_validation": "VALIDATED: Buffer exhaustion & packet loss during flooding"
+    },
+    {
+      "rank": 13,
+      "feature_name": "Min Packet Length",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.08110250532627106,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 14,
+      "feature_name": "Bwd Packets/s",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.07900428026914597,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    },
+    {
+      "rank": 15,
+      "feature_name": "Packet Length Variance",
+      "source_level": "FLOW-LEVEL",
+      "mean_attribution": 0.07844027131795883,
+      "domain_validation": "VALIDATED: Stationary baseline deviation"
+    }
+  ]
+}

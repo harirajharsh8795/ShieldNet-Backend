@@ -1,0 +1,103 @@
+{
+  "audit_timestamp_utc": "2026-08-30T06:20:26Z",
+  "audit_note": "ALL metrics computed from real inference. ZERO hardcoded numbers.",
+  "checkpoint": {
+    "path": "models/checkpoints/world_model_v1.pt",
+    "sha256": "dfbbb33026dec5b640a933400eecad2feb0b3329fb3fb8159e42d34548604371",
+    "size_bytes": 1053961,
+    "parameters": 260904,
+    "architecture": "2-layer GRU (H=128) + Temporal Softmax Attention + 4 multi-task heads"
+  },
+  "test_data": {
+    "path": "data/processed/sequences_test.parquet",
+    "sha256": "a7b9d405ac218da4237bdb576afe3692d231efd2646a804cf1cccd4da55e1748",
+    "n_samples": 10909,
+    "source": "CICIDS2017 held-out test partition"
+  },
+  "in_distribution_metrics": {
+    "macro_f1": 0.2925578535022716,
+    "weighted_f1": 0.9376692346332727,
+    "balanced_accuracy": 0.7914686435774118,
+    "overall_accuracy": 0.8950407920066,
+    "threat_roc_auc": 0.9798038452883585,
+    "per_class": {
+      "BENIGN": {
+        "f1": 0.9445284675806216,
+        "support": 10812
+      },
+      "Bot": {
+        "f1": 0.10491071428571429,
+        "support": 51
+      },
+      "DDoS": {
+        "f1": 0.75,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "f1": 0.1111111111111111,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "f1": 0.25,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "f1": 0.09523809523809523,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "f1": 0.2,
+        "support": 9
+      },
+      "PortScan": {
+        "f1": 0.26666666666666666,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "f1": 0.06779661016949153,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "f1": 0.1782178217821782,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "f1": 0.43478260869565216,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "f1": 0.4,
+        "support": 3
+      }
+    }
+  },
+  "shuffle_ablation": {
+    "seeds": [
+      42,
+      101,
+      2024,
+      777,
+      999
+    ],
+    "original_balanced_accuracy": 0.7914686435774118,
+    "shuffled_balanced_accuracies": [
+      0.6854468444368556,
+      0.703297380877847,
+      0.6470849104034453,
+      0.7396861986207158,
+      0.6710468899703084
+    ],
+    "mean_shuffled": 0.6893124448618343,
+    "std_shuffled": 0.031192407831739356,
+    "delta": 0.10215619871557746,
+    "sigma_significance": 3.2750340809416447
+  },
+  "k_step_rollout": {
+    "k": 5,
+    "latency_ms_mean_200runs": 15.211827007587999
+  }
+}

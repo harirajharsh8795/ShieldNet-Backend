@@ -1,0 +1,35 @@
+{
+  "experiment": "per_class_threshold_calibration",
+  "timestamp_utc": "2026-08-29T14:41:11Z",
+  "method": "Thresholds tuned on validation set, applied to test set predictions. No retraining.",
+  "thresholds": {
+    "BENIGN": 0.005370971281081438,
+    "Bot": 0.9797230362892151,
+    "DDoS": 0.9979158043861389,
+    "DoS GoldenEye": 0.0015049780486151576,
+    "DoS Hulk": 0.808107852935791,
+    "DoS Slowhttptest": 0.9574300050735474,
+    "DoS slowloris": 0.9971289038658142,
+    "FTP-Patator": 0.9768039584159851,
+    "PortScan": 0.989638090133667,
+    "Rare-Attack": 0.022303177043795586,
+    "SSH-Patator": 0.9918547868728638,
+    "Web Attack - Brute Force": 0.9676869511604309,
+    "Web Attack - XSS": 0.5289735794067383
+  },
+  "before": {
+    "macro_f1": 0.2925578535022716,
+    "balanced_accuracy": 0.7914686435774118,
+    "accuracy": 0.8950407920066,
+    "weighted_f1": 0.9376692346332727,
+    "benign_precision": 0.9994837377387713
+  },
+  "after": {
+    "macro_f1": 0.5413432466587937,
+    "balanced_accuracy": 0.6657868275515333,
+    "accuracy": 0.9850582088184068,
+    "weighted_f1": 0.9873110220762312,
+    "benign_precision": 0.9953514317590182
+  },
+  "adopted": false
+}

@@ -1,0 +1,232 @@
+{
+  "trajectory_lengths": [
+    {
+      "Class": "BENIGN",
+      "Total_Hosts": 30961,
+      "Total_Windows": 139240,
+      "Avg_Windows_Per_Host": 4.5,
+      "Max_Windows": 2674,
+      "Transitions_Produced": 108279
+    },
+    {
+      "Class": "Bot",
+      "Total_Hosts": 6,
+      "Total_Windows": 345,
+      "Avg_Windows_Per_Host": 57.5,
+      "Max_Windows": 75,
+      "Transitions_Produced": 339
+    },
+    {
+      "Class": "SSH-Patator",
+      "Total_Hosts": 1,
+      "Total_Windows": 63,
+      "Avg_Windows_Per_Host": 63.0,
+      "Max_Windows": 63,
+      "Transitions_Produced": 62
+    },
+    {
+      "Class": "FTP-Patator",
+      "Total_Hosts": 1,
+      "Total_Windows": 55,
+      "Avg_Windows_Per_Host": 55.0,
+      "Max_Windows": 55,
+      "Transitions_Produced": 54
+    },
+    {
+      "Class": "Web Attack - Brute Force",
+      "Total_Hosts": 1,
+      "Total_Windows": 44,
+      "Avg_Windows_Per_Host": 44.0,
+      "Max_Windows": 44,
+      "Transitions_Produced": 43
+    },
+    {
+      "Class": "DoS slowloris",
+      "Total_Hosts": 1,
+      "Total_Windows": 27,
+      "Avg_Windows_Per_Host": 27.0,
+      "Max_Windows": 27,
+      "Transitions_Produced": 26
+    },
+    {
+      "Class": "PortScan",
+      "Total_Hosts": 1,
+      "Total_Windows": 25,
+      "Avg_Windows_Per_Host": 25.0,
+      "Max_Windows": 25,
+      "Transitions_Produced": 24
+    },
+    {
+      "Class": "DDoS",
+      "Total_Hosts": 2,
+      "Total_Windows": 22,
+      "Avg_Windows_Per_Host": 11.0,
+      "Max_Windows": 21,
+      "Transitions_Produced": 20
+    },
+    {
+      "Class": "DoS Hulk",
+      "Total_Hosts": 1,
+      "Total_Windows": 21,
+      "Avg_Windows_Per_Host": 21.0,
+      "Max_Windows": 21,
+      "Transitions_Produced": 20
+    },
+    {
+      "Class": "Web Attack - XSS",
+      "Total_Hosts": 1,
+      "Total_Windows": 21,
+      "Avg_Windows_Per_Host": 21.0,
+      "Max_Windows": 21,
+      "Transitions_Produced": 20
+    },
+    {
+      "Class": "DoS Slowhttptest",
+      "Total_Hosts": 1,
+      "Total_Windows": 19,
+      "Avg_Windows_Per_Host": 19.0,
+      "Max_Windows": 19,
+      "Transitions_Produced": 18
+    },
+    {
+      "Class": "Rare-Attack",
+      "Total_Hosts": 3,
+      "Total_Windows": 19,
+      "Avg_Windows_Per_Host": 6.33,
+      "Max_Windows": 11,
+      "Transitions_Produced": 16
+    },
+    {
+      "Class": "DoS GoldenEye",
+      "Total_Hosts": 1,
+      "Total_Windows": 7,
+      "Avg_Windows_Per_Host": 7.0,
+      "Max_Windows": 7,
+      "Transitions_Produced": 6
+    }
+  ],
+  "multi_seed_shuffle_ablation": {
+    "ordered": {
+      "mse": 1.191820740699768,
+      "accuracy": 0.9829498579154826,
+      "balanced_accuracy": 0.6973709174042138,
+      "macro_f1": 0.6495008022394934
+    },
+    "shuffled_aggregate": {
+      "mse_mean": 1.1935964584350587,
+      "mse_std": 0.0004025251126843619,
+      "accuracy_mean": 0.9822165184709872,
+      "accuracy_std": 0.0005997039961058189,
+      "balanced_accuracy_mean": 0.5635049375337944,
+      "balanced_accuracy_std": 0.04369292336484617,
+      "macro_f1_mean": 0.4810881225100627,
+      "macro_f1_std": 0.03133214518311822
+    },
+    "per_class": [
+      {
+        "Class": "BENIGN",
+        "Support": 10812,
+        "Ordered_F1": 0.9918,
+        "Shuffled_F1_Mean": 0.9915,
+        "Shuffled_F1_Std": 0.0003,
+        "Delta": 0.0002
+      },
+      {
+        "Class": "Bot",
+        "Support": 51,
+        "Ordered_F1": 0.2707,
+        "Shuffled_F1_Mean": 0.2725,
+        "Shuffled_F1_Std": 0.0162,
+        "Delta": -0.0018
+      },
+      {
+        "Class": "DDoS",
+        "Support": 3,
+        "Ordered_F1": 0.8,
+        "Shuffled_F1_Mean": 0.8,
+        "Shuffled_F1_Std": 0.0,
+        "Delta": 0.0
+      },
+      {
+        "Class": "DoS GoldenEye",
+        "Support": 1,
+        "Ordered_F1": 1.0,
+        "Shuffled_F1_Mean": 0.2,
+        "Shuffled_F1_Std": 0.2449,
+        "Delta": 0.8
+      },
+      {
+        "Class": "DoS Hulk",
+        "Support": 3,
+        "Ordered_F1": 0.8,
+        "Shuffled_F1_Mean": 0.2,
+        "Shuffled_F1_Std": 0.2449,
+        "Delta": 0.6
+      },
+      {
+        "Class": "DoS Slowhttptest",
+        "Support": 3,
+        "Ordered_F1": 0.4,
+        "Shuffled_F1_Mean": 0.3933,
+        "Shuffled_F1_Std": 0.0611,
+        "Delta": 0.0067
+      },
+      {
+        "Class": "DoS slowloris",
+        "Support": 4,
+        "Ordered_F1": 0.2857,
+        "Shuffled_F1_Mean": 0.25,
+        "Shuffled_F1_Std": 0.0,
+        "Delta": 0.0357
+      },
+      {
+        "Class": "FTP-Patator",
+        "Support": 9,
+        "Ordered_F1": 0.9412,
+        "Shuffled_F1_Mean": 0.8676,
+        "Shuffled_F1_Std": 0.0434,
+        "Delta": 0.0735
+      },
+      {
+        "Class": "PortScan",
+        "Support": 2,
+        "Ordered_F1": 0.3636,
+        "Shuffled_F1_Mean": 0.3782,
+        "Shuffled_F1_Std": 0.0178,
+        "Delta": -0.0145
+      },
+      {
+        "Class": "Rare-Attack",
+        "Support": 3,
+        "Ordered_F1": 0.3333,
+        "Shuffled_F1_Mean": 0.0,
+        "Shuffled_F1_Std": 0.0,
+        "Delta": 0.3333
+      },
+      {
+        "Class": "SSH-Patator",
+        "Support": 9,
+        "Ordered_F1": 0.9,
+        "Shuffled_F1_Mean": 0.9009,
+        "Shuffled_F1_Std": 0.0286,
+        "Delta": -0.0009
+      },
+      {
+        "Class": "Web Attack - Brute Force",
+        "Support": 6,
+        "Ordered_F1": 0.8571,
+        "Shuffled_F1_Mean": 0.8,
+        "Shuffled_F1_Std": 0.0,
+        "Delta": 0.0571
+      },
+      {
+        "Class": "Web Attack - XSS",
+        "Support": 3,
+        "Ordered_F1": 0.5,
+        "Shuffled_F1_Mean": 0.2,
+        "Shuffled_F1_Std": 0.2449,
+        "Delta": 0.3
+      }
+    ]
+  }
+}

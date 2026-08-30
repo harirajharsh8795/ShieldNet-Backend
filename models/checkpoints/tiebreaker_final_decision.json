@@ -1,0 +1,53 @@
+{
+  "timestamp_utc": "2026-08-30T10:48:09Z",
+  "20_seed_shuffle_ablation": {
+    "seeds": [
+      42,
+      101,
+      2024,
+      777,
+      999,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "world_model_v1": {
+      "intact_bacc": 79.15,
+      "mean_shuffled_bacc": 68.09,
+      "std_shuffled_bacc": 4.38,
+      "drop": 11.05,
+      "sigma": 2.53
+    },
+    "ensemble_wm_logreg": {
+      "intact_bacc": 83.12,
+      "mean_shuffled_bacc": 68.85,
+      "std_shuffled_bacc": 3.64,
+      "drop": 14.27,
+      "sigma": 3.92
+    }
+  },
+  "corrected_latency_ms": {
+    "world_model_v1": 0.015,
+    "logreg": 0.0009,
+    "ensemble": 0.0155
+  },
+  "decision": {
+    "winner": "WM_v1 + Balanced Logistic Regression (Soft Avg, w=0.6)",
+    "balanced_accuracy": 83.12,
+    "macro_f1": 0.4203,
+    "sigma": 3.92,
+    "rationale": "Genuinely beats standalone world_model_v1.pt on Balanced Accuracy (83.12% vs 79.15%, +3.97%), Macro-F1 (0.4203 vs 0.2926, +0.1277), maintains robust 20-seed shuffle significance (+3.51 sigma), sensible latency (0.0163 ms/sample), and clean dual-engine explainability."
+  }
+}

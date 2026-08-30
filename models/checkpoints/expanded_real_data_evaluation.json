@@ -1,0 +1,24 @@
+{
+  "timestamp_utc": "2026-08-29T15:05:46Z",
+  "experiment": "cicids2018_rare_class_training_expansion",
+  "added_real_training_sequences": 11608,
+  "in_distribution_metrics": {
+    "macro_f1": 0.21465738281115587,
+    "balanced_accuracy": 0.5809760285342971,
+    "accuracy": 0.7480062333852782,
+    "weighted_f1": 0.8487850838363764,
+    "roc_auc": 0.9788598769599262,
+    "pr_auc": 0.5274207060320829,
+    "state_mse": 1.1954838037490845,
+    "shuffle_sigma": 4.070979963461478
+  },
+  "held_out_cic2018_slice_metrics": {
+    "n_transitions": 19997,
+    "accuracy": 0.29829474421163177,
+    "balanced_accuracy": 0.3635940512259542,
+    "macro_f1": 0.10556163741922149,
+    "weighted_f1": 0.3934233789976029,
+    "roc_auc": 0.7121526696415073,
+    "pr_auc": 0.7077126543174126
+  }
+}

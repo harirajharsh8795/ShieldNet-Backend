@@ -1,0 +1,160 @@
+# NetGuard - World-Model Network Attack Forecasting
+# Master configuration file
+
+project:
+  name: "NetGuard"
+  version: "0.1.0"
+  description: "AI-Based Network Attack Forecasting from Network Traffic Data"
+  problem_statement: "SIH26153"
+  organization: "NTRO"
+
+# Reproducibility
+seed: 42
+deterministic: true
+
+# Data paths
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  version: "v1"
+  cic_ids_2018_dir: "data/raw/cic-ids-2018"
+  ctu_13_dir: "data/raw/ctu-13"
+
+# Feature engineering
+features:
+  window_size_seconds: 10
+  flow_level:
+    enabled: true
+    features:
+      - src_ip_encoded
+      - dst_ip_encoded
+      - src_port
+      - dst_port
+      - protocol
+      - tcp_flags_bitmask
+      - flow_duration
+      - total_fwd_packets
+      - total_bwd_packets
+      - total_fwd_bytes
+      - total_bwd_bytes
+      - fwd_packets_per_sec
+      - bwd_packets_per_sec
+      - flow_bytes_per_sec
+      - flow_packets_per_sec
+      - fwd_iat_mean
+      - fwd_iat_std
+      - bwd_iat_mean
+      - bwd_iat_std
+      - fwd_bwd_packet_ratio
+      - fwd_bwd_byte_ratio
+  packet_level:
+    enabled: true
+    features:
+      - ttl_variance
+      - ttl_mean
+      - tcp_window_size_mean
+      - tcp_window_size_std
+      - ip_fragment_flag_ratio
+      - payload_size_mean
+      - payload_size_std
+      - payload_size_entropy
+      - port_scan_sequential_score
+      - port_scan_random_score
+      - retransmission_count
+      - retransmission_ratio
+      - syn_ratio
+      - rst_ratio
+      - fin_ratio
+
+# Time windowing / sequencer
+sequencer:
+  window_size_seconds: 10
+  sequence_length: 20  # number of windows per sequence
+  stride: 1
+  min_flows_per_window: 5
+
+# Data splitting
+split:
+  train_ratio: 0.7
+  val_ratio: 0.15
+  test_ratio: 0.15
+  stratify_by: "attack_type"
+
+# Baseline model
+baseline:
+  model: "logistic_regression"
+  max_iter: 1000
+  C: 1.0
+  class_weight: "balanced"
+
+# World model
+world_model:
+  architecture: "lstm"  # Options: lstm, transformer
+  lstm:
+    input_size: null  # set dynamically from feature count
+    hidden_size: 256
+    num_layers: 2
+    dropout: 0.3
+    bidirectional: false
+  transformer:
+    d_model: 128
+    nhead: 8
+    num_encoder_layers: 4
+    dim_feedforward: 512
+    dropout: 0.1
+  training:
+    epochs: 50
+    batch_size: 64
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    scheduler: "cosine"
+    early_stopping_patience: 10
+    checkpoint_every_n_epochs: 5
+    gradient_clip_norm: 1.0
+  loss:
+    primary: "mse"  # next-state prediction loss
+    auxiliary_classification_weight: 0.3  # hybrid: dynamics + classification
+
+# K-step simulation
+simulation:
+  default_k_steps: 10
+  max_k_steps: 50
+  confidence_decay_factor: 0.85  # per-step decay
+
+# MITRE ATT&CK mapping
+mitre:
+  stages:
+    - name: "Reconnaissance"
+      id: "TA0043"
+    - name: "Initial Access"
+      id: "TA0001"
+    - name: "Lateral Movement"
+      id: "TA0008"
+    - name: "Command & Control"
+      id: "TA0011"
+    - name: "Exfiltration"
+      id: "TA0010"
+
+# Explainability
+explainability:
+  method: "shap"  # Options: shap, attention, both
+  shap:
+    max_samples: 100
+    background_samples: 50
+  top_features_count: 5
+  enforce_explanation: true  # Constraint C2: raise error if missing
+
+# Dashboard
+dashboard:
+  port: 8501
+  title: "NetGuard — Network Attack Forecasting"
+  bundled_sample: "data/processed/v1/sample_demo.csv"
+
+# Evaluation
+evaluation:
+  metrics:
+    - f1_weighted
+    - precision_weighted
+    - recall_weighted
+    - false_positive_rate
+  cross_dataset: true

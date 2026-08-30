@@ -1,0 +1,82 @@
+{
+  "audit_timestamp_utc": "2026-08-30T06:45:15Z",
+  "model_name": "Logistic Regression (Definitive Baseline)",
+  "model_type": "Linear / Static Memoryless (Config A features, N=84)",
+  "train_data": {
+    "path": "data/processed/sequences_train.parquet",
+    "sha256": "75fc8c29bdb12842e6a954643437c2813add50a8f0657d96c16df2829211ff6e",
+    "n_samples": 71668
+  },
+  "test_data": {
+    "path": "data/processed/sequences_test.parquet",
+    "sha256": "a7b9d405ac218da4237bdb576afe3692d231efd2646a804cf1cccd4da55e1748",
+    "n_samples": 10909
+  },
+  "metrics": {
+    "macro_f1": 0.46905474505730776,
+    "weighted_f1": 0.989785699115694,
+    "balanced_accuracy": 0.4781059980838005,
+    "overall_accuracy": 0.9916582638188651,
+    "threat_roc_auc": 0.9190132384406788,
+    "per_class": {
+      "BENIGN": {
+        "f1": 0.9960310134760938,
+        "support": 10812
+      },
+      "Bot": {
+        "f1": 0.11764705882352941,
+        "support": 51
+      },
+      "DDoS": {
+        "f1": 0.8,
+        "support": 3
+      },
+      "DoS GoldenEye": {
+        "f1": 0.0,
+        "support": 1
+      },
+      "DoS Hulk": {
+        "f1": 0.5,
+        "support": 3
+      },
+      "DoS Slowhttptest": {
+        "f1": 0.0,
+        "support": 3
+      },
+      "DoS slowloris": {
+        "f1": 0.2857142857142857,
+        "support": 4
+      },
+      "FTP-Patator": {
+        "f1": 0.9411764705882353,
+        "support": 9
+      },
+      "PortScan": {
+        "f1": 0.8,
+        "support": 2
+      },
+      "Rare-Attack": {
+        "f1": 0.2857142857142857,
+        "support": 3
+      },
+      "SSH-Patator": {
+        "f1": 0.0,
+        "support": 9
+      },
+      "Web Attack - Brute Force": {
+        "f1": 0.8,
+        "support": 6
+      },
+      "Web Attack - XSS": {
+        "f1": 0.5714285714285714,
+        "support": 3
+      }
+    }
+  },
+  "retired_previous_values": {
+    "0.5421": "Retired (old binary / unaligned split artifact)",
+    "0.2475": "Retired (pre-harmonized class indexing artifact)",
+    "0.0652": "Retired (unweighted raw single-class artifact)"
+  },
+  "status": "DEFINITIVE_LOCKED"
+}

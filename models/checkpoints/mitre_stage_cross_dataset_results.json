@@ -1,0 +1,176 @@
+{
+  "cicids2017": {
+    "dataset": "CIC-IDS2017 (In-Distribution)",
+    "total_transitions": 10909,
+    "accuracy": 0.8987991566596388,
+    "balanced_accuracy": 0.8438493135265882,
+    "macro_f1": 0.31545910365394353,
+    "weighted_f1": 0.9361722084117534,
+    "stage_breakdown": [
+      {
+        "stage_id": 0,
+        "stage_name": "Stage 0: Benign",
+        "support_n": 10764,
+        "precision": 0.9988642230252969,
+        "recall": 0.8987365291713117,
+        "f1_score": 0.9461587363685265
+      },
+      {
+        "stage_id": 1,
+        "stage_name": "Stage 1: Reconnaissance",
+        "support_n": 2,
+        "precision": 0.15384615384615385,
+        "recall": 1.0,
+        "f1_score": 0.26666666666666666
+      },
+      {
+        "stage_id": 2,
+        "stage_name": "Stage 2: Initial Access",
+        "support_n": 27,
+        "precision": 0.1443850267379679,
+        "recall": 1.0,
+        "f1_score": 0.2523364485981308
+      },
+      {
+        "stage_id": 3,
+        "stage_name": "Stage 3: Lateral Movement",
+        "support_n": 5,
+        "precision": 0.03571428571428571,
+        "recall": 0.4,
+        "f1_score": 0.06557377049180328
+      },
+      {
+        "stage_id": 4,
+        "stage_name": "Stage 4: Command & Control",
+        "support_n": 97,
+        "precision": 0.10414201183431952,
+        "recall": 0.9072164948453608,
+        "f1_score": 0.18683651804670912
+      },
+      {
+        "stage_id": 5,
+        "stage_name": "Stage 5: Impact / Exfiltration",
+        "support_n": 14,
+        "precision": 0.0975609756097561,
+        "recall": 0.8571428571428571,
+        "f1_score": 0.17518248175182483
+      }
+    ]
+  },
+  "unsw_nb15": {
+    "dataset": "UNSW-NB15 (Out-of-Distribution Stage Level)",
+    "total_transitions": 82329,
+    "accuracy": 0.4271520363419937,
+    "balanced_accuracy": 0.21598744309203521,
+    "macro_f1": 0.13104587270802373,
+    "weighted_f1": 0.33471348787864363,
+    "stage_breakdown": [
+      {
+        "stage_id": 0,
+        "stage_name": "Stage 0: Benign",
+        "support_n": 36997,
+        "precision": 0.6107303528750175,
+        "recall": 0.9393464334946077,
+        "f1_score": 0.7402051096367451
+      },
+      {
+        "stage_id": 1,
+        "stage_name": "Stage 1: Reconnaissance",
+        "support_n": 10235,
+        "precision": 0.15384615384615385,
+        "recall": 0.00019540791402051784,
+        "f1_score": 0.00039032006245121
+      },
+      {
+        "stage_id": 2,
+        "stage_name": "Stage 2: Initial Access",
+        "support_n": 11132,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+      },
+      {
+        "stage_id": 3,
+        "stage_name": "Stage 3: Lateral Movement",
+        "support_n": 18915,
+        "precision": 0.24550898203592814,
+        "recall": 0.002167591858313508,
+        "f1_score": 0.0042972434755266745
+      },
+      {
+        "stage_id": 4,
+        "stage_name": "Stage 4: Command & Control",
+        "support_n": 961,
+        "precision": 0.013838949744961953,
+        "recall": 0.34443288241415193,
+        "f1_score": 0.026608786526789663
+      },
+      {
+        "stage_id": 5,
+        "stage_name": "Stage 5: Impact / Exfiltration",
+        "support_n": 4089,
+        "precision": 0.030165912518853696,
+        "recall": 0.009782342871117632,
+        "f1_score": 0.014773776546629732
+      }
+    ]
+  },
+  "cicids2018": {
+    "dataset": "CIC-IDS-2018 (Flow-Only Stage Level)",
+    "total_transitions": 149997,
+    "accuracy": 0.37236078054894434,
+    "balanced_accuracy": 0.3533502741146493,
+    "macro_f1": 0.17922208526906988,
+    "weighted_f1": 0.3323924047981757,
+    "stage_breakdown": [
+      {
+        "stage_id": 0,
+        "stage_name": "Stage 0: Benign",
+        "support_n": 52587,
+        "precision": 0.4953648079525478,
+        "recall": 0.7448228649666268,
+        "f1_score": 0.5950051649753905
+      },
+      {
+        "stage_id": 1,
+        "stage_name": "Stage 1: Reconnaissance",
+        "support_n": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+      },
+      {
+        "stage_id": 2,
+        "stage_name": "Stage 2: Initial Access",
+        "support_n": 24882,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+      },
+      {
+        "stage_id": 3,
+        "stage_name": "Stage 3: Lateral Movement",
+        "support_n": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1_score": 0.0
+      },
+      {
+        "stage_id": 4,
+        "stage_name": "Stage 4: Command & Control",
+        "support_n": 12500,
+        "precision": 0.13824564549754534,
+        "recall": 0.49336,
+        "f1_score": 0.21597296398115884
+      },
+      {
+        "stage_id": 5,
+        "stage_name": "Stage 5: Impact / Exfiltration",
+        "support_n": 60028,
+        "precision": 0.5380876860899371,
+        "recall": 0.1752182314919704,
+        "f1_score": 0.2643543826578699
+      }
+    ]
+  }
+}

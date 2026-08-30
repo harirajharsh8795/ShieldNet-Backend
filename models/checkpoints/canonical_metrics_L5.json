@@ -1,0 +1,310 @@
+{
+  "macro_f1": 0.39765829944039827,
+  "weighted_f1": 0.9518489047265053,
+  "balanced_accuracy": 61.24,
+  "accuracy": 91.85,
+  "threat_roc_auc": 0.9753,
+  "next_state_mse": 1.201279,
+  "confusion_matrix": [
+    [
+      9945,
+      814,
+      0,
+      1,
+      4,
+      7,
+      19,
+      3,
+      4,
+      13,
+      1,
+      0,
+      1
+    ],
+    [
+      5,
+      46,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      8,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      9,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      6
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3
+    ]
+  ],
+  "per_class": {
+    "BENIGN": {
+      "precision": 0.9992,
+      "recall": 0.9198,
+      "f1": 0.9579,
+      "support": 10812
+    },
+    "Bot": {
+      "precision": 0.0535,
+      "recall": 0.902,
+      "f1": 0.101,
+      "support": 51
+    },
+    "DDoS": {
+      "precision": 1.0,
+      "recall": 0.6667,
+      "f1": 0.8,
+      "support": 3
+    },
+    "DoS GoldenEye": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 1
+    },
+    "DoS Hulk": {
+      "precision": 0.2,
+      "recall": 0.3333,
+      "f1": 0.25,
+      "support": 3
+    },
+    "DoS Slowhttptest": {
+      "precision": 0.2,
+      "recall": 0.6667,
+      "f1": 0.3077,
+      "support": 3
+    },
+    "DoS slowloris": {
+      "precision": 0.0476,
+      "recall": 0.25,
+      "f1": 0.08,
+      "support": 4
+    },
+    "FTP-Patator": {
+      "precision": 0.7273,
+      "recall": 0.8889,
+      "f1": 0.8,
+      "support": 9
+    },
+    "PortScan": {
+      "precision": 0.2857,
+      "recall": 1.0,
+      "f1": 0.4444,
+      "support": 2
+    },
+    "Rare-Attack": {
+      "precision": 0.0588,
+      "recall": 0.3333,
+      "f1": 0.1,
+      "support": 3
+    },
+    "SSH-Patator": {
+      "precision": 0.8182,
+      "recall": 1.0,
+      "f1": 0.9,
+      "support": 9
+    },
+    "Web Attack - Brute Force": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "support": 6
+    },
+    "Web Attack - XSS": {
+      "precision": 0.2727,
+      "recall": 1.0,
+      "f1": 0.4286,
+      "support": 3
+    }
+  },
+  "context_length": 5,
+  "checkpoint_path": "models/checkpoints/canonical_world_model_L5.pt",
+  "training_time_seconds": 158.14,
+  "shuffle_ablation": {
+    "intact_balanced_accuracy": 61.24,
+    "intact_macro_f1": 0.3977,
+    "shuffled_baccs": [
+      59.1,
+      51.12,
+      57.48,
+      53.0,
+      54.76
+    ],
+    "shuffled_mf1s": [
+      0.3867,
+      0.3501,
+      0.3847,
+      0.3646,
+      0.3657
+    ],
+    "shuffled_mean_bacc": 55.09,
+    "shuffled_std_bacc": 2.9,
+    "drop_percent": 6.14,
+    "sigma": 2.12
+  }
+}
