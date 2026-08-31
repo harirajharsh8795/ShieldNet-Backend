@@ -1,0 +1,25 @@
+{
+  "timestamp_utc": "2026-08-31T17:05:54Z",
+  "paper_citation": "Srivastava et al., arXiv:2312.17270",
+  "num_skewed_features": 71,
+  "in_distribution": {
+    "balanced_accuracy": 69.84,
+    "macro_f1": 0.3436,
+    "threat_roc_auc": 0.988,
+    "threat_pr_auc": 0.6149,
+    "shuffle_sigma": 0.0,
+    "shuffle_drop": 0.01
+  },
+  "cross_dataset": {
+    "cse_cic_ids2018": {
+      "threat_roc_auc": 0.7787,
+      "threat_pr_auc": 0.9985,
+      "tuned_balanced_accuracy": 75.31,
+      "optimal_threshold": 0.9
+    },
+    "unsw_nb15": {
+      "threat_roc_auc": 0.1389,
+      "threat_pr_auc": 0.3724
+    }
+  }
+}

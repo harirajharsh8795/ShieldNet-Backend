@@ -1,0 +1,14 @@
+{
+  "timestamp_utc": "2026-08-31T11:52:55Z",
+  "model": "world_model_graph_v2.pt",
+  "clean_balanced_accuracy": 68.13606913495926,
+  "clean_macro_f1": 0.31534943345321076,
+  "clean_accuracy": 74.75478962324686,
+  "threat_roc_auc": 0.9777595340801171,
+  "threat_pr_auc": 0.5137811125838526,
+  "shuffled_mean_ba": 65.72548782454443,
+  "shuffled_std_ba": 5.614270856510238,
+  "temporal_drop": 2.410581310414827,
+  "temporal_sigma": 0.42936676409538505,
+  "rare_class_avg_delta": -0.09992896020412445
+}

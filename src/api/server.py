@@ -34,6 +34,8 @@ from src.world_model.model import WorldModel
 from src.mitigation.counterfactual_engine import CounterfactualTrajectoryEngine
 from src.mitigation.actions import MitigationAction
 from src.explainability.feature_attribution import IntegratedGradientsExplainer, DualEngineExplainer
+from src.explainability.mitre_kg import SymbolicMitreReasoner
+from src.mitigation.defense_synthesizer import SovereignDefenseSynthesizer
 
 app = FastAPI(
     title="ShieldNet Predictive World Model API",
@@ -58,6 +60,8 @@ world_model: Optional[WorldModel] = None
 secondary_model: Optional[Any] = None
 dual_explainer: Optional[DualEngineExplainer] = None
 cf_engine: Optional[CounterfactualTrajectoryEngine] = None
+mitre_reasoner: SymbolicMitreReasoner = SymbolicMitreReasoner()
+defense_synthesizer: SovereignDefenseSynthesizer = SovereignDefenseSynthesizer()
 classes_list: List[str] = []
 features_list: List[str] = []
 cached_benchmark_data: Dict[str, Any] = {}
@@ -294,6 +298,22 @@ class MitigateRequest(BaseModel):
     scenario_id: Optional[str] = Field("session-patator-bruteforce", description="Scenario ID to mitigate")
     k_steps: int = Field(3, ge=1, le=6, description="Rollout horizon")
 
+class MitreReasonRequest(BaseModel):
+    predicted_class: str = Field("SSH-Patator", description="Target attack class")
+    confidence: float = Field(0.982, description="Prediction probability")
+    host_ip: str = Field("172.16.0.1", description="Source adversary IP")
+    target_ip: str = Field("192.168.10.50", description="Target enterprise/CII IP")
+    k_steps: int = Field(3, ge=1, le=10, description="K-step forward horizon")
+    top_features: Optional[List[Dict[str, Any]]] = Field(None, description="Top attribution features")
+
+class DefenseRulesRequest(BaseModel):
+    predicted_class: str = Field("SSH-Patator", description="Target attack class")
+    confidence: float = Field(0.982, description="Prediction probability")
+    host_ip: str = Field("172.16.0.1", description="Source adversary IP")
+    target_ip: str = Field("192.168.10.50", description="Target enterprise/CII IP")
+    top_feature_name: str = Field("retransmission_count", description="Primary driving telemetry feature")
+    projected_risk_reduction_pct: float = Field(78.4, description="Projected risk drop from counterfactual policy")
+
 @app.on_event("startup")
 def startup_event():
     load_system_assets()
@@ -467,6 +487,26 @@ def predict_sequence(req: PredictRequest):
             status_code=500,
             detail="CONSTRAINT C2 VIOLATION: Prediction returned without an explanation object. PS explicitly requires: 'Black-box outputs without interpretability are not acceptable.'"
         )
+    # 6. Generate Post-Hoc Symbolic MITRE & Autonomous Defense Synthesis
+    mitre_reasoning = mitre_reasoner.explain_attack_progression(
+        predicted_class=pred_class_name,
+        confidence=threat_prob,
+        top_features=[{"feature_name": d["feature"], "attribution_score": d["score"]} for d in driving_features],
+        host_ip=req.host_ip,
+        target_ip="192.168.10.50",
+        k_steps_ahead=req.k_steps
+    )
+    
+    top_driver_name = driving_features[0]["feature"] if driving_features else "tcp_window_min"
+    defense_artifacts = defense_synthesizer.generate_defense_artifacts(
+        predicted_class=pred_class_name,
+        confidence=threat_prob,
+        host_ip=req.host_ip,
+        target_ip="192.168.10.50",
+        top_feature_name=top_driver_name,
+        mitre_info=mitre_reasoning,
+        projected_risk_reduction_pct=78.4
+    )
 
     return {
         "timestamp": pd.Timestamp.now().isoformat(),
@@ -479,6 +519,8 @@ def predict_sequence(req: PredictRequest):
         "k_step_rollout": rollout_trajectory,
         "top_contributing_features": driving_features,
         "forensic_narrative": plain_narrative,
+        "mitre_reasoning": mitre_reasoning,
+        "defense_artifacts": defense_artifacts,
         "dual_engine_breakdown": {
             "wm_threat_prob": float(1.0 - wm_probs[0]),
             "tabular_threat_prob": float(1.0 - sec_probs[0]),
@@ -587,6 +629,39 @@ def simulate_mitigation(req: MitigateRequest):
         "candidate_interventions": candidate_list,
         "system_engine": cf_results.get("system_engine", "")
     }
+
+@app.post("/api/mitre-kg/reason")
+def get_mitre_kg_reasoning(req: MitreReasonRequest):
+    """Returns post-hoc symbolic MITRE ATT&CK & CAPEC lifecycle reasoning."""
+    top_feats = req.top_features or [{"feature_name": "retransmission_count", "attribution_score": 0.428}]
+    return mitre_reasoner.explain_attack_progression(
+        predicted_class=req.predicted_class,
+        confidence=req.confidence,
+        top_features=top_feats,
+        host_ip=req.host_ip,
+        target_ip=req.target_ip,
+        k_steps_ahead=req.k_steps
+    )
+
+@app.post("/api/defense-rules")
+def get_defense_rules(req: DefenseRulesRequest):
+    """Synthesizes actionable Snort, Suricata, iptables, and NCIIPC Incident Dossier."""
+    mitre_info = mitre_reasoner.explain_attack_progression(
+        predicted_class=req.predicted_class,
+        confidence=req.confidence,
+        top_features=[{"feature_name": req.top_feature_name, "attribution_score": 0.428}],
+        host_ip=req.host_ip,
+        target_ip=req.target_ip
+    )
+    return defense_synthesizer.generate_defense_artifacts(
+        predicted_class=req.predicted_class,
+        confidence=req.confidence,
+        host_ip=req.host_ip,
+        target_ip=req.target_ip,
+        top_feature_name=req.top_feature_name,
+        mitre_info=mitre_info,
+        projected_risk_reduction_pct=req.projected_risk_reduction_pct
+    )
 
 if __name__ == "__main__":
     import uvicorn
