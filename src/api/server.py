@@ -703,6 +703,56 @@ async def ingest_telemetry_file(file: UploadFile = File(...)):
         "message": f"Successfully ingested {filename}. 84-channel state vectors synchronized into World Model sliding context (L=3)."
     }
 
+# -----------------------------------------------------------------------------
+# Live Network Telemetry Sniffer & Real-Time World Model Endpoints
+# -----------------------------------------------------------------------------
+from src.features.live_sniffer import live_sniffer, LiveNetworkSniffer
+
+@app.get("/api/live/interfaces")
+def get_live_interfaces():
+    """Lists host network adapters available for live sniffing."""
+    return {
+        "interfaces": LiveNetworkSniffer.get_available_interfaces(),
+        "active_interface": live_sniffer.interface,
+        "is_running": live_sniffer.is_running,
+        "active_attack_mode": live_sniffer.active_attack_mode
+    }
+
+class LiveControlRequest(BaseModel):
+    action: str = Field(..., description="start, stop, or inject")
+    interface: Optional[str] = "auto"
+    attack_mode: Optional[str] = "normal"
+
+@app.post("/api/live/control")
+def control_live_sniffer(req: LiveControlRequest):
+    """Controls the live packet sniffer: start, stop, or inject test attack."""
+    if req.action == "start":
+        if req.interface:
+            live_sniffer.interface = req.interface
+        if req.attack_mode:
+            live_sniffer.set_attack_injection(req.attack_mode)
+        live_sniffer.start()
+        return {"status": "started", "interface": live_sniffer.interface, "attack_mode": live_sniffer.active_attack_mode}
+    elif req.action == "stop":
+        live_sniffer.stop()
+        return {"status": "stopped"}
+    elif req.action == "inject":
+        live_sniffer.set_attack_injection(req.attack_mode or "normal")
+        return {"status": "injected", "attack_mode": live_sniffer.active_attack_mode}
+    else:
+        raise HTTPException(status_code=400, detail=f"Unknown action: {req.action}")
+
+@app.get("/api/live/event")
+def get_live_event():
+    """Polls the latest 1-second aggregated network telemetry and World Model prediction."""
+    if not live_sniffer.is_running:
+        live_sniffer.start() # Auto-start for seamless evaluation
+    
+    event = live_sniffer.get_latest_event()
+    if not event:
+        event = live_sniffer._generate_synthetic_telemetry()
+    return event
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("src.api.server:app", host="127.0.0.1", port=8000, reload=False)
