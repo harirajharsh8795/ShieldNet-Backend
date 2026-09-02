@@ -1,0 +1,35 @@
+{
+  "audit_timestamp_utc": "2026-09-02T07:18:00Z",
+  "method": "Multi-Class Optimal Boundary Weighting via Nelder-Mead PR-Tuning",
+  "optimal_class_weights": {
+    "BENIGN": 1.0817,
+    "Bot": 0.8751,
+    "DDoS": 1.0131,
+    "DoS GoldenEye": 1.005,
+    "DoS Hulk": 1.0212,
+    "DoS Slowhttptest": 0.9923,
+    "DoS slowloris": 1.0421,
+    "FTP-Patator": 0.9738,
+    "PortScan": 1.0,
+    "Rare-Attack": 1.0339,
+    "SSH-Patator": 1.0185,
+    "Web Attack - Brute Force": 0.9887,
+    "Web Attack - XSS": 0.9927
+  },
+  "before": {
+    "balanced_accuracy": 0.8312,
+    "macro_f1": 0.4203
+  },
+  "after_held_out_evaluation": {
+    "balanced_accuracy": 0.9064,
+    "macro_f1": 0.408,
+    "weighted_f1": 0.9424,
+    "overall_accuracy": 0.9036
+  },
+  "after_full_dataset": {
+    "balanced_accuracy": 0.8322,
+    "macro_f1": 0.412,
+    "weighted_f1": 0.9438,
+    "overall_accuracy": 0.9051
+  }
+}
