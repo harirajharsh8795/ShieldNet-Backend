@@ -1,0 +1,41 @@
+{
+  "timestamp_utc": "2026-09-02T06:18:55Z",
+  "total_flows_ingested": 70182,
+  "total_sequences_trained": 56144,
+  "test_metrics": {
+    "roc_auc": 0.9978,
+    "balanced_accuracy": 0.8668,
+    "macro_f1": 0.8153,
+    "weighted_f1": 0.905,
+    "accuracy": 0.9024
+  },
+  "ingestion_sources": {
+    "TrafficLabelling_CIC_IDS2017": {
+      "files_ingested": 8,
+      "rows_used": 30182,
+      "classes": [
+        "BENIGN",
+        "DDoS",
+        "PortScan",
+        "Bot",
+        "Rare-Attack",
+        "Web Attack - Brute Force",
+        "Web Attack - XSS",
+        "FTP-Patator",
+        "SSH-Patator",
+        "DoS slowloris",
+        "DoS Hulk",
+        "DoS Slowhttptest",
+        "DoS GoldenEye"
+      ]
+    },
+    "data_1_CSE_CIC_IDS2018": {
+      "files_ingested": 10,
+      "rows_used": 25000
+    },
+    "UNSW_NB15": {
+      "files_ingested": 2,
+      "rows_used": 15000
+    }
+  }
+}

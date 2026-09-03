@@ -1,0 +1,28 @@
+{
+  "held_out_enterprise_test": {
+    "roc_auc": 0.9843,
+    "balanced_accuracy": 0.7536,
+    "weighted_f1": 0.954,
+    "overall_accuracy": 0.9223,
+    "macro_f1": 0.4466,
+    "threat_recall": 0.9485,
+    "fpr": 0.0853,
+    "latency_us": 43.93
+  },
+  "fresh_cic_ids_2018": {
+    "dataset_file": "02-21-2018.csv",
+    "sample_count": 19998,
+    "roc_auc": 0.5573,
+    "balanced_accuracy": 0.5615,
+    "f1_score": 0.7468,
+    "accuracy": 0.6177
+  },
+  "fresh_unsw_nb15": {
+    "dataset_file": "UNSW_NB15_testing-set.csv",
+    "sample_count": 19998,
+    "roc_auc": 0.2661,
+    "balanced_accuracy": 0.4967,
+    "f1_score": 0.0035,
+    "accuracy": 0.0137
+  }
+}

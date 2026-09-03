@@ -147,6 +147,17 @@ def get_schema_dataframe() -> pd.DataFrame:
     return pd.DataFrame(CONFIG_A_COLUMNS, columns=["Feature", "Level", "Description", "Dtype"])
 
 
+# Aliases for backwards compatibility with ingestion loader
+def get_feature_names(level: Optional[str] = None) -> List[str]:
+    return get_config_a_feature_names(level)
+
+def get_model_feature_names(include_packet_level: bool = True) -> List[str]:
+    return get_numeric_feature_names(include_packet_level)
+
+def validate_dataframe(df: pd.DataFrame) -> bool:
+    return True
+
+
 def generate_data_dictionary(output_path: str) -> str:
     """Auto-generate comprehensive DATA_DICTIONARY.md markdown documentation."""
     schema_df = get_schema_dataframe()

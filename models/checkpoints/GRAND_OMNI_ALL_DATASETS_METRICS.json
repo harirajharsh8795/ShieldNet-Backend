@@ -1,0 +1,27 @@
+{
+  "status": "COMPLETE",
+  "epochs_trained": 5,
+  "total_sequences_trained": 41678,
+  "datasets_fused": [
+    "CIC-IDS2017",
+    "CSE-CIC-IDS2018",
+    "UNSW-NB15",
+    "DARPA-1998",
+    "CTU-13"
+  ],
+  "training_duration_seconds": 27.9,
+  "ctu13_benchmark": {
+    "scenarios": "Held-Out 11, 12, 13 (NSIS.ay, Virut, Rbot)",
+    "roc_auc": 0.9996,
+    "botnet_recall": 1.0,
+    "accuracy": 0.9805,
+    "macro_f1": 0.9406
+  },
+  "lanl_benchmark": {
+    "threat": "Lateral Movement & Pass-The-Hash (MITRE T1021/T1078)",
+    "roc_auc": 0.2678,
+    "redteam_recall": 1.0,
+    "accuracy": 0.116,
+    "macro_f1": 0.1039
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "timestamp_utc": "2026-09-02T06:18:28Z",
+  "test_1_harvested_balanced": {
+    "roc_auc": 0.9987,
+    "balanced_accuracy": 0.9462,
+    "macro_f1": 0.8801,
+    "weighted_f1": 0.9515,
+    "accuracy": 0.95
+  },
+  "test_2_friday_morning_botnet_active": {
+    "roc_auc": 0.7435,
+    "attack_recall": 0.4461,
+    "f1_score": 0.3895,
+    "balanced_accuracy": 0.64,
+    "accuracy": 0.7702
+  },
+  "test_3_unsw_with_feature_reconstructor": {
+    "roc_auc": 0.7563,
+    "attack_recall": 0.0,
+    "f1_score": 0.0,
+    "balanced_accuracy": 0.5,
+    "accuracy": 0.0121
+  }
+}

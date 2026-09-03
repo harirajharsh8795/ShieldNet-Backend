@@ -1,0 +1,18 @@
+{
+  "timestamp_utc": "2026-09-02T03:52:43Z",
+  "model": "world_model_omni_dataset.pt",
+  "sources_trained": {
+    "cic_ids_2017_flows": "3.12M raw flows (dataset/TrafficLabelling)",
+    "cse_cic_ids_2018_flows": "dataset/data 1 (02-14 & 02-15)",
+    "unsw_nb15_flows": "dataset/UNSW (training & testing)",
+    "packet_dynamics": "dataset/Packet_Fields_File_1.parquet (1.42 GB)"
+  },
+  "metrics_held_out_test": {
+    "threat_roc_auc": 0.9798,
+    "balanced_accuracy": 0.7485,
+    "weighted_f1": 0.9377,
+    "overall_accuracy": 0.8949,
+    "macro_f1": 0.2782,
+    "state_mse": 1.2128
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status": "COMPLETE",
+  "epochs_trained": 5,
+  "total_sequences_trained": 31680,
+  "darpa_military_fused": true,
+  "training_duration_seconds": 24.0,
+  "ctu13_benchmark": {
+    "scenarios_tested": 13,
+    "roc_auc": 0.5018,
+    "botnet_recall": 0.6782,
+    "accuracy": 0.3876,
+    "macro_f1": 0.2499
+  }
+}

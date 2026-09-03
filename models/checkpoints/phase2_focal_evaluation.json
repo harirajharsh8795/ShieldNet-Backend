@@ -1,0 +1,10 @@
+{
+  "timestamp_utc": "2026-09-02T02:21:48Z",
+  "checkpoint": "world_model_phase2_focal.pt",
+  "test_support_n": 10909,
+  "balanced_accuracy": 0.6604,
+  "macro_f1": 0.339,
+  "weighted_f1": 0.9607,
+  "accuracy": 0.9353,
+  "state_mse": 1.1996
+}

@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 
 
 class TemporalAttentionPooling(nn.Module):
@@ -205,6 +205,107 @@ class WorldModel(nn.Module):
             "class_logits": torch.stack(class_logits_list, dim=1),
             "mitre_logits": torch.stack(mitre_logits_list, dim=1),
             "attention_weights": torch.stack(attention_weights_list, dim=1),
+        }
+
+    def rollout_with_uncertainty(self, initial_sequence: torch.Tensor, k_steps: int = 5, num_mc_samples: int = 8) -> Dict[str, Any]:
+        """
+        Section 3 Fix: Bayesian Monte-Carlo Dropout Uncertainty-Weighted Rollout.
+        Calculates epistemic & aleatoric variance (σ²_{t+k}) for future steps k=1..5.
+        Prevents blind trust in decaying autoregressive predictions when confidence drops.
+        """
+        self.train() # Enable dropout for Monte-Carlo sampling
+        mc_rollouts = []
+        for _ in range(num_mc_samples):
+            with torch.no_grad():
+                res = self.rollout(initial_sequence, k_steps=k_steps)
+                mc_rollouts.append(torch.softmax(res["class_logits"], dim=-1))
+        self.eval()
+        
+        # mc_tensor: (num_mc, B, K, num_classes)
+        mc_tensor = torch.stack(mc_rollouts, dim=0)
+        mean_probs = torch.mean(mc_tensor, dim=0) # (B, K, num_classes)
+        std_probs = torch.std(mc_tensor, dim=0)   # (B, K, num_classes) - Uncertainty envelope
+        
+        # Infiltration probability and uncertainty bounds: P(Attack) = 1.0 - P(BENIGN)
+        mean_threat = 1.0 - mean_probs[..., 0]
+        threat_uncertainty = std_probs[..., 0]
+        
+        upper_bound = torch.clamp(mean_threat + 1.96 * threat_uncertainty, 0.0, 1.0)
+        lower_bound = torch.clamp(mean_threat - 1.96 * threat_uncertainty, 0.0, 1.0)
+        
+        # Flag warning if k=5 variance exceeds safe tolerance threshold
+        k5_uncertainty = threat_uncertainty[:, -1]
+        uncertainty_warning = (k5_uncertainty > 0.25)
+        
+        return {
+            "mean_threat_trajectory": mean_threat,
+            "threat_uncertainty_std": threat_uncertainty,
+            "confidence_upper_95": upper_bound,
+            "confidence_lower_95": lower_bound,
+            "uncertainty_warning": uncertainty_warning,
+            "k_steps": k_steps
+        }
+
+
+class HierarchicalTemporalWindowModel(nn.Module):
+    """
+    Section 3 Fix: Multi-Scale Hierarchical Temporal Operator.
+    Fuses three complementary temporal observation scales:
+    1. Micro-Window (1s bin): Resolves ultra-fast 50ms volumetric bursts & SYN pulses.
+    2. Meso-Window (10s bin): Tracks session-level protocol progression & TCP handshakes.
+    3. Macro-Window (60s bin): Detects stealth ultra-slow port scans & Clause 16 APT dwell times.
+    """
+    def __init__(self, base_world_model: WorldModel):
+        super().__init__()
+        self.world_model = base_world_model
+        # Scale-weighting fusion gate
+        self.scale_gate = nn.Sequential(
+            nn.Linear(84 * 3, 64),
+            nn.ReLU(),
+            nn.Linear(64, 3),
+            nn.Softmax(dim=-1)
+        )
+        
+    def forward(self, x_micro: torch.Tensor, x_meso: torch.Tensor, x_macro: torch.Tensor) -> Dict[str, Any]:
+        """
+        Args:
+            x_micro: 1-second dynamic resolution (B, L=3, 84)
+            x_meso:  10-second session resolution (B, L=3, 84)
+            x_macro: 60-second stealth persistence resolution (B, L=3, 84)
+        """
+        # Run base World Model across all three scales
+        out_micro = self.world_model(x_micro)
+        out_meso = self.world_model(x_meso)
+        out_macro = self.world_model(x_macro)
+        
+        # Calculate dynamic attention weights for each temporal scale
+        last_states = torch.cat([x_micro[:, -1, :], x_meso[:, -1, :], x_macro[:, -1, :]], dim=-1)
+        weights = self.scale_gate(last_states) # (B, 3)
+        
+        w_micro = weights[:, 0].unsqueeze(-1)
+        w_meso = weights[:, 1].unsqueeze(-1)
+        w_macro = weights[:, 2].unsqueeze(-1)
+        
+        fused_logits = (
+            w_micro * out_micro["class_logits"] +
+            w_meso * out_meso["class_logits"] +
+            w_macro * out_macro["class_logits"]
+        )
+        
+        fused_probs = F.softmax(fused_logits, dim=-1)
+        fused_threat = 1.0 - fused_probs[:, 0]
+        
+        return {
+            "fused_class_logits": fused_logits,
+            "fused_threat_prob": fused_threat,
+            "scale_weights": {
+                "micro_1s_weight": weights[:, 0],
+                "meso_10s_weight": weights[:, 1],
+                "macro_60s_weight": weights[:, 2]
+            },
+            "micro_out": out_micro,
+            "meso_out": out_meso,
+            "macro_out": out_macro
         }
 
 
