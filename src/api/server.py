@@ -118,8 +118,10 @@ def load_system_assets():
         classes_list = ["BENIGN", "Bot", "DDoS", "DoS GoldenEye", "DoS Hulk", "DoS Slowhttptest", "DoS slowloris", "FTP-Patator", "Heartbleed", "Infiltration", "PortScan", "SSH-Patator", "Web Attack - Brute Force"]
         features_list = [f"feat_{i}" for i in range(84)]
         
-    # 2. Load World Model Checkpoint
-    wm_path = CHECKPOINT_DIR / "world_model_v1.pt"
+    # 2. Load World Model Checkpoint (Prioritize 21.52M Grand Omni Champion)
+    wm_path = CHECKPOINT_DIR / "world_model_grand_omni.pt"
+    if not wm_path.exists():
+        wm_path = CHECKPOINT_DIR / "world_model_v1.pt"
     if wm_path.exists():
         world_model = WorldModel(
             input_size=84,
@@ -130,9 +132,10 @@ def load_system_assets():
             use_attention=True
         ).to(DEVICE)
         ckpt = torch.load(wm_path, map_location=DEVICE, weights_only=False)
-        world_model.load_state_dict(ckpt["model_state_dict"])
+        state = ckpt["model_state_dict"] if isinstance(ckpt, dict) and "model_state_dict" in ckpt else ckpt
+        world_model.load_state_dict(state)
         world_model.eval()
-        print(f"Loaded World Model GRU+Attention from {wm_path}")
+        print(f"Loaded Champion World Model (21.52M Trained) from {wm_path}")
         
     # 3. Load Secondary Tabular Model
     sec_path = CHECKPOINT_DIR / "ensemble_logreg.joblib"
