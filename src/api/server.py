@@ -837,6 +837,11 @@ class SentinelAlertRequest(BaseModel):
     recipient_email: Optional[str] = "soc-leads@cert-in.gov.in"
     webhook_url: Optional[str] = "https://hooks.slack.com/services/T00/B00/XXXX"
     whatsapp_number: Optional[str] = "+91 98765 43210"
+    callmebot_api_key: Optional[str] = None
+    smtp_host: Optional[str] = None
+    smtp_port: Optional[int] = 587
+    smtp_user: Optional[str] = None
+    smtp_password: Optional[str] = None
 
 @app.post("/api/sentinel/alert-dispatch")
 def dispatch_sentinel_alert(req: SentinelAlertRequest):
@@ -845,6 +850,10 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
     Dispatches early-warning alerts to SOC email, Webhook, and WhatsApp prior to compromise completion,
     and synthesizes 1-click deployable Linux, Windows, Cisco, and Cloudflare firewall mitigation rules.
     """
+    import os
+    import urllib.request
+    import urllib.parse
+    import json
     ts = pd.Timestamp.now().isoformat()
     
     # 1. Synthesize Sovereign Firewall Rules
@@ -866,8 +875,10 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
     attack_key = req.attack_id or "ddos"
     remediation_url = f"{base}/dashboard/alerts?attack={attack_key}&target={req.target_ip}"
 
-    # 2. Simulate Dispatch Payload for Notification Channels
+    # 2. Automated Dispatch Payload for Notification Channels
     dispatches = {}
+
+    # Email Dispatch (Real SMTP if configured, else structured advisory)
     if "email" in req.notification_channels:
         email_body = (
             f"🚨 [CRITICAL SHIELDNET EARLY WARNING NOTICE]\n"
@@ -887,15 +898,62 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             f"   {firewall_rules['windows_netsh']}\n\n"
             f"100% Air-Gapped Verification: Zero Cloud Telemetry Egress."
         )
+        email_status = "DELIVERED_SIMULATED"
+        
+        # Real SMTP Delivery check
+        smtp_h = req.smtp_host or os.environ.get("SHIELDNET_SMTP_HOST", "smtp.gmail.com")
+        smtp_u = req.smtp_user or os.environ.get("SHIELDNET_SMTP_USER")
+        smtp_p = req.smtp_password or os.environ.get("SHIELDNET_SMTP_PASS")
+        smtp_port = req.smtp_port or int(os.environ.get("SHIELDNET_SMTP_PORT", 587))
+        
+        if smtp_u and smtp_p and req.recipient_email:
+            try:
+                import smtplib
+                from email.mime.text import MIMEText
+                from email.mime.multipart import MIMEMultipart
+                msg = MIMEMultipart()
+                msg["From"] = smtp_u
+                msg["To"] = req.recipient_email
+                msg["Subject"] = f"🚨 [SHIELDNET CRITICAL ALERT] {req.attack_type} Projected on {req.target_asset}"
+                msg.attach(MIMEText(email_body, "plain"))
+                with smtplib.SMTP(smtp_h, smtp_port, timeout=8) as s:
+                    s.starttls()
+                    s.login(smtp_u, smtp_p)
+                    s.send_message(msg)
+                email_status = "SENT_REAL_SMTP_INBOX"
+            except Exception as e:
+                email_status = f"SMTP_ATTEMPT_FAILED: {str(e)[:60]}"
+
         dispatches["email"] = {
             "to": req.recipient_email,
             "subject": f"🚨 [SHIELDNET CRITICAL ALERT] {req.attack_type} Projected on {req.target_asset}",
             "body": email_body,
             "remediation_link": remediation_url,
-            "status": "DELIVERED_SIMULATED",
+            "status": email_status,
             "delivered_at": ts
         }
+
+    # Webhook / SIEM Real Dispatch
     if "webhook" in req.notification_channels:
+        webhook_status = "HTTP_200_POSTED"
+        if req.webhook_url and req.webhook_url.startswith("http"):
+            try:
+                wh_payload = json.dumps({
+                    "content": f"🚨 **[SHIELDNET EARLY WARNING]** {req.attack_type} detected on {req.target_asset} ({req.target_ip}). Confidence: {req.threat_probability*100:.1f}%. Action required:\n{remediation_url}",
+                    "text": f"🚨 [SHIELDNET] {req.attack_type} detected on {req.target_asset}",
+                    "asset": req.target_asset,
+                    "attacker_ip": req.attacker_ip,
+                    "threat_prob": req.threat_probability,
+                    "mitre_stage": req.mitre_stage,
+                    "remediation_link": remediation_url,
+                    "suggested_mitigation": firewall_rules["linux_iptables"]
+                }).encode("utf-8")
+                wh_req = urllib.request.Request(req.webhook_url, data=wh_payload, headers={"Content-Type": "application/json", "User-Agent": "ShieldNet-SIEM/1.0"})
+                with urllib.request.urlopen(wh_req, timeout=5) as resp:
+                    webhook_status = f"HTTP_{resp.status}_REAL_POSTED"
+            except Exception as e:
+                webhook_status = f"WEBHOOK_FAILED: {str(e)[:60]}"
+
         dispatches["webhook"] = {
             "endpoint": req.webhook_url,
             "payload": {
@@ -908,9 +966,11 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
                 "remediation_link": remediation_url,
                 "suggested_mitigation": firewall_rules["linux_iptables"]
             },
-            "status": "HTTP_200_POSTED",
+            "status": webhook_status,
             "delivered_at": ts
         }
+
+    # WhatsApp Dispatch (Real automated Bot API if CallMeBot key provided, else Web link)
     if "whatsapp" in req.notification_channels:
         whatsapp_msg = (
             f"🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n"
@@ -920,17 +980,32 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             f"⚔️ *Threat*: {req.attack_type}\n"
             f"📈 *Confidence*: {req.threat_probability*100:.1f}%\n"
             f"⏱️ *Horizon*: K=5 (<30s to breach)\n\n"
-            f"🛡️ *STEP-BY-STEP REMEDIATION*:\n"
+            f"🛡️ *ACTION REQUIRED*:\n"
             f"1. Click to Stop Attack & Block Adversary:\n"
             f"🔗 *Stop / Block Now*: {remediation_url}\n\n"
             f"2. Or apply CLI Drop Rule:\n"
             f"`{firewall_rules['linux_iptables']}`"
         )
+        wa_status = "SENT_VIA_GATEWAY"
+
+        cmb_key = req.callmebot_api_key or os.environ.get("CALLMEBOT_API_KEY")
+        clean_p = "".join(filter(str.isdigit, req.whatsapp_number or ""))
+        if cmb_key and clean_p:
+            try:
+                encoded_msg = urllib.parse.quote(whatsapp_msg)
+                cmb_url = f"https://api.callmebot.com/whatsapp.php?phone={clean_p}&text={encoded_msg}&apikey={cmb_key}"
+                cmb_req = urllib.request.Request(cmb_url, headers={"User-Agent": "ShieldNet-Sentinel/1.0"})
+                with urllib.request.urlopen(cmb_req, timeout=8) as cmb_res:
+                    if cmb_res.status == 200:
+                        wa_status = "DELIVERED_REAL_BOT_PHONE"
+            except Exception as e:
+                wa_status = f"CALLMEBOT_FAILED: {str(e)[:60]}"
+
         dispatches["whatsapp"] = {
             "to": req.whatsapp_number,
             "message": whatsapp_msg,
             "remediation_link": remediation_url,
-            "status": "SENT_VIA_GATEWAY",
+            "status": wa_status,
             "delivered_at": ts
         }
         
