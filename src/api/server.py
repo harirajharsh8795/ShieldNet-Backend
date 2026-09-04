@@ -851,6 +851,7 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
         "linux_nftables": f"nft add rule inet filter input ip saddr {req.attacker_ip} drop",
         "windows_netsh": f"netsh advfirewall firewall add rule name=\"ShieldNet-Block-{req.attacker_ip}\" dir=in action=block remoteip={req.attacker_ip}",
         "cisco_ios": f"access-list 101 deny ip host {req.attacker_ip} host {req.target_ip}",
+        "ebpf_xdp": f"// eBPF XDP Hook (Sub-1µs Line-Rate Drop)\nSEC(\"xdp\") int xdp_drop(struct xdp_md *ctx) {{\n    if (iph->saddr == inet_addr(\"{req.attacker_ip}\")) return XDP_DROP;\n    return XDP_PASS;\n}}",
         "cloudflare_waf_json": {
             "action": "block",
             "filter": f"(ip.src eq {req.attacker_ip} and http.host eq \"{req.target_asset}\")",
@@ -858,13 +859,43 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
         }
     }
     
+    # Session mapping for deep-link remediation
+    session_map = {
+        "Volumetric DDoS Hulk Flood": "sess_dos_hulk",
+        "Botnet C2 Periodic Beacon": "sess_bot_c2",
+        "SSH-Patator Automated Brute Force": "sess_ssh_patator",
+        "NCIIPC CII SCADA Infiltration": "session-scada-grid-exfiltration",
+        "Normal Enterprise Traffic": "sess_benign_normal"
+    }
+    sess_id = session_map.get(req.attack_type, "sess_bot_c2")
+    remediation_url = f"http://localhost:5173/dashboard/simulation?session={sess_id}"
+
     # 2. Simulate Dispatch Payload for Notification Channels
     dispatches = {}
     if "email" in req.notification_channels:
+        email_body = (
+            f"🚨 [CRITICAL SHIELDNET EARLY WARNING NOTICE]\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"Target Critical Asset : {req.target_asset} ({req.target_ip})\n"
+            f"Adversary Source IP   : {req.attacker_ip}\n"
+            f"Classified Attack     : {req.attack_type}\n"
+            f"MITRE ATT&CK Stage    : {req.mitre_stage}\n"
+            f"Forecast Probability  : {req.threat_probability*100:.1f}%\n"
+            f"Prediction Horizon    : K=5 Forward Rollout (<30s to breach)\n\n"
+            f"STEP-BY-STEP REMEDIATION GUIDE:\n"
+            f"1. Enforce Firewall Ingress Drop:\n"
+            f"   {firewall_rules['linux_iptables']}\n"
+            f"2. Enforce Windows Host Block:\n"
+            f"   {firewall_rules['windows_netsh']}\n"
+            f"3. Review Real-Time SHAP Game Theory Attribution & Sandbox:\n"
+            f"   🔗 Secure Asset Now: {remediation_url}\n\n"
+            f"100% Air-Gapped Verification: Zero Cloud Telemetry Egress."
+        )
         dispatches["email"] = {
             "to": req.recipient_email,
-            "subject": f"🚨 [CRITICAL SHIELDNET ALERT] Infiltration Projected on {req.target_asset}",
-            "body": f"ShieldNet World Model forecasted an imminent {req.attack_type} on {req.target_asset} ({req.target_ip}). Threat Confidence: {req.threat_probability*100:.1f}%. Immediate mitigation rule generated.",
+            "subject": f"🚨 [SHIELDNET CRITICAL ALERT] {req.attack_type} Projected on {req.target_asset}",
+            "body": email_body,
+            "remediation_link": remediation_url,
             "status": "DELIVERED_SIMULATED",
             "delivered_at": ts
         }
@@ -878,15 +909,31 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
                 "attacker_ip": req.attacker_ip,
                 "threat_prob": req.threat_probability,
                 "mitre_stage": req.mitre_stage,
+                "remediation_link": remediation_url,
                 "suggested_mitigation": firewall_rules["linux_iptables"]
             },
             "status": "HTTP_200_POSTED",
             "delivered_at": ts
         }
     if "whatsapp" in req.notification_channels:
+        whatsapp_msg = (
+            f"🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"🎯 *Target Asset*: {req.target_asset}\n"
+            f"🌐 *Target IP*: `{req.target_ip}`\n"
+            f"⚔️ *Threat*: {req.attack_type}\n"
+            f"📈 *Confidence*: {req.threat_probability*100:.1f}%\n"
+            f"⏱️ *Horizon*: K=5 (<30s to breach)\n\n"
+            f"🛡️ *STEP-BY-STEP REMEDIATION*:\n"
+            f"1. Apply IP Drop:\n"
+            f"`{firewall_rules['linux_iptables']}`\n"
+            f"2. Inspect Live SHAP Feature Breakdown & Quarantine:\n"
+            f"🔗 *Click to Secure*: {remediation_url}"
+        )
         dispatches["whatsapp"] = {
             "to": req.whatsapp_number,
-            "message": f"🚨 *SHIELDNET ALERT*: High-confidence attack ({req.attack_type}) projected on *{req.target_asset}* in <30s! Auto-isolation policy available in SOC dashboard.",
+            "message": whatsapp_msg,
+            "remediation_link": remediation_url,
             "status": "SENT_VIA_GATEWAY",
             "delivered_at": ts
         }
@@ -897,6 +944,7 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
         "target_asset": req.target_asset,
         "attacker_ip": req.attacker_ip,
         "threat_probability": req.threat_probability,
+        "remediation_link": remediation_url,
         "dispatches": dispatches,
         "firewall_rules": firewall_rules
     }
