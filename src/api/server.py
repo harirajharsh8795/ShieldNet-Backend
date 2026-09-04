@@ -829,6 +829,8 @@ class SentinelAlertRequest(BaseModel):
     target_ip: str = Field("192.168.10.50", description="Protected internal server IP")
     attacker_ip: str = Field("172.16.0.1", description="Detected adversary source IP")
     attack_type: str = Field("Volumetric DDoS Flood", description="Classified attack category")
+    attack_id: Optional[str] = Field("ddos", description="Preset attack ID for direct remediation link")
+    base_url: Optional[str] = Field(None, description="Frontend base URL origin")
     threat_probability: float = Field(0.965, description="Forecasted compromise probability")
     mitre_stage: str = Field("Stage 2: Initial Access", description="MITRE ATT&CK Tactic Stage")
     notification_channels: List[str] = Field(["email", "webhook", "whatsapp"], description="Dispatch channels")
@@ -859,16 +861,10 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
         }
     }
     
-    # Session mapping for deep-link remediation
-    session_map = {
-        "Volumetric DDoS Hulk Flood": "sess_dos_hulk",
-        "Botnet C2 Periodic Beacon": "sess_bot_c2",
-        "SSH-Patator Automated Brute Force": "sess_ssh_patator",
-        "NCIIPC CII SCADA Infiltration": "session-scada-grid-exfiltration",
-        "Normal Enterprise Traffic": "sess_benign_normal"
-    }
-    sess_id = session_map.get(req.attack_type, "sess_bot_c2")
-    remediation_url = f"http://localhost:5173/dashboard/simulation?session={sess_id}"
+    # Direct deep-link remediation targeting this alerts mitigation page
+    base = req.base_url.rstrip("/") if req.base_url else "https://shieldnet-sih.vercel.app"
+    attack_key = req.attack_id or "ddos"
+    remediation_url = f"{base}/dashboard/alerts?attack={attack_key}&target={req.target_ip}"
 
     # 2. Simulate Dispatch Payload for Notification Channels
     dispatches = {}
@@ -883,12 +879,12 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             f"Forecast Probability  : {req.threat_probability*100:.1f}%\n"
             f"Prediction Horizon    : K=5 Forward Rollout (<30s to breach)\n\n"
             f"STEP-BY-STEP REMEDIATION GUIDE:\n"
-            f"1. Enforce Firewall Ingress Drop:\n"
+            f"1. Stop Attack & Block Adversary IP via Dashboard:\n"
+            f"   🔗 Click to Stop / Block Now: {remediation_url}\n\n"
+            f"2. Enforce Firewall Ingress Drop:\n"
             f"   {firewall_rules['linux_iptables']}\n"
-            f"2. Enforce Windows Host Block:\n"
-            f"   {firewall_rules['windows_netsh']}\n"
-            f"3. Review Real-Time SHAP Game Theory Attribution & Sandbox:\n"
-            f"   🔗 Secure Asset Now: {remediation_url}\n\n"
+            f"3. Enforce Windows Host Block:\n"
+            f"   {firewall_rules['windows_netsh']}\n\n"
             f"100% Air-Gapped Verification: Zero Cloud Telemetry Egress."
         )
         dispatches["email"] = {
@@ -925,10 +921,10 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             f"📈 *Confidence*: {req.threat_probability*100:.1f}%\n"
             f"⏱️ *Horizon*: K=5 (<30s to breach)\n\n"
             f"🛡️ *STEP-BY-STEP REMEDIATION*:\n"
-            f"1. Apply IP Drop:\n"
-            f"`{firewall_rules['linux_iptables']}`\n"
-            f"2. Inspect Live SHAP Feature Breakdown & Quarantine:\n"
-            f"🔗 *Click to Secure*: {remediation_url}"
+            f"1. Click to Stop Attack & Block Adversary:\n"
+            f"🔗 *Stop / Block Now*: {remediation_url}\n\n"
+            f"2. Or apply CLI Drop Rule:\n"
+            f"`{firewall_rules['linux_iptables']}`"
         )
         dispatches["whatsapp"] = {
             "to": req.whatsapp_number,
