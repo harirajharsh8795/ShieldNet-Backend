@@ -838,6 +838,8 @@ class SentinelAlertRequest(BaseModel):
     webhook_url: Optional[str] = "https://hooks.slack.com/services/T00/B00/XXXX"
     whatsapp_number: Optional[str] = "+91 98765 43210"
     callmebot_api_key: Optional[str] = None
+    whatsapp_cloud_token: Optional[str] = None
+    whatsapp_cloud_phone_id: Optional[str] = None
     smtp_host: Optional[str] = None
     smtp_port: Optional[int] = 587
     smtp_user: Optional[str] = None
@@ -987,19 +989,78 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             f"`{firewall_rules['linux_iptables']}`"
         )
         wa_status = "SENT_VIA_GATEWAY"
-
-        cmb_key = req.callmebot_api_key or os.environ.get("CALLMEBOT_API_KEY")
         clean_p = "".join(filter(str.isdigit, req.whatsapp_number or ""))
-        if cmb_key and clean_p:
+
+        # 1. Meta WhatsApp Cloud API (Official Graph API Gateway)
+        cloud_token = req.whatsapp_cloud_token or os.environ.get("WHATSAPP_CLOUD_TOKEN")
+        cloud_phone_id = req.whatsapp_cloud_phone_id or os.environ.get("WHATSAPP_CLOUD_PHONE_ID")
+
+        if cloud_token and cloud_phone_id and clean_p:
             try:
-                encoded_msg = urllib.parse.quote(whatsapp_msg)
-                cmb_url = f"https://api.callmebot.com/whatsapp.php?phone={clean_p}&text={encoded_msg}&apikey={cmb_key}"
-                cmb_req = urllib.request.Request(cmb_url, headers={"User-Agent": "ShieldNet-Sentinel/1.0"})
-                with urllib.request.urlopen(cmb_req, timeout=8) as cmb_res:
-                    if cmb_res.status == 200:
-                        wa_status = "DELIVERED_REAL_BOT_PHONE"
-            except Exception as e:
-                wa_status = f"CALLMEBOT_FAILED: {str(e)[:60]}"
+                meta_url = f"https://graph.facebook.com/v19.0/{cloud_phone_id}/messages"
+                meta_payload = json.dumps({
+                    "messaging_product": "whatsapp",
+                    "recipient_type": "individual",
+                    "to": clean_p,
+                    "type": "text",
+                    "text": {
+                        "preview_url": True,
+                        "body": whatsapp_msg
+                    }
+                }).encode("utf-8")
+                meta_req = urllib.request.Request(
+                    meta_url,
+                    data=meta_payload,
+                    headers={
+                        "Authorization": f"Bearer {cloud_token}",
+                        "Content-Type": "application/json",
+                        "User-Agent": "ShieldNet-Sentinel/1.0"
+                    }
+                )
+                with urllib.request.urlopen(meta_req, timeout=8) as meta_res:
+                    if meta_res.status in (200, 201):
+                        meta_data = json.loads(meta_res.read().decode("utf-8"))
+                        wa_status = f"DELIVERED_META_CLOUD_API ({meta_data.get('messages', [{}])[0].get('id', 'OK')})"
+            except Exception as e_meta:
+                # If freeform text is rejected outside 24h conversation window, try default template
+                try:
+                    tmpl_payload = json.dumps({
+                        "messaging_product": "whatsapp",
+                        "to": clean_p,
+                        "type": "template",
+                        "template": {
+                            "name": "hello_world",
+                            "language": {"code": "en_US"}
+                        }
+                    }).encode("utf-8")
+                    tmpl_req = urllib.request.Request(
+                        meta_url,
+                        data=tmpl_payload,
+                        headers={
+                            "Authorization": f"Bearer {cloud_token}",
+                            "Content-Type": "application/json"
+                        }
+                    )
+                    with urllib.request.urlopen(tmpl_req, timeout=8) as tmpl_res:
+                        if tmpl_res.status in (200, 201):
+                            wa_status = "DELIVERED_META_TEMPLATE (hello_world)"
+                except Exception as e_tmpl:
+                    wa_status = f"META_CLOUD_FAILED: {str(e_meta)[:50]}"
+
+        # 2. CallMeBot Fallback (if configured and Meta Cloud API not active)
+        elif req.callmebot_api_key or os.environ.get("CALLMEBOT_API_KEY"):
+            cmb_key = req.callmebot_api_key or os.environ.get("CALLMEBOT_API_KEY")
+            if cmb_key and clean_p:
+                try:
+                    encoded_msg = urllib.parse.quote(whatsapp_msg)
+                    phone_param = f"+{clean_p}"
+                    cmb_url = f"https://api.callmebot.com/whatsapp.php?phone={urllib.parse.quote(phone_param)}&text={encoded_msg}&apikey={urllib.parse.quote(cmb_key)}"
+                    cmb_req = urllib.request.Request(cmb_url, headers={"User-Agent": "ShieldNet-Sentinel/1.0"})
+                    with urllib.request.urlopen(cmb_req, timeout=8) as cmb_res:
+                        if cmb_res.status == 200:
+                            wa_status = "DELIVERED_REAL_BOT_PHONE"
+                except Exception as e:
+                    wa_status = f"CALLMEBOT_FAILED: {str(e)[:60]}"
 
         dispatches["whatsapp"] = {
             "to": req.whatsapp_number,
