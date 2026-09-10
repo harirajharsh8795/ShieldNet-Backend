@@ -1,0 +1,69 @@
+{
+  "ledger_name": "ShieldNet Immutable Evidence & Response Ledger (SIERL)",
+  "spec": "SIH26153 NTRO PS-153 Notary Layer",
+  "total_blocks": 2,
+  "last_updated": "2026-09-08T18:12:53.552253+00:00",
+  "chain": [
+    {
+      "block_index": 0,
+      "timestamp": "2026-09-08T00:00:00Z",
+      "incident_id": "GENESIS-BLOCK-000",
+      "threat_type": "ROOT_CONSENSUS",
+      "severity": "SYSTEM",
+      "confidence": 1.0,
+      "evidence_name": "genesis_manifest.json",
+      "evidence_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "model_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prediction_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "xai_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "approval_state": "GENESIS_AUTHORIZED",
+      "approver_role": "System_Root",
+      "approval_timestamp": "2026-09-08T00:00:00Z",
+      "proposed_action": "Initialize Immutable Defense Ledger",
+      "target_ip": "127.0.0.1",
+      "orchestration_record": {
+        "status": "INITIALIZED",
+        "system": "SIERL v2.0"
+      },
+      "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "block_hash": "df2916121078bd6b87b72749089db5a3d74ba6878d58f65cba8227944423af12"
+    },
+    {
+      "block_index": 1,
+      "timestamp": "2026-09-08T18:12:53.493367+00:00",
+      "incident_id": "inc_1788891173491",
+      "threat_type": "Infiltration SCADA",
+      "severity": "CRITICAL",
+      "confidence": 0.98,
+      "evidence_name": "sample_scada_modbus.pcap",
+      "evidence_hash": "a0af9cc45670e27731666a446e1170d373bb74212e796e9d212ffaab2993fe48",
+      "model_hash": "93a0110d3ec2b5a433b9022e0fa46e1c9bfda6e30c986cd6f8ca661db130f897",
+      "prediction_hash": "fe17f72631be73632cc6ce20e6a2e42a32324b4d1c71169c1557685c5a20bf87",
+      "xai_hash": "3e369d173f46a6f354e371ceaa063894b840e60de01bc0190a912edc0e57fe2f",
+      "approval_state": "APPROVED",
+      "approver_role": "Chief Information Security Officer (CISO) (admin)",
+      "approval_timestamp": "2026-09-08T18:12:53.550740+00:00",
+      "proposed_action": "Isolate Modbus Port 502",
+      "target_ip": "10.0.100.1",
+      "orchestration_record": {
+        "execution_id": "exec_1788891173552",
+        "incident_id": "inc_1788891173491",
+        "action_type": "Isolate Modbus Port 502",
+        "target_ip": "10.0.100.1",
+        "port": null,
+        "authorized_by": "Chief Information Security Officer (CISO) (admin)",
+        "ledger_tx_hash": "fd86feac8f7dc5f069cb1275e33f3f37b2d41bd286d9f7148d5aa9dc1832ec79",
+        "executed_at": "2026-09-08T18:12:53.552253+00:00",
+        "status": "ENFORCED",
+        "effect": "Immediate ingress traffic drop for 10.0.100.1",
+        "generated_rules": {
+          "iptables": "iptables -I INPUT 1 -s 10.0.100.1 -j DROP -m comment --comment 'ShieldNet SIERL [inc_1788891173491]'",
+          "nftables": "nft add rule ip filter input ip saddr 10.0.100.1 counter drop",
+          "sdn_openflow": "ovs-ofctl add-flow br0 priority=40000,dl_type=0x0800,nw_src=10.0.100.1,actions=drop"
+        }
+      },
+      "prev_hash": "df2916121078bd6b87b72749089db5a3d74ba6878d58f65cba8227944423af12",
+      "block_hash": "28acadebfc3925412ca8df5318abc452c033c85e902efc31cecc5fdee362f1ed"
+    }
+  ]
+}
