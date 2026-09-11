@@ -1,0 +1,15 @@
+time,src_user,dst_user,src_host,dst_host,auth_type,logon_type,result,auth_velocity,failed_auth_burst,fan_out_degree,session_entropy,label
+100.0,USER_0042,USER_0042,COMP_0012,DC_01,Kerberos,Network,Success,0.5,0.0,1.0,0.0,Benign
+102.5,USER_0015,USER_0015,COMP_0008,KERB_AUTH,Kerberos,Interactive,Success,0.4,0.0,1.0,0.0,Benign
+105.0,USER_0088,USER_0088,COMP_0023,DC_02,Kerberos,Network,Success,0.6,0.0,1.0,0.0,Benign
+108.0,C_ADMIN_01,DOMAIN_ADMIN,COMP_PIVOT_01,COMP_0035,NTLM,Network,Success,14.5,0.0,8.0,4.2,Lateral_Movement_RedTeam
+108.2,C_ADMIN_01,DOMAIN_ADMIN,COMP_PIVOT_01,COMP_0036,NTLM,Network,Success,16.2,0.0,9.0,4.5,Lateral_Movement_RedTeam
+108.4,C_ADMIN_01,DOMAIN_ADMIN,COMP_PIVOT_01,COMP_0037,NTLM,Network,Failure,18.0,1.0,10.0,4.8,Lateral_Movement_RedTeam
+108.6,C_ADMIN_01,SYSTEM,COMP_PIVOT_01,COMP_0038,NTLM,Network,Success,19.5,1.0,11.0,5.1,Lateral_Movement_RedTeam
+108.8,C_ADMIN_01,ROOT,COMP_PIVOT_01,COMP_0039,NTLM,Network,Success,21.0,1.0,12.0,5.4,Lateral_Movement_RedTeam
+109.0,SERVICE_ACCT,SYSTEM,COMP_STAGING_02,DC_01,NTLM,Network,Failure,22.5,2.0,13.0,5.6,Lateral_Movement_RedTeam
+109.2,SERVICE_ACCT,DOMAIN_ADMIN,COMP_STAGING_02,DC_02,NTLM,Network,Failure,24.0,3.0,14.0,5.8,Lateral_Movement_RedTeam
+109.4,GUEST_BACKDOOR,DOMAIN_ADMIN,COMP_PIVOT_01,KERB_AUTH,NTLM,Network,Failure,25.5,4.0,15.0,6.0,Lateral_Movement_RedTeam
+109.6,GUEST_BACKDOOR,DOMAIN_ADMIN,COMP_PIVOT_01,KERB_AUTH,NTLM,Network,Failure,27.0,5.0,16.0,6.2,Lateral_Movement_RedTeam
+120.0,USER_0099,USER_0099,COMP_0019,DC_01,Kerberos,Network,Success,0.5,0.0,1.0,0.0,Benign
+122.0,USER_0042,USER_0042,COMP_0012,DC_02,Kerberos,Network,Success,0.4,0.0,1.0,0.0,Benign
