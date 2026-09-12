@@ -21,8 +21,8 @@
 1. **Recurrent State-Space World Model (RSS-WM):** 2-layer stacked GRU ($H=128$) with temporal attention pooling learning the forward transition operator $\mathcal{M}_\theta: S_{t-L:t} \mapsto (\hat{S}_{t+1}, \hat{y}_{t+1}, \hat{m}_{t+1})$.
 2. **Dual-Level Telemetry Fusion:** Fuses 77 flow statistical features with 7 raw packet header features (TTL variance, TCP window dynamics, fragment flags, retransmissions) into standardized 84-dimensional continuous state vectors.
 3. **Dynamic Network Topology Graph ($G_t = (V, E, X_t)$):** Real-time interactive spatial tracking of host-flow communications and lateral movement across enterprise & CII subnets (Clause 5 compliant).
-4. **Autoregressive K-Step Projection:** Forward-simulates $K=5$ steps (+50s) with calibrated confidence decay to anticipate breach trajectory.
-5. **5-Stage MITRE ATT&CK Killchain Mapping:** Automated progression tracking across Recon (`TA0043`), Initial Access (`TA0001`), Lateral Movement (`TA0008`), C2 (`TA0011`), and Impact (`TA0040`).
+4. **5-Stage MITRE ATT&CK Killchain Mapping (Non-Linear Looped Dynamics):** Automated progression tracking across Recon (`TA0043`), Initial Access (`TA0001`), Lateral Movement (`TA0008`), C2 (`TA0011`), and Impact (`TA0040`). *Design Principle: "Modern intrusions loop — real adversaries revisit reconnaissance post-lateral movement. We use Kill Chain macro-arcs to explain, and MITRE ATT&CK T-codes for operational precision."*
+5. **Autoregressive K-Step Projection:** Forward-simulates $K=5$ steps (+50s) with calibrated confidence decay to anticipate breach trajectory.
 6. **Counterfactual Defense Sandbox:** Evaluates "What-If" defense policies (rate limiting, connection resets, host isolation) in latent state space to calculate projected threat reduction before firewall execution.
 7. **SIERL Blockchain Ledger:** SHA-256 Merkle chain anchoring telemetry evidence, model weights, and forecasts, outputting Section 65B Indian Evidence Act digital certificates.
 8. **Air-Gapped CII & Enterprise Ready:** 100% offline local execution ($0.0155\text{ ms}$ latency, $64,400\text{ flows/sec}$) with zero cloud dependencies.

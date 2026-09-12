@@ -154,6 +154,23 @@ Adversarial robustness and concept drift test.
 
 ---
 
+## 🎯 Question 11: "Real cyber attacks linear nahi hote — wo loop karte hain (Lockheed Martin Kill Chain vs MITRE ATT&CK). Aapka model looping intrusions kaise handle karta hai?"
+
+### 🥊 The Trap:
+Examiners testing if your model is a naive 1-way sequence classifier or if you understand real non-linear cyclic adversary tradecraft.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, aapne bilkul core flaw pakda hai standard models ka:
+> - **Lockheed Martin Kill Chain** sirf 7 linear stages deta hai — jo CISO/Executives ko attack ka macro arc sikhane ke liye to accha hai, lekin real world me cyber attacks linear pipeline nahi hote.
+> - **Modern intrusions LOOP!** Jab attacker initial access (`TA0001`) ke baad lateral movement (`TA0008`) karke naye internal workstation ya SCADA gateway par pahuchta hai, to wo wapas **RECONNAISSANCE (`TA0043`)** aur **CREDENTIAL ACCESS (`TA0006`)** revisit karta hai!
+> 
+> **ShieldNet ka World Model ise kaise solve karta hai:**
+> 1. Hum static rule-based chain use nahi karte. Hamara Recurrent State-Space World Model **continuous hidden latent memory ($h_t$)** maintain karta hai.
+> 2. Is recurrent state ki wajah se model ko pata hota hai ki ye naya scan external perimeter se nahi, balki internal jump-host se pivot hoke aaya hai — isliye wo ise **Lateral Discovery Loop** recognize karta hai.
+> 3. **Our Guiding Principle:** *'We use the Kill Chain macro-arc to teach and explain, but MITRE ATT&CK non-linear T-codes (T1046, T1110, T1071, T0814) to be mathematically and operationally precise!'*"*
+
+---
+
 ## 📊 Summary of Defense Numbers for Judges
 
 | Evaluation Dimension | Baseline (Memoryless LogReg) | Standard LSTM (Sequence) | ShieldNet GRU + Attention (Champion) | Winning Proof |
