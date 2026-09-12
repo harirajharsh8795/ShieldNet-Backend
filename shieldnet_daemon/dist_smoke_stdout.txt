@@ -1,0 +1,1 @@
+ShieldNet Offline Detection Engine v1.0.0 [Air-Gap Compliant]

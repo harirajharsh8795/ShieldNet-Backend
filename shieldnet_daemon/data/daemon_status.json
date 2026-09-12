@@ -1,0 +1,26 @@
+{
+  "pid": 20616,
+  "status": "RUNNING",
+  "mode": "LIVE_SNIFFING",
+  "start_time": 1789223428.883057,
+  "uptime_seconds": 20.08,
+  "uptime_formatted": "00:00:20",
+  "total_packets_captured": 0,
+  "total_packets_dropped": 0,
+  "active_flows": 0,
+  "total_evaluations": 0,
+  "total_alerts": 0,
+  "last_heartbeat": "2026-09-12T20:00:48.959505",
+  "memory_rss_mb": 225.78,
+  "cpu_percent": 0.0,
+  "ledger_db_path": "D:\\sih-backend\\shieldnet_daemon\\data\\ledger.db",
+  "last_alert": null,
+  "ledger_stats": {
+    "total_records": 0,
+    "chain_valid": true,
+    "verified_records": 0,
+    "latest_record_id": null,
+    "latest_record_hash": null,
+    "integrity_error": null
+  }
+}
