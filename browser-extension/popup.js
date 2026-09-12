@@ -34,12 +34,36 @@ async function loadStatus() {
   }
 }
 
-document.getElementById("dashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "http://127.0.0.1:8501/" });
-});
+const VERCEL_URL = "https://shieldnet-sih.vercel.app/";
+const LOCAL_REACT_URL = "http://localhost:5173/";
+const STREAMLIT_URL = "http://127.0.0.1:8501/";
 
-document.getElementById("api").addEventListener("click", () => {
-  chrome.tabs.create({ url: `${API_URL}/docs` });
-});
+const vercelBtn = document.getElementById("dashboard-vercel");
+if (vercelBtn) {
+  vercelBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: VERCEL_URL });
+  });
+}
+
+const localBtn = document.getElementById("dashboard-local");
+if (localBtn) {
+  localBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: LOCAL_REACT_URL });
+  });
+}
+
+const streamlitBtn = document.getElementById("dashboard-streamlit");
+if (streamlitBtn) {
+  streamlitBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: STREAMLIT_URL });
+  });
+}
+
+const apiBtn = document.getElementById("api");
+if (apiBtn) {
+  apiBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: `${API_URL}/docs` });
+  });
+}
 
 loadStatus();
