@@ -115,6 +115,7 @@ class IntegratedGradientsExplainer:
             "temporal_attention_weights": attn_weights.tolist(),
             "full_attributions_shape": list(ig_attributions.shape),
             "plain_text_summary": plain_text_summary,
+            "plain_text_explanation": plain_text_summary,
             "completeness_delta": float(torch.sum(torch.from_numpy(current_step_attributions)).item()),
         }
         

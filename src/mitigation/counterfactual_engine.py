@@ -86,6 +86,9 @@ class CounterfactualTrajectoryEngine:
         baseline_res = self.simulate_action_trajectory(context_sequence, MitigationAction.NO_ACTION, k_steps=k_steps)
         baseline_final_risk = baseline_res["final_attack_risk"]
         baseline_final_state = baseline_res["predicted_states"][-1]
+        baseline_res["state_divergence"] = 0.0
+        baseline_res["state_divergence_l2"] = 0.0
+        baseline_res["risk_reduction"] = 0.0
         
         action_results = {MitigationAction.NO_ACTION.value: baseline_res}
         
@@ -94,6 +97,7 @@ class CounterfactualTrajectoryEngine:
             div_l2 = float(np.linalg.norm(act_res["predicted_states"][-1] - baseline_final_state))
             risk_reduction = float(baseline_final_risk - act_res["final_attack_risk"])
             
+            act_res["state_divergence"] = div_l2
             act_res["state_divergence_l2"] = div_l2
             act_res["risk_reduction"] = risk_reduction
             action_results[action.value] = act_res
@@ -116,5 +120,8 @@ class CounterfactualTrajectoryEngine:
             "candidate_interventions": action_results,
             "optimal_recommended_action": best_action,
             "projected_risk_drop": float(baseline_final_risk - action_results[best_action]["final_attack_risk"]),
-            "system_engine": "ShieldNet Dual-Engine Counterfactual Engine"
+            "system_engine": "ShieldNet Dual-Engine Counterfactual Engine",
+            "horizon_steps": k_steps,
+            "baseline_risk": baseline_final_risk,
+            "actions": action_results
         }
