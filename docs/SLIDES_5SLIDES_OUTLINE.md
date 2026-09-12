@@ -20,10 +20,12 @@
 ### 1. Key Solution Innovations
 1. **Recurrent State-Space World Model (RSS-WM):** 2-layer stacked GRU ($H=128$) with temporal attention pooling learning the forward transition operator $\mathcal{M}_\theta: S_{t-L:t} \mapsto (\hat{S}_{t+1}, \hat{y}_{t+1}, \hat{m}_{t+1})$.
 2. **Dual-Level Telemetry Fusion:** Fuses 77 flow statistical features with 7 raw packet header features (TTL variance, TCP window dynamics, fragment flags, retransmissions) into standardized 84-dimensional continuous state vectors.
-3. **Autoregressive K-Step Projection:** Forward-simulates $K=5$ steps (+50s) with calibrated confidence decay to anticipate breach trajectory.
-4. **5-Stage MITRE ATT&CK Killchain Mapping:** Automated progression tracking across Recon (`TA0043`), Initial Access (`TA0001`), Lateral Movement (`TA0008`), C2 (`TA0011`), and Impact (`TA0040`).
-5. **Counterfactual Defense Sandbox:** Evaluates "What-If" defense policies (rate limiting, connection resets, host isolation) in latent state space to calculate projected threat reduction before firewall execution.
-6. **Air-Gapped CII & Enterprise Ready:** 100% offline local execution ($0.0155\text{ ms}$ latency, $64,400\text{ flows/sec}$) with zero cloud dependencies.
+3. **Dynamic Network Topology Graph ($G_t = (V, E, X_t)$):** Real-time interactive spatial tracking of host-flow communications and lateral movement across enterprise & CII subnets (Clause 5 compliant).
+4. **Autoregressive K-Step Projection:** Forward-simulates $K=5$ steps (+50s) with calibrated confidence decay to anticipate breach trajectory.
+5. **5-Stage MITRE ATT&CK Killchain Mapping:** Automated progression tracking across Recon (`TA0043`), Initial Access (`TA0001`), Lateral Movement (`TA0008`), C2 (`TA0011`), and Impact (`TA0040`).
+6. **Counterfactual Defense Sandbox:** Evaluates "What-If" defense policies (rate limiting, connection resets, host isolation) in latent state space to calculate projected threat reduction before firewall execution.
+7. **SIERL Blockchain Ledger:** SHA-256 Merkle chain anchoring telemetry evidence, model weights, and forecasts, outputting Section 65B Indian Evidence Act digital certificates.
+8. **Air-Gapped CII & Enterprise Ready:** 100% offline local execution ($0.0155\text{ ms}$ latency, $64,400\text{ flows/sec}$) with zero cloud dependencies.
 
 ### 2. Dual-Engine Architecture Flow
 ```
@@ -105,6 +107,7 @@ Inference Latency per Flow        | 0.0009 ms                    | 0.0155 ms (64
 - **70% Reduction in Breach Damage:** Intercepts attacker killchains at Step $t+1$ (Initial Access / Recon) $+30\text{s}$ to $+50\text{s}$ before payload execution.
 - **Actionable Counterfactual Guidance:** Replaces blind alerting with mathematically verified optimal actions (e.g. recommending `RESET_CONNECTIONS` with $20.2\%$ risk reduction over disruptive full host isolation).
 - **Substation / SCADA Protection:** Validated on Modbus/DNP3 industrial protocol intrusion scenarios.
+- **SIERL Blockchain Legal Admissibility (Theme Mandate):** SHA-256 Merkle chain anchors all prediction records, model weights, and forensic explanations into tamper-evident blocks, generating Section 65B Indian Evidence Act digital certificates for court prosecution.
 
 ### 2. Air-Gap Deployment Readiness (Constraint C4)
 - **Zero Cloud API Dependencies:** Entire inference engine, feature pipeline, and UI run locally on air-gapped hardware.

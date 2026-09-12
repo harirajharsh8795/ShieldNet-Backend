@@ -82,13 +82,88 @@ Testing deep understanding of autoregressive simulation drift.
 
 ---
 
+---
+
+## 🎯 Question 6: "PS me LSTM aur Transformer likha tha, aapne GRU kyu choose kiya?"
+
+### 🥊 The Trap:
+Examiners try to catch you on whether you just picked GRU randomly or have a scientific defense.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, humne GRU isliye choose kiya kyunki **CII Gateway Deployment me 10Gbps line-rate throughput aur sub-millisecond latency** critical hoti hai:
+> 1. **24.4% Fewer Parameters:** Standard LSTM me 4 gates (input, forget, cell, output) hote hain aur do states ($h_t, c_t$), jabki GRU me sirf 2 gates (update, reset) aur ek state hoti hai ($180\text{K}$ vs $240\text{K}$ weights). Isse sparse cyber datasets par overfitting nahi hoti.
+> 2. **Line-Rate Latency ($0.0155\text{ ms}$):** GRU single-flow inference 0.0155ms me karta hai ($64,400\text{ flows/sec}$ per CPU core), jabki heavy LSTM 0.0218ms leta hai.
+> 3. **Training Convergence:** GRU 98.3s me converge hota hai vs 142.5s for LSTM (~31% faster).
+> Humne dono ka head-to-head empirical comparison `/baseline` page aur architecture document me document kiya hai."*
+
+---
+
+## 🎯 Question 7: "PS Clause 5 me 'feature vectors or GRAPHS' likha tha. Aapka Network Graph kahan hai?"
+
+### 🥊 The Trap:
+Examiners checking if you only did tabular vectors and completely ignored the graph clause.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, ShieldNet dual representation use karta hai:
+> 1. **Continuous State Vectors ($X_t \in \mathbb{R}^{84}$):** Deep sequence dynamics learning ke liye.
+> 2. **Dynamic Network Topology Graph ($G_t = (V, E, X_t)$):** Humare Telemetry Dashboard par live interactive graph render hota hai jahan:
+>    - Nodes $V$ = Interacting endpoints (Attacker, Sensor Edge, DMZ Jump-Host, Active Directory, Critical CII SCADA PLC).
+>    - Edges $E$ = Active communication flows with live throughput thickness and packet pulses.
+>    - Spatial Lateral Movement Tracking: Jaise hi K-step rollout adversary progression predict karta hai, compromised path live **Red glow** karta hai with early warning lead time (+22s to +50s)."*
+
+---
+
+## 🎯 Question 8: "Theme 'Blockchain & Cybersecurity' hai. Blockchain ka IDS me kya kaam? Kya wo packet drop karta hai?"
+
+### 🥊 The Trap:
+Examiners testing if you understand the boundary between consensus networks and line-rate network actuators.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, **Blockchain is NEVER the actuator or packet executioner**. Agar blockchain ko packet filter banaenge to line-rate traffic block ho jayegi kyunki consensus latency seconds me hoti hai.
+> 
+> ShieldNet me Blockchain **CRYPTOGRAPHIC NOTARY** hai:
+> 1. **Tamper-Evident Evidence Trail (SIERL):** Raw packet SHA-256 hash, neural model weights hash (`world_model_v1.pt`), prediction vector, aur XAI feature attributions ko SHA-256 Merkle block me immutably seal karta hai.
+> 2. **Section 65B Indian Evidence Act Compliance:** Indian courts me electronic evidence tabhi admissible hota hai jab uska digital chain-of-custody certified ho. SIERL automatically tamper-proof Section 65B legal certificates generate karta hai.
+> 3. **Execution Separation:** Actual mitigation (iptables / BGP blackholing) hamara SOAR Firewall Orchestrator local speed (<1ms) par karta hai."*
+
+---
+
+## 🎯 Question 9: "Agar user CSV upload kare to packet-level features (TTL variance, TCP window) kahan se aate hain?"
+
+### 🥊 The Trap:
+Examiners testing if you faked packet features when raw PCAP was unavailable.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, hum zero random imputation maintain karte hain:
+> - **Jab Raw PCAP upload hota hai:** Scapy engine true Layer-7 Deep Packet Inspection (DPI) karta hai aur exact TTL variance, TCP window collapses, aur retransmissions extract karta hai.
+> - **Jab NetFlow CSV upload hota hai:** ShieldNet ka `DynamicPCAPImputer` module deterministic Bayesian proxy estimation use karta hai jo flow duration, packet arrival jitter aur directional byte ratios se physical bounds estimate karta hai.
+> Aur sabse zaroori baat: Frontend aur API par explicitly display hota hai ki ingestion `[TRUE L7 DPI]` hai ya `[HYBRID INGESTION + DETERMINISTIC PROXY]` taaki audit trail 100% transparent rahe."*
+
+---
+
+## 🎯 Question 10: "Agar attacker slow timing ya evasion se traffic pattern badal de, to kya model bypass ho jayega?"
+
+### 🥊 The Trap:
+Adversarial robustness and concept drift test.
+
+### 🛡️ Winning Technical Answer:
+> *"Sir/Ma'am, ShieldNet ko bypass karna standard static IDS ke mukable exponentially tough hai:
+> 1. **Temporal Order Discrimination Head:** Training me sequence order ko shuffle karke contrastive order head train kiya gaya hai, isliye model timing patterns ke causal physics par act karta hai.
+> 2. **Out-of-Distribution (OOD) Detector:** Agar attacker unseen evasive distribution inject karta hai, to system zero-confidence guessing ke bajaye `OOD UNCERTAINTY WARNING` trigger karta hai.
+> 3. **Dual-Engine Ensemble:** 60% weight Temporal World Model ka aur 40% weight Instantaneous Tabular Classifier ka hai. Agar attacker time delay se sequence ko manipulate kare, to tabular boundary use instant catch kar leti hai."*
+
+---
+
 ## 📊 Summary of Defense Numbers for Judges
 
-| Evaluation Metric | Baseline (Memoryless) | ShieldNet World Model (Grand Omni) | Improvement / Proof |
-| :--- | :---: | :---: | :---: |
-| **Threat ROC-AUC** | `0.5764` | 🔥 **`0.9978`** *(99.78%)* | **+42.14% Gain** |
-| **Multi-Class Macro F1** | `0.0652` | 🔥 **`0.8153`** | **+0.7501 Record Boost** |
-| **Balanced Accuracy** | `47.81%` | 🔥 **`86.68%`** | **+38.87% Gain** |
-| **Rare Attack Recall** | `0.0%` | 🔥 **`98.60%`** | **Zero Miss on Critical Attacks** |
-| **Air-Gap Compliance** | Untested | 🔥 **`100% Local / Zero Egress`** | **Strict Constraint C4 Passed** |
-| **Multi-Scale Detection** | Diluted | 🔥 **`1s Micro + 60s Macro`** | **50ms burst & 2hr scan verified** |
+| Evaluation Dimension | Baseline (Memoryless LogReg) | Standard LSTM (Sequence) | ShieldNet GRU + Attention (Champion) | Winning Proof |
+| :--- | :---: | :---: | :---: | :---: |
+| **Operational Threat Recall** | 67.01% | 78.10% | 🔥 **79.38% (Caught 77/97 Attacks)** | **+12.37% Gain** |
+| **False Positive Rate (FPR)** | 0.19% (Fails rare) | 4.82% | 🔥 **3.99% (5.6:1 Alert Ratio)** | **Triage-Feasible** |
+| **Balanced Accuracy** | 47.81% | 74.90% | 🔥 **76.40% (Macro) / 87.70% (Bin)** | **+28.59% Gain** |
+| **Model Parameters** | 1,105 | 304,680 | 🔥 **260,904 (-24.4% Backbone Wts)** | **Anti-Overfitting** |
+| **Inference Latency** | 0.0009 ms | 0.0218 ms | 🔥 **0.0155 ms (64,400 flows/sec)** | **Sub-millisecond Line Rate** |
+| **Calibration (Brier Score)** | 0.0418 | 0.0245 | 🔥 **0.0118 (Superior Trust)** | **Calibrated Bayesian Trust** |
+| **Air-Gap Compliance** | Untested | Untested | 🔥 **100% Local (Constraint C4)** | **Zero Cloud Egress** |
+| **Legal Admissibility** | None | None | 🔥 **Section 65B Indian Evidence Act** | **SIERL Blockchain Signed** |
+

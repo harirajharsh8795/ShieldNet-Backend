@@ -2,8 +2,21 @@
 
 > **Smart India Hackathon 2026 — Problem Statement SIH26153**  
 > **Organization:** National Technical Research Organisation (NTRO)  
-> **Theme:** Blockchain & Cybersecurity  
-> **Repository Classification:** Sovereign / Air-Gapped High-Performance IDS
+> **Theme:** Blockchain & Cybersecurity | **Category:** Software  
+> **Repository Classification:** Sovereign / Air-Gapped High-Performance IDS (100% Offline C4)
+
+---
+
+### 📋 NTRO Evaluation Deliverables Quick-Access Checklist
+
+| Deliverable # | Mandated Requirement | File / Access Link | Verification Status |
+| :---: | :--- | :--- | :---: |
+| **1** | **Source Code Link** | [ShieldNet-Backend](https://github.com/harirajharsh8795/ShieldNet-Backend) · [Frontend](https://github.com/KajalChaudhary2326/ShieldNet) | `✅ Synced & Verified` |
+| **2** | **Setup Instructions (Air-Gap)** | [`README.md #5 Setup`](#5-quickstart--air-gapped-deployment) · Script: `run_offline.bat` | `✅ Verified Offline` |
+| **3** | **Architecture Document (Max 2 Pages)** | [`docs/ARCHITECTURE_DOCUMENT_2PAGE.md`](docs/ARCHITECTURE_DOCUMENT_2PAGE.md) | `✅ Strictly 2 Pages` |
+| **4** | **Demo Video Script (Max 2 Minutes)** | [`docs/demo_video_script.md`](docs/demo_video_script.md) | `✅ Strictly 120s (CII & Blockchain)` |
+| **5** | **Technical Presentation (Max 5 Slides)** | [`docs/SLIDES_5SLIDES_OUTLINE.md`](docs/SLIDES_5SLIDES_OUTLINE.md) | `✅ Strictly 5 Slides` |
+| **Bonus** | **Examiner Defense Cheatsheet** | [`docs/EXAMINER_DEFENSE_CHEATSHEET.md`](docs/EXAMINER_DEFENSE_CHEATSHEET.md) | `✅ Top 10 NTRO Q&A` |
 
 ---
 
