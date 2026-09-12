@@ -24,12 +24,14 @@ export default function App() {
             <Route path="/dashboard/baseline" element={<ComparePage />} />
 
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard/wargame" element={<DashboardPage />} />
             <Route path="/dashboard/live" element={<DashboardPage />} />
             <Route path="/dashboard/simulation" element={<DashboardPage />} />
             <Route path="/dashboard/alerts" element={<DashboardPage />} />
             <Route path="/dashboard/blockchain" element={<DashboardPage />} />
 
             <Route path="/upload" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/wargame" element={<Navigate to="/dashboard/wargame" replace />} />
             <Route path="/simulation" element={<Navigate to="/dashboard/simulation" replace />} />
             <Route path="/compare" element={<Navigate to="/dashboard/baseline" replace />} />
             <Route path="/alerts" element={<Navigate to="/dashboard/alerts" replace />} />

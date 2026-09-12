@@ -1,18 +1,43 @@
 #!/usr/bin/env bash
-set -euo pipefail
+# ShieldNet Sovereign Desktop Agent & Defense Runtime One-Line Installer (Linux/macOS)
+# Run via: curl -fsSL https://raw.githubusercontent.com/harirajharsh8795/ShieldNet-Backend/main/desktop/install.sh | bash
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VENV_PATH="$PROJECT_ROOT/.shieldnet-venv"
-PYTHON="$VENV_PATH/bin/python"
+set -e
 
-echo "Installing ShieldNet desktop runtime..."
-if [[ ! -x "$PYTHON" ]]; then
-  python3 -m venv "$VENV_PATH"
+echo -e "\033[1;36m==========================================================================\033[0m"
+echo -e "\033[1;36m     SHIELDNET SOVEREIGN DEFENSE AGENT · ONE-LINE UNIX INSTALLER         \033[0m"
+echo -e "\033[0;90m      National Technical Research Organisation (NTRO) · SIH 26153        \033[0m"
+echo -e "\033[1;36m==========================================================================\033[0m"
+
+TARGET_DIR="${HOME}/ShieldNet"
+
+if [ ! -d "$TARGET_DIR" ]; then
+    echo -e "\033[1;33m[1/4] Cloning ShieldNet Repository from GitHub...\033[0m"
+    git clone https://github.com/harirajharsh8795/ShieldNet-Backend.git "$TARGET_DIR"
+else
+    echo -e "\033[1;32m[1/4] Existing ShieldNet installation detected at $TARGET_DIR\033[0m"
 fi
 
-"$PYTHON" -m pip install --upgrade pip
-"$PYTHON" -m pip install -r "$PROJECT_ROOT/requirements.txt"
-"$PYTHON" -m pip install -r "$PROJECT_ROOT/desktop/requirements.txt"
+cd "$TARGET_DIR"
 
-echo "Starting ShieldNet. The browser will open on the local dashboard."
-exec "$PYTHON" "$PROJECT_ROOT/desktop/launcher.py"
+echo -e "\033[1;33m[2/4] Setting up Python virtual environment...\033[0m"
+if [ ! -d ".shieldnet-venv" ]; then
+    python3 -m venv .shieldnet-venv
+fi
+
+source .shieldnet-venv/bin/activate
+
+echo -e "\033[1;33m[3/4] Installing dependencies...\033[0m"
+pip install -q --upgrade pip
+pip install -q -r requirements.txt
+pip install -q -r desktop/requirements.txt
+
+echo -e "\033[1;32m[4/4] ShieldNet Defense Agent is ready!\033[0m"
+echo -e "--------------------------------------------------------------------------"
+echo -e "  🛡️  AIR-GAP LOCAL DEFENSE: http://127.0.0.1:8000"
+echo -e "  🖥️  REACT SOC DASHBOARD:   http://localhost:5173"
+echo -e "  📊  STREAMLIT ANALYTICS:   http://127.0.0.1:8501"
+echo -e "  🌐  CLOUD FLAGSHIP SOC:    https://shieldnet-sih.vercel.app/"
+echo -e "--------------------------------------------------------------------------"
+
+python3 desktop/desktop_agent.py
