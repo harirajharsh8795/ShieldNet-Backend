@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShieldNet</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="mark">SN</div>
+      <div>
+        <h1>ShieldNet</h1>
+        <p>Local defense control</p>
+      </div>
+      <span id="status-dot" class="dot" aria-label="Connection status"></span>
+    </header>
+
+    <section id="connection" class="connection" aria-live="polite">Checking local agent...</section>
+
+    <dl class="facts">
+      <div><dt>Mode</dt><dd id="mode">--</dd></div>
+      <div><dt>Engine</dt><dd id="engine">--</dd></div>
+      <div><dt>World model</dt><dd id="world-model">--</dd></div>
+      <div><dt>Classifier</dt><dd id="classifier">--</dd></div>
+    </dl>
+
+    <div class="actions">
+      <button id="dashboard" type="button">Open dashboard</button>
+      <button id="api" class="secondary" type="button">Open API docs</button>
+    </div>
+
+    <p class="notice">Browser panel only. System-wide capture and firewall enforcement run in the desktop agent.</p>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

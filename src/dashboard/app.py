@@ -92,23 +92,24 @@ def load_models():
     
     models = {}
     
-    # Load World Model
-    wm_path = PROJECT_ROOT / "models" / "checkpoints" / "world_model_best.pt"
+    # Load the bundled champion checkpoint used by the FastAPI backend.
+    wm_path = PROJECT_ROOT / "models" / "checkpoints" / "world_model_grand_omni.pt"
+    if not wm_path.exists():
+        wm_path = PROJECT_ROOT / "models" / "checkpoints" / "world_model_v1.pt"
     if wm_path.exists():
         from src.world_model.model import WorldModel
         checkpoint = torch.load(wm_path, map_location='cpu', weights_only=False)
-        config = checkpoint['config']
-        wm_config = config.get('world_model', {})
-        lstm_config = wm_config.get('lstm', {})
-        state_dict = checkpoint['model_state_dict']
-        input_size = state_dict['lstm.weight_ih_l0'].shape[1]
+        state_dict = checkpoint.get('model_state_dict', checkpoint) if isinstance(checkpoint, dict) else checkpoint
+        input_size = 84
         
         model = WorldModel(
             input_size=input_size,
-            hidden_size=lstm_config.get('hidden_size', 256),
-            num_layers=lstm_config.get('num_layers', 2),
+            hidden_size=128,
+            num_layers=2,
             dropout=0.0,
-            num_classes=6,
+            num_classes=13,
+            num_mitre_stages=6,
+            use_attention=True,
         )
         model.load_state_dict(state_dict)
         model.eval()
@@ -319,6 +320,100 @@ def render_explanation(rollout_result):
         st.plotly_chart(fig, use_container_width=True)
 
 
+def _first_present(row, names, default="Not available"):
+    for name in names:
+        if name in row.index and pd.notna(row[name]) and str(row[name]).strip():
+            return row[name]
+    return default
+
+
+def _format_observed_time(value):
+    if value == "Not available":
+        return value
+    parsed = pd.to_datetime(value, errors="coerce", utc=True)
+    return parsed.strftime("%Y-%m-%d %H:%M:%S UTC") if pd.notna(parsed) else str(value)
+
+
+def _attack_technique(label):
+    mappings = {
+        "PortScan": ("T1046", "Network Service Scanning"),
+        "FTP-Patator": ("T1110", "Brute Force"),
+        "SSH-Patator": ("T1110", "Brute Force"),
+        "Web Attack - Brute Force": ("T1110", "Brute Force"),
+        "Bot": ("T1001", "Data Obfuscation / C2 Beaconing"),
+        "DDoS": ("T1498", "Network Denial of Service"),
+        "DoS Hulk": ("T1498", "Network Denial of Service"),
+        "Infiltration": ("T1210", "Exploitation of Remote Services"),
+        "Rare-Attack": ("T1210", "Exploitation of Remote Services"),
+    }
+    return mappings.get(str(label), ("Not mapped", "Technique requires analyst review"))
+
+
+def render_attack_details(data, rollout_result):
+    """Show evidence-backed incident details without external enrichment."""
+    st.subheader("🧭 Incident Investigation")
+    if data is None or data.empty:
+        st.info("Upload a CSV containing flow metadata to inspect source IP, timestamps, and observed techniques.")
+        return
+
+    source_names = ["Source IP", "src_ip", "src_ip_str", "source_ip", "SourceIP"]
+    target_names = ["Destination IP", "dst_ip", "dst_ip_str", "destination_ip", "DestinationIP"]
+    timestamp_names = ["Timestamp", "timestamp", "Flow Start", "flow_start", "time"]
+    label_names = ["Label_Original", "Label", "label", "attack_type", "predicted_attack"]
+    source_values = data.apply(lambda row: _first_present(row, source_names), axis=1)
+    source_values = source_values[source_values != "Not available"]
+    selected_source = st.selectbox(
+        "Observed source",
+        sorted(source_values.astype(str).unique().tolist()) if not source_values.empty else ["Not available"],
+    )
+    selected = data[source_values.astype(str) == selected_source] if selected_source != "Not available" else data
+    row = selected.iloc[-1]
+
+    label = _first_present(row, label_names, rollout_result.get("current_stage", "Not classified"))
+    technique_id, technique_name = _attack_technique(label)
+    first_seen = selected.apply(lambda item: _format_observed_time(_first_present(item, timestamp_names)), axis=1)
+    parsed_seen = pd.to_datetime(first_seen, errors="coerce", utc=True)
+    first_time = parsed_seen.min().strftime("%Y-%m-%d %H:%M:%S UTC") if parsed_seen.notna().any() else "Not available"
+    last_time = parsed_seen.max().strftime("%Y-%m-%d %H:%M:%S UTC") if parsed_seen.notna().any() else "Not available"
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric("Observed source IP", selected_source)
+        st.metric("Destination IP", _first_present(row, target_names))
+    with col2:
+        st.metric("First seen", first_time)
+        st.metric("Last seen", last_time)
+    with col3:
+        st.metric("Observed classification", str(label))
+        st.metric("Model risk", str(rollout_result.get("risk_level", "Not available")))
+
+    st.markdown("**Technique mapping**")
+    st.info(f"{technique_id}: {technique_name}. This is a behavior mapping from the supplied evidence, not attribution to a person.")
+
+    location = {
+        "Country": _first_present(row, ["country", "Country", "geo_country"]),
+        "Region": _first_present(row, ["region", "state", "geo_region"]),
+        "City": _first_present(row, ["city", "City", "geo_city"]),
+        "Latitude": _first_present(row, ["latitude", "lat", "geo_latitude"]),
+        "Longitude": _first_present(row, ["longitude", "lon", "geo_longitude"]),
+    }
+    st.markdown("**Source location**")
+    if all(value == "Not available" for value in location.values()):
+        st.caption("Location was not present in the supplied CSV/PCAP evidence. No external geolocation lookup was performed.")
+    else:
+        st.json(location)
+
+    evidence_columns = [
+        name for name in [
+            "Protocol", "protocol", "Source Port", "src_port", "Destination Port", "dst_port",
+            "Flow Packets/s", "Flow IAT Mean", "SYN Flag Count", "RST Flag Count",
+        ] if name in row.index
+    ]
+    if evidence_columns:
+        st.markdown("**Measured evidence**")
+        st.dataframe(selected[evidence_columns].tail(20), use_container_width=True, hide_index=True)
+
+
 def render_comparison(models):
     """Render baseline vs World Model comparison."""
     st.subheader("📊 Baseline vs World Model Comparison")
@@ -431,6 +526,8 @@ def main():
     with col4:
         st.metric("🔒 Offline Mode", "✅ Active")
     
+    st.markdown("---")
+    render_attack_details(data, {})
     st.markdown("---")
     
     if data is not None and 'world_model' in models:

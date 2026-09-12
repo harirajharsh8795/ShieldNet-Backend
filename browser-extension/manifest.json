@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "ShieldNet Local Defense",
+  "version": "0.1.0",
+  "description": "Local browser control panel for the ShieldNet offline defense agent.",
+  "action": {
+    "default_title": "ShieldNet Local Defense",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "service_worker.js"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8501/*",
+    "http://localhost:8501/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "shieldnet-local-defense@shieldnet.local",
+      "strict_min_version": "109.0"
+    }
+  }
+}

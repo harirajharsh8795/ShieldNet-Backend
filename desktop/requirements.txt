@@ -1,0 +1,6 @@
+# Dependencies used by the offline desktop dashboard and local launcher.
+streamlit>=1.40.0
+plotly>=5.18.0
+scapy>=2.5.0
+psutil>=5.9.0
+joblib>=1.3.0

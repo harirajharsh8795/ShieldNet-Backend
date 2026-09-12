@@ -1,0 +1,26 @@
+:root {
+  color-scheme: light;
+  font-family: "Segoe UI", sans-serif;
+  background: #f4f1ea;
+  color: #18231f;
+}
+
+body { width: 320px; margin: 0; background: #f4f1ea; }
+.shell { padding: 18px; }
+header { display: flex; align-items: center; gap: 11px; }
+.mark { display: grid; place-items: center; width: 36px; height: 36px; background: #123c34; color: #e9c46a; font-weight: 800; letter-spacing: .04em; }
+h1 { margin: 0; font-size: 20px; }
+header p { margin: 2px 0 0; color: #66746d; font-size: 12px; }
+.dot { width: 10px; height: 10px; margin-left: auto; border-radius: 50%; background: #b94a48; }
+.dot.online { background: #2a9d8f; }
+.connection { margin: 18px 0 12px; padding: 10px 12px; background: #fffdf8; border-left: 3px solid #b94a48; font-size: 13px; }
+.connection.online { border-color: #2a9d8f; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 0 0 16px; background: #d8d3c7; border: 1px solid #d8d3c7; }
+.facts div { padding: 10px; background: #fffdf8; }
+dt { color: #66746d; font-size: 11px; }
+dd { margin: 4px 0 0; font-size: 13px; font-weight: 700; }
+.actions { display: grid; gap: 8px; }
+button { border: 0; padding: 10px 12px; background: #123c34; color: white; cursor: pointer; font-weight: 700; }
+button.secondary { background: #dce7df; color: #123c34; }
+button:hover { filter: brightness(1.08); }
+.notice { margin: 15px 0 0; color: #66746d; font-size: 11px; line-height: 1.4; }
