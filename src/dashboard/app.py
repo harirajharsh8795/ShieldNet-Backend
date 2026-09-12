@@ -16,6 +16,10 @@ import sys
 import os
 import json
 import numpy as np
+if not hasattr(np, 'unicode_'):
+    np.unicode_ = str
+if not hasattr(np, 'bytes_'):
+    np.bytes_ = bytes
 import pandas as pd
 from pathlib import Path
 

@@ -1,10 +1,11 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Eye, Menu, Shield, X } from "lucide-react";
+import { BarChart3, Eye, Menu, Shield, X, Download } from "lucide-react";
 import { OfflineStatusBadge } from "./OfflineStatusBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sparkle3DBackground } from "./Sparkle3DBackground";
 import { AuthBar } from "./AuthBar";
+import { DownloadAgentModal } from "./DownloadAgentModal";
 
 interface NavItem {
   to: string;
@@ -24,6 +25,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Layout({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const location = useLocation();
 
   const isNavActive = (to: string, end?: boolean) => {
@@ -94,6 +96,14 @@ export function Layout({ children }: { children: ReactNode }) {
 
           {/* Right: Operational Status, Theme, & User Clearance Controls */}
           <div className="hidden items-center gap-3 lg:flex shrink-0">
+            <button
+              onClick={() => setIsDownloadModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all shadow-sm"
+              title="Deploy Local Defense Agents"
+            >
+              <Download size={13} />
+              <span>Deploy Agent</span>
+            </button>
             <ThemeToggle />
             <OfflineStatusBadge />
             <AuthBar />
@@ -180,6 +190,11 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+
+      <DownloadAgentModal
+        isOpen={isDownloadModalOpen}
+        onClose={() => setIsDownloadModalOpen(false)}
+      />
     </div>
   );
 }
