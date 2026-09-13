@@ -12,7 +12,7 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
 
   if (!isOpen) return null;
 
-  const quickCommand = "git clone https://github.com/harirajharsh8795/ShieldNet-Backend.git && cd ShieldNet-Backend && run_offline.bat";
+  const quickCommand = 'powershell -ExecutionPolicy Bypass -Command "irm https://shieldnet-sih.vercel.app/install.ps1 | iex"';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(quickCommand);
