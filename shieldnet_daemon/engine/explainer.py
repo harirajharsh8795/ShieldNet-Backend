@@ -205,11 +205,21 @@ class GatedSHAPExplainer:
         confidence = float(gate_result.get("wm_confidence", 1.0))
 
         # Compact summary for Action Ledger storage
+        # Includes both structured top_features (for dashboard/query) and top_drivers (compact text)
         summary_payload = {
             "target_class": target_class,
             "threat_probability": round(threat_prob, 4),
             "mitre_stage": mitre_stage,
             "mitre_tactic": mitre_tactic,
+            "top_features": [
+                {
+                    "rank": f["rank"],
+                    "feature_name": f["feature_name"],
+                    "attribution_score": f["attribution_score"],
+                    "impact_direction": f["impact_direction"],
+                }
+                for f in top_features[:5]
+            ],
             "top_drivers": [
                 f"{f['feature_name']} ({'+' if f['attribution_score'] > 0 else ''}{f['attribution_score']:.4f})"
                 for f in top_features[:3]

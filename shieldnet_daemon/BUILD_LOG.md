@@ -274,10 +274,37 @@ This log tracks the chronological implementation, test verification, and design 
 
 ---
 
+## Post-Module 8 Extension: Local IPC Bridge for Showcase Simulation & Provenance Tracking
+
+- **Date:** 2026-09-13
+- **Status:** COMPLETED & VERIFIED
+- **Location:** `shieldnet_daemon/daemon/ipc_bridge.py`, `shieldnet_daemon/daemon/service.py`, `shieldnet_daemon/engine/ledger.py`, `shieldnet_daemon/scripts/simulate_traffic.py`, `shieldnet_daemon/cli.py`
+- **Purpose:** Enables external processes (`simulate_traffic.py`, CLI) to securely inject synthetic traffic into the running daemon for live demonstration without requiring Npcap promiscuous sniffing, while maintaining strict separation between demo and production postures.
+- **Implemented Security Safeguards:**
+  1. **Demo vs. Production Separation:** IPC server is disabled by default in production (`enable_ipc: False`). Activated strictly via `--enable-ipc` for local testing/demo.
+  2. **Loopback-Only Binding:** Server socket binds strictly to `127.0.0.1:49152`. Non-loopback connection attempts are rejected immediately.
+  3. **Ephemeral Session Token:** 256-bit cryptographic token (`secrets.token_hex(32)`) generated fresh on every start; written to `data/.ipc_token` with owner-only permissions and unlinked immediately on daemon stop. Added to `.gitignore`.
+  4. **Constant-Time Verification:** Uses `hmac.compare_digest` to prevent timing attacks.
+  5. **Brute-Force Lockout:** Automatically activates a 60-second lockout after 5 consecutive failed authentication attempts.
+  6. **Strict Schema & Range Validation:** Incoming packet batches are validated against exact type and numerical bounds (IP formats, ports $0\text{--}65535$, TTL $1\text{--}255$, protocol $\in \{1, 6, 17\}$, length bounds) before instantiating `PacketMetadata`.
+  7. **Forensic Provenance Tagging:** All records committed from IPC injection are cryptographically tagged with `source: "simulated"` in the Action Ledger and dashboard UI, guaranteeing simulated alerts are never mixed indistinguishably with `source: "live_sniffer"` events.
+- **Test Results:**
+  - Test Suite: `shieldnet_daemon/tests/test_ipc_bridge.py` (6 tests)
+  - Full Regression Suite: `.\.venv\Scripts\python.exe -m pytest tests/ -v` -> **`50 passed, 0 failed in 30.82s`**
+  - Validations:
+    - `test_ipc_token_generation_and_cleanup`: **PASSED** (256-bit token entropy and secure unlinking on stop)
+    - `test_ipc_ping_and_handshake`: **PASSED** (Loopback handshake and queue status)
+    - `test_ipc_constant_time_auth_and_lockout`: **PASSED** (5-failure lockout and constant-time auth)
+    - `test_ipc_strict_schema_validation`: **PASSED** (Strict rejection of malformed types, invalid IPs, and out-of-bounds fields)
+    - `test_ipc_end_to_end_injection_and_ledger_provenance`: **PASSED** (Synthetic DDoS injection, ONNX threat detection, Action Ledger commit tagged `source: "simulated"`, and hash chain integrity verification)
+    - `test_ipc_client_stats_endpoint`: **PASSED** (Live telemetry reporting over IPC)
+
+---
+
 ## Final Project Summary
 
-| Module | Description | Tests | Status |
-|--------|-------------|-------|--------|
+| Module / Component | Description | Tests | Status |
+|---|---|:---:|:---:|
 | 1 | Shared Feature-Extraction | 5/5 | ✅ VERIFIED |
 | 2 | ONNX Export & Inference Wrapper | 4/4 | ✅ VERIFIED |
 | 3 | Confidence Gate (Ensemble Logic) | 6/6 | ✅ VERIFIED |
@@ -286,6 +313,7 @@ This log tracks the chronological implementation, test verification, and design 
 | 6 | Background Daemon Wrapper & Simulator | 7/7 | ✅ VERIFIED |
 | 7 | Decoupled Dashboard | 7/7 | ✅ VERIFIED |
 | 8 | PyInstaller Packaging | 5/5 | ✅ VERIFIED |
-| **Total** | **All 8 Modules** | **44/44** | **✅ ALL PASS** |
+| **Demo Extension** | **Local IPC Bridge & Provenance Tagging** | **6/6** | **✅ VERIFIED** |
+| **Total** | **All 8 Modules + IPC Extension** | **50/50** | **✅ ALL PASS** |
 
 **Binary:** `dist/shieldnet/shieldnet.exe` (58 MB, air-gap portable, zero runtime dependencies)

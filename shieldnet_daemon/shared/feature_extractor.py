@@ -50,6 +50,7 @@ class PacketMetadata:
     ttl: int = 64                 # IP Time-to-Live
     ip_flags: int = 0             # Raw IP flags (MF, DF)
     frag_offset: int = 0          # IP fragment offset
+    source: str = "live_sniffer"  # Provenance tag: 'live_sniffer' vs 'simulated'
 
 
 def parse_scapy_packet(pkt: Any, flow_direction_hint: int = 0) -> Optional[PacketMetadata]:

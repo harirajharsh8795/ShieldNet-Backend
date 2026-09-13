@@ -969,11 +969,15 @@
       const probPct = (r.threat_probability * 100).toFixed(1) + '%';
       const shortHash = r.record_hash ? `${r.record_hash.substring(0, 12)}...${r.record_hash.substring(56)}` : '--';
 
+      const sourceBadge = r.source === 'simulated'
+        ? '<span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.5); font-size: 10px; margin-left: 5px;">SIMULATED</span>'
+        : '';
+
       return `
         <tr>
           <td><strong>#${r.id}</strong></td>
           <td>${r.iso_time || new Date(r.timestamp * 1000).toISOString()}</td>
-          <td><span class="badge badge-high">${r.prediction}</span></td>
+          <td><span class="badge badge-high">${r.prediction}</span>${sourceBadge}</td>
           <td><strong>${probPct}</strong></td>
           <td><span class="badge badge-mitre">Stage ${r.mitre_stage}: ${r.mitre_tactic}</span></td>
           <td><span class="badge ${sevClass}">${r.severity}</span></td>
@@ -992,7 +996,10 @@
     document.getElementById('modal-prev-hash').textContent = record.prev_hash || 'Genesis';
     document.getElementById('modal-curr-hash').textContent = record.record_hash;
 
-    document.getElementById('modal-threat-class').textContent = record.prediction;
+    const modalSourceBadge = record.source === 'simulated'
+      ? ' <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.5); font-size: 11px; margin-left: 6px;">SIMULATED</span>'
+      : '';
+    document.getElementById('modal-threat-class').innerHTML = `${record.prediction}${modalSourceBadge}`;
     document.getElementById('modal-threat-prob').textContent = `${(record.threat_probability * 100).toFixed(1)}%`;
     document.getElementById('modal-threat-mitre').textContent = `Stage ${record.mitre_stage}: ${record.mitre_tactic}`;
     document.getElementById('modal-threat-severity').textContent = record.severity;

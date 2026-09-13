@@ -35,6 +35,9 @@ __version__ = "1.0.0"
 def cmd_daemon_run(args):
     """Starts the background daemon in blocking or mock mode."""
     data_dir = get_data_dir()
+    enable_ipc = getattr(args, "enable_ipc", False)
+    ipc_port = getattr(args, "ipc_port", 49152)
+
     config = DaemonConfig(
         db_path=data_dir / "ledger.db",
         status_path=data_dir / "daemon_status.json",
@@ -43,12 +46,15 @@ def cmd_daemon_run(args):
         logreg_path=get_resource_path("models/checkpoints/logreg_params.npz"),
         interface=args.interface,
         mock_mode=args.mock,
+        enable_ipc=enable_ipc,
+        ipc_port=ipc_port,
     )
 
     print(f"\n============================================================")
     print(f"      SHIELDNET AUTONOMOUS BACKGROUND THREAT DAEMON")
     print(f"============================================================")
     print(f" Mode:            {'MOCK_INJECTION' if args.mock else 'LIVE_SNIFFING'}")
+    print(f" IPC Bridge:      {'ENABLED (127.0.0.1:' + str(ipc_port) + ') [DEMO MODE]' if enable_ipc else 'DISABLED (Production Hardened)'}")
     print(f" Interface:       {args.interface or 'DEFAULT'}")
     print(f" Ledger DB:       {config.db_path}")
     print(f" Status Path:     {config.status_path}")
@@ -156,6 +162,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_d_run = daemon_subs.add_parser("run", help="Run background daemon")
     p_d_run.add_argument("--mock", action="store_true", help="Bypass live network sniffing")
     p_d_run.add_argument("--interface", type=str, default=None, help="Capture interface name")
+    p_d_run.add_argument("--enable-ipc", action="store_true", help="Enable localhost IPC bridge for simulation (demo mode only)")
+    p_d_run.add_argument("--ipc-port", type=int, default=49152, help="Port for localhost IPC bridge (default: 49152)")
     
     daemon_subs.add_parser("status", help="Query live daemon telemetry")
     daemon_subs.add_parser("stop", help="Gracefully terminate daemon")

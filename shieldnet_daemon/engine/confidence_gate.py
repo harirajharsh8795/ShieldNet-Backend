@@ -7,6 +7,9 @@ Implements Section 2.4 and Section 3 of ShieldNet Tech Stack:
   - If C_wm >= tau: World Model dominant (high temporal certainty)
   - If C_wm < tau: Ensemble fallback blending: P_blended = 0.60 * P_wm + 0.40 * P_lr
 - Determines the binary detection gate: 'is_flagged'
+  A window is flagged when BOTH conditions hold:
+    1. blended threat probability >= threat_threshold (default 0.80 — high-precision gate)
+    2. the predicted class is non-benign (idx != 0)
   Flagged windows proceed to SHAP explainability (Module 4) and Action Ledger (Module 5);
   Benign windows bypass SHAP entirely to conserve CPU cycles for real-time operation.
 """
@@ -35,7 +38,7 @@ class ConfidenceGate:
         logreg_path: Optional[Union[str, Path]] = None,
         confidence_tau: float = 0.80,
         wm_blend_weight: float = 0.60,
-        threat_threshold: float = 0.50,
+        threat_threshold: float = 0.80,
     ):
         self.confidence_tau = confidence_tau
         self.wm_blend_weight = wm_blend_weight
@@ -160,9 +163,10 @@ class ConfidenceGate:
         mitre_stage = int(wm_step_output.get("mitre_stage", 0))
         mitre_tactic = MITRE_STAGES.get(mitre_stage, "Normal Operations")
 
-        # Binary flagging decision:
-        # Flag if blended threat probability exceeds threshold OR predicted class is non-benign
-        is_flagged = bool((threat_prob >= self.threat_threshold) or (pred_class_idx != 0))
+        # Binary flagging decision (high-precision gate):
+        # Flag ONLY if threat probability >= threshold AND predicted class is non-benign.
+        # Using AND (not OR) avoids false-positive alerts on uncertain-but-likely-benign windows.
+        is_flagged = bool((threat_prob >= self.threat_threshold) and (pred_class_idx != 0))
 
         # Determine alert severity
         if not is_flagged:

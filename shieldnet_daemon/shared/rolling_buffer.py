@@ -27,6 +27,7 @@ class FlowRecord:
         self.created_at = first_packet.timestamp
         self.last_seen_at = first_packet.timestamp
         self.packets: deque = deque(maxlen=2000)
+        self.source: str = getattr(first_packet, "source", "live_sniffer")
         
         # Set direction of first packet as Forward (0)
         first_packet.direction = 0
@@ -35,6 +36,8 @@ class FlowRecord:
     def add_packet(self, pkt: PacketMetadata):
         """Appends an incoming packet, automatically resolving forward/backward direction."""
         self.last_seen_at = pkt.timestamp
+        if getattr(pkt, "source", "live_sniffer") == "simulated":
+            self.source = "simulated"
         if pkt.src_ip == self.initiator_ip and pkt.src_port == self.initiator_port:
             pkt.direction = 0  # Forward
         else:
@@ -166,6 +169,7 @@ class RollingFlowBuffer:
                     "sequence": seq,
                     "packet_count": len(flow.packets),
                     "duration_sec": max(0.0, flow.last_seen_at - flow.created_at),
+                    "source": getattr(flow, "source", "live_sniffer"),
                 })
 
             if is_expired:

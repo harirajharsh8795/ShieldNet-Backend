@@ -38,6 +38,7 @@ class LedgerRecord:
     shap_vector: Optional[np.ndarray]
     prev_hash: str
     record_hash: str
+    source: str = "live_sniffer"
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializes record to dictionary for API/Dashboard consumption."""
@@ -54,6 +55,7 @@ class LedgerRecord:
             "shap_vector": self.shap_vector.tolist() if self.shap_vector is not None else None,
             "prev_hash": self.prev_hash,
             "record_hash": self.record_hash,
+            "source": self.source,
         }
 
 
@@ -96,11 +98,17 @@ class ActionLedger:
                 shap_summary TEXT NOT NULL,
                 shap_vector BLOB,
                 prev_hash TEXT NOT NULL,
-                record_hash TEXT NOT NULL
+                record_hash TEXT NOT NULL,
+                source TEXT DEFAULT 'live_sniffer'
             );
             """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_ledger_timestamp ON action_ledger (timestamp);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_ledger_hash ON action_ledger (record_hash);")
+            # Migrate table if source column doesn't exist
+            cursor = conn.execute("PRAGMA table_info(action_ledger);")
+            cols = [col["name"] for col in cursor.fetchall()]
+            if "source" not in cols:
+                conn.execute("ALTER TABLE action_ledger ADD COLUMN source TEXT DEFAULT 'live_sniffer';")
             conn.commit()
 
     @staticmethod
@@ -110,7 +118,8 @@ class ActionLedger:
         prediction: str,
         threat_probability: float,
         mitre_stage: int,
-        shap_summary: str
+        shap_summary: str,
+        source: str = "live_sniffer"
     ) -> str:
         """
         Computes deterministic SHA-256 hash chaining over canonical fields.
@@ -121,7 +130,8 @@ class ActionLedger:
             f"{prediction}|"
             f"{threat_probability:.4f}|"
             f"{mitre_stage}|"
-            f"{shap_summary}"
+            f"{shap_summary}|"
+            f"{source}"
         )
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
@@ -143,7 +153,8 @@ class ActionLedger:
         severity: str,
         shap_summary: str,
         shap_vector: Optional[np.ndarray] = None,
-        timestamp: Optional[float] = None
+        timestamp: Optional[float] = None,
+        source: str = "live_sniffer"
     ) -> LedgerRecord:
         """
         Appends a new event cryptographically linked to the preceding record.
@@ -171,19 +182,20 @@ class ActionLedger:
                 prediction=prediction,
                 threat_probability=threat_probability,
                 mitre_stage=mitre_stage,
-                shap_summary=shap_summary
+                shap_summary=shap_summary,
+                source=source
             )
 
             cursor = conn.execute("""
                 INSERT INTO action_ledger (
                     timestamp, iso_time, prediction, threat_probability,
                     mitre_stage, mitre_tactic, severity, shap_summary,
-                    shap_vector, prev_hash, record_hash
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    shap_vector, prev_hash, record_hash, source
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """, (
                 timestamp, iso_time, prediction, threat_probability,
                 mitre_stage, mitre_tactic, severity, shap_summary,
-                shap_blob, prev_hash, rec_hash
+                shap_blob, prev_hash, rec_hash, source
             ))
             conn.commit()
             new_id = cursor.lastrowid
@@ -200,7 +212,8 @@ class ActionLedger:
             shap_summary=shap_summary,
             shap_vector=shap_vector,
             prev_hash=prev_hash,
-            record_hash=rec_hash
+            record_hash=rec_hash,
+            source=source
         )
 
     def get_records(self, limit: int = 100, offset: int = 0) -> List[LedgerRecord]:
@@ -280,13 +293,17 @@ class ActionLedger:
                 )
 
             # 2. Recompute hash over row payload
+            row_keys = row.keys() if hasattr(row, "keys") else []
+            row_source = row["source"] if "source" in row_keys else "live_sniffer"
+
             recomputed_hash = self.compute_record_hash(
                 prev_hash=stored_prev,
                 timestamp=row["timestamp"],
                 prediction=row["prediction"],
                 threat_probability=row["threat_probability"],
                 mitre_stage=row["mitre_stage"],
-                shap_summary=row["shap_summary"]
+                shap_summary=row["shap_summary"],
+                source=row_source
             )
 
             if recomputed_hash != stored_hash:
@@ -304,6 +321,8 @@ class ActionLedger:
         """Converts an SQLite row to a LedgerRecord dataclass."""
         blob = row["shap_vector"]
         shap_arr = np.frombuffer(blob, dtype=np.float32) if blob is not None else None
+        row_keys = row.keys() if hasattr(row, "keys") else []
+        row_source = row["source"] if "source" in row_keys else "live_sniffer"
         return LedgerRecord(
             id=row["id"],
             timestamp=row["timestamp"],
@@ -316,5 +335,6 @@ class ActionLedger:
             shap_summary=row["shap_summary"],
             shap_vector=shap_arr,
             prev_hash=row["prev_hash"],
-            record_hash=row["record_hash"]
+            record_hash=row["record_hash"],
+            source=row_source
         )

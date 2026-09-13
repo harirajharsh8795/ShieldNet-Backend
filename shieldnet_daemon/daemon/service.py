@@ -69,9 +69,12 @@ class DaemonConfig:
     heartbeat_interval: float = 2.0        # Status heartbeat write frequency in seconds
     flow_timeout: float = 15.0             # Inactive flow eviction timeout in seconds
     confidence_tau: float = 0.80           # World model confidence gating threshold
-    threat_threshold: float = 0.50         # Binary flag threshold
+    threat_threshold: float = 0.80         # Binary flag threshold (high-precision: reduces false positives)
     max_queue_size: int = 10000            # Packet ingest queue capacity
     mock_mode: bool = False                # If True, bypass live NIC sniffing
+    enable_ipc: bool = False               # If True, launch localhost IPC bridge (demo mode only)
+    ipc_host: str = "127.0.0.1"            # Strictly loopback only
+    ipc_port: int = 49152                  # Default IPC simulation port
 
 
 class ShieldNetDaemon:
@@ -104,6 +107,8 @@ class ShieldNetDaemon:
         self.last_heartbeat_time: float = 0.0
         self.last_alert: Optional[Dict[str, Any]] = None
         self.active_mode: str = "INITIALIZING"
+
+        self.ipc_server: Optional[Any] = None
 
         # Initialize core engine components
         self._init_components()
@@ -145,11 +150,13 @@ class ShieldNetDaemon:
         logger.info("[Init] Initializing SQLite Action Ledger at %s", self.config.db_path)
         self.ledger = ActionLedger(db_path=self.config.db_path)
 
-    def inject_packet(self, pkt: PacketMetadata) -> bool:
+    def inject_packet(self, pkt: PacketMetadata, source: Optional[str] = None) -> bool:
         """
         Directly injects a PacketMetadata instance into the daemon's ingest queue.
         Thread-safe; used by simulators, tests, and packet capture hooks.
         """
+        if source:
+            pkt.source = source
         try:
             self.packet_queue.put_nowait(pkt)
             self.total_packets_captured += 1
@@ -158,11 +165,11 @@ class ShieldNetDaemon:
             self.total_packets_dropped += 1
             return False
 
-    def inject_packets(self, packets: List[PacketMetadata]) -> int:
-        """Injects a batch of packets into the ingest queue."""
+    def inject_packets(self, packets: List[PacketMetadata], source: Optional[str] = None) -> int:
+        """Injects a batch of packets into the ingest queue with provenance tracking."""
         accepted = 0
         for pkt in packets:
-            if self.inject_packet(pkt):
+            if self.inject_packet(pkt, source=source):
                 accepted += 1
         return accepted
 
@@ -215,6 +222,19 @@ class ShieldNetDaemon:
         sniffer_thread.start()
         self._threads.append(sniffer_thread)
 
+        # Start IPC Server worker thread (Demo Mode only)
+        if self.config.enable_ipc:
+            from daemon.ipc_bridge import IPCServer
+            self.ipc_server = IPCServer(
+                daemon_ref=self,
+                data_dir=self.data_dir,
+                host=self.config.ipc_host,
+                port=self.config.ipc_port,
+            )
+            self.ipc_server.start()
+            logger.info("[IPC] Local simulation IPC bridge active on %s:%d [DEMO MODE]",
+                        self.config.ipc_host, self.config.ipc_port)
+
         self._write_status(status_override="RUNNING")
         logger.info("ShieldNet daemon started successfully [PID: %d]", os.getpid())
 
@@ -234,6 +254,14 @@ class ShieldNetDaemon:
         logger.info("Initiating graceful shutdown for ShieldNet daemon...")
         self._running = False
         self._stop_event.set()
+
+        # Stop IPC server if active
+        if self.ipc_server:
+            try:
+                self.ipc_server.stop()
+            except Exception as exc:
+                logger.debug("Error stopping IPC server: %s", exc)
+            self.ipc_server = None
 
         # Wait for threads to terminate
         for t in self._threads:
@@ -375,6 +403,7 @@ class ShieldNetDaemon:
                     severity=gate_res["severity"],
                     shap_summary=shap_summary_json,
                     shap_vector=shap_vec,
+                    source=item.get("source", "live_sniffer"),
                 )
 
                 self.total_alerts_logged += 1

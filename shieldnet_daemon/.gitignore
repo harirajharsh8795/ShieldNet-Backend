@@ -1,0 +1,71 @@
+# ShieldNet Daemon — Git Ignore
+# ─────────────────────────────────────────────────────────────────────────────
+# Python cache & compiled
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# ─── SENSITIVE: Never commit ──────────────────────────────────────────────────
+# IPC authentication token (treat like a password)
+.ipc_token
+*.ipc_token
+data/.ipc_token
+
+# SQLite ledger database (contains detection data + hash chain)
+data/ledger.db
+data/*.db
+*.db
+*.sqlite
+
+# Daemon runtime status (ephemeral, contains PID)
+data/daemon_status.json
+data/*.json
+
+# Log files
+*.log
+logs/
+
+# Environment files (may contain API keys)
+.env
+.env.*
+
+# ─── Model Checkpoints (large binary files) ───────────────────────────────────
+# Include model checkpoints via Git LFS or share out-of-band
+models/checkpoints/*.pt
+models/checkpoints/*.pth
+models/checkpoints/*.joblib
+models/checkpoints/*.npz
+models/onnx/*.onnx
+# Keep placeholder files
+!models/checkpoints/.gitkeep
+!models/onnx/.gitkeep
+
+# ─── Build & Distribution artifacts ──────────────────────────────────────────
+dist/
+build/
+build_spec/
+*.spec
+dist_smoke_stderr.txt
+dist_smoke_stdout.txt
+
+# ─── Debug / scratch scripts (auto-generated) ─────────────────────────────────
+scripts/_debug_*.py
+
+# ─── IDE / OS ─────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ─── Testing ──────────────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
