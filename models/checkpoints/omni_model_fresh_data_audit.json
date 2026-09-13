@@ -7,7 +7,7 @@
     "macro_f1": 0.4466,
     "threat_recall": 0.9485,
     "fpr": 0.0853,
-    "latency_us": 43.93
+    "latency_us": 27.39
   },
   "fresh_cic_ids_2018": {
     "dataset_file": "02-21-2018.csv",
