@@ -89,6 +89,48 @@ class EvidenceRecord(Base):
         }
 
 
+class ThreatRecord(Base):
+    """Persistent storage for detected flagged threat events."""
+    __tablename__ = "threat_events"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ip_address = Column(String(64), index=True, nullable=True)
+    source_ip = Column(String(64), index=True, nullable=True)
+    destination_ip = Column(String(64), index=True, nullable=True)
+    source_port = Column(Integer, nullable=True)
+    destination_port = Column(Integer, nullable=True)
+    protocol = Column(String(32), nullable=True)
+    threat_probability = Column(Float, nullable=True)
+    predicted_class = Column(String(128), index=True, nullable=True)
+    severity = Column(String(32), nullable=True)
+    mitre_stage = Column(String(128), nullable=True)
+    timestamp = Column(String(64), default=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
+    shap_summary = Column(Text, default="{}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        shap_data = {}
+        if self.shap_summary:
+            try:
+                shap_data = json.loads(self.shap_summary)
+            except Exception:
+                shap_data = {"raw": self.shap_summary}
+        return {
+            "id": self.id,
+            "ip_address": self.ip_address,
+            "source_ip": self.source_ip,
+            "destination_ip": self.destination_ip,
+            "source_port": self.source_port,
+            "destination_port": self.destination_port,
+            "protocol": self.protocol,
+            "threat_probability": self.threat_probability,
+            "predicted_class": self.predicted_class,
+            "severity": self.severity,
+            "mitre_stage": self.mitre_stage,
+            "timestamp": self.timestamp,
+            "shap_summary": shap_data,
+        }
+
+
 class DatabaseManager:
     """Manages persistent database sessions and transactions."""
 
@@ -197,6 +239,52 @@ class DatabaseManager:
 
             session.commit()
             return record.to_dict()
+        finally:
+            session.close()
+
+    def save_threat(
+        self,
+        ip_address: Optional[str] = None,
+        source_ip: Optional[str] = None,
+        destination_ip: Optional[str] = None,
+        source_port: Optional[int] = None,
+        destination_port: Optional[int] = None,
+        protocol: Optional[str] = None,
+        threat_probability: Optional[float] = None,
+        predicted_class: Optional[str] = None,
+        severity: Optional[str] = None,
+        mitre_stage: Optional[str] = None,
+        timestamp: Optional[str] = None,
+        shap_summary: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        session = self.get_session()
+        try:
+            record = ThreatRecord(
+                ip_address=ip_address,
+                source_ip=source_ip,
+                destination_ip=destination_ip,
+                source_port=source_port,
+                destination_port=destination_port,
+                protocol=protocol,
+                threat_probability=round(float(threat_probability), 4) if threat_probability is not None else None,
+                predicted_class=predicted_class,
+                severity=severity,
+                mitre_stage=mitre_stage,
+                timestamp=timestamp or datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                shap_summary=json.dumps(shap_summary or {}, default=str),
+            )
+            session.add(record)
+            session.commit()
+            session.refresh(record)
+            return record.to_dict()
+        finally:
+            session.close()
+
+    def get_all_threats(self, limit: int = 50) -> List[Dict[str, Any]]:
+        session = self.get_session()
+        try:
+            records = session.query(ThreatRecord).order_by(ThreatRecord.id.desc()).limit(limit).all()
+            return [r.to_dict() for r in records]
         finally:
             session.close()
 

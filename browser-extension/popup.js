@@ -35,7 +35,7 @@ async function loadStatus() {
 }
 
 document.getElementById("dashboard").addEventListener("click", () => {
-  chrome.tabs.create({ url: "http://127.0.0.1:8501/" });
+  chrome.tabs.create({ url: "https://shieldnet-sih.vercel.app/dashboard" });
 });
 
 document.getElementById("api").addEventListener("click", () => {
