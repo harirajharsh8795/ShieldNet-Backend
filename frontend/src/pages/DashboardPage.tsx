@@ -1,20 +1,18 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Upload, Bell, Radio, Lock, Swords } from "lucide-react";
+import { Activity, Upload, Bell, Radio, Lock } from "lucide-react";
 import { UploadPage } from "./UploadPage";
 import { SimulationPage } from "./SimulationPage";
 import { LiveMonitorPage } from "./LiveMonitorPage";
 import { AlertSentinelPage } from "./AlertSentinelPage";
 import { BlockchainAuditPage } from "./BlockchainAuditPage";
-import { WargameArenaPage } from "./WargameArenaPage";
 
 const tabs = [
-  { to: "/dashboard", label: "Upload", icon: Upload, end: true },
-  { to: "/dashboard/wargame", label: "⚔️ Adversary Wargame Arena", icon: Swords, highlight: true },
-  { to: "/dashboard/live", label: "Live Sniffer", icon: Radio },
-  { to: "/dashboard/simulation", label: "Scenario Simulation", icon: Activity },
-  { to: "/dashboard/alerts", label: "Alerts (WhatsApp & Custom IP)", icon: Bell, highlight: true },
-  { to: "/dashboard/blockchain", label: "Immutable Ledger (SIERL)", icon: Lock, highlight: true },
+  { to: "/dashboard", label: "Multi-Modal Telemetry Ingestion", icon: Upload, end: true },
+  { to: "/dashboard/live", label: "Live Network Sniffer", icon: Radio },
+  { to: "/dashboard/simulation", label: "Continuous Trajectory Forecasting (K=5)", icon: Activity },
+  { to: "/dashboard/alerts", label: "Autonomous SOAR & Alert Sentinel", icon: Bell, highlight: true },
+  { to: "/dashboard/blockchain", label: "SIERL Immutable Consortium Ledger", icon: Lock, highlight: true },
 ];
 
 export function DashboardPage() {
@@ -22,7 +20,6 @@ export function DashboardPage() {
 
   const renderTabContent = () => {
     if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") return <UploadPage />;
-    if (location.pathname === "/dashboard/wargame") return <WargameArenaPage />;
     if (location.pathname === "/dashboard/live") return <LiveMonitorPage />;
     if (location.pathname === "/dashboard/simulation") return <SimulationPage />;
     if (location.pathname === "/dashboard/alerts") return <AlertSentinelPage />;
