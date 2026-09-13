@@ -12,7 +12,7 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
 
   if (!isOpen) return null;
 
-  const quickCommand = 'powershell -ExecutionPolicy Bypass -Command "irm https://shieldnet-sih.vercel.app/install.ps1 | iex"';
+  const quickCommand = 'powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; irm https://cdn.jsdelivr.net/gh/harirajharsh8795/ShieldNet-Backend@main/desktop/install.ps1 | iex"';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(quickCommand);
