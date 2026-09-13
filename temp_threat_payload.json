@@ -1,0 +1,16 @@
+﻿{
+  "ip_address": "185.220.101.1",
+  "source_ip": "10.0.0.5",
+  "destination_ip": "185.220.101.1",
+  "source_port": 52341,
+  "destination_port": 443,
+  "protocol": "TCP",
+  "threat_probability": 0.97,
+  "predicted_class": "DDoS",
+  "severity": "HIGH",
+  "mitre_stage": "Impact",
+  "shap_summary": {
+    "top_risk_drivers": ["SYN Flag Count", "Flow IAT Mean"]
+  },
+  "timestamp": "2026-09-13T09:30:00"
+}

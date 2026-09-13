@@ -22,6 +22,8 @@ from pathlib import Path
 import json
 import time
 import base64
+import urllib.request
+import urllib.error
 import numpy as np
 import torch
 import pandas as pd
@@ -126,6 +128,29 @@ features_list: List[str] = []
 cached_benchmark_data: Dict[str, Any] = {}
 cached_sample_sessions: List[Dict[str, Any]] = []
 optimal_class_weights_vec: Optional[np.ndarray] = None
+THREAT_API_URL = os.getenv("THREAT_API_URL", "http://127.0.0.1:8000/api/threats")
+THREAT_API_TIMEOUT = int(os.getenv("THREAT_API_TIMEOUT", "3"))
+
+
+def _send_threat_event(event_payload: Dict[str, Any]) -> bool:
+    """POST a flagged detection event to the local threat API without breaking inference."""
+    if not event_payload:
+        return False
+    try:
+        request = urllib.request.Request(
+            THREAT_API_URL,
+            data=json.dumps(event_payload, default=str).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(request, timeout=THREAT_API_TIMEOUT) as response:
+            if response.status not in (200, 201):
+                print(f"[Threat API] Unexpected status {response.status} for {THREAT_API_URL}")
+                return False
+            return True
+    except Exception as exc:
+        print(f"[Threat API] Could not reach {THREAT_API_URL}: {exc}")
+        return False
 
 
 MITRE_STAGE_MAP = {
@@ -396,6 +421,24 @@ def load_system_assets():
     ]
 
 # Request Schemas
+class ThreatCreateRequest(BaseModel):
+    ip_address: Optional[str] = Field(None, description="Primary IP associated with the flagged event")
+    source_ip: Optional[str] = Field(None, description="Source IP for the suspicious flow")
+    destination_ip: Optional[str] = Field(None, description="Destination IP for the suspicious flow")
+    source_port: Optional[int] = Field(None, ge=0, le=65535, description="Source port")
+    destination_port: Optional[int] = Field(None, ge=0, le=65535, description="Destination port")
+    protocol: Optional[str] = Field(None, description="TCP/UDP/ICMP protocol")
+    threat_probability: float = Field(..., ge=0.0, le=1.0, description="Threat probability for the event")
+    predicted_class: Optional[str] = Field(None, description="Predicted attack class")
+    severity: Optional[str] = Field(None, description="Severity label")
+    mitre_stage: Optional[str] = Field(None, description="MITRE stage name")
+    timestamp: Optional[str] = Field(None, description="ISO-8601 event timestamp")
+    shap_summary: Optional[Dict[str, Any]] = Field(default_factory=dict, description="SHAP summary payload")
+
+class ThreatResponse(BaseModel):
+    message: str = Field("Threat stored successfully")
+    id: int
+
 class PredictRequest(BaseModel):
     state_sequence: List[List[float]] = Field(..., description="List of 84-dimensional standardized state vectors over time (L, 84)")
     k_steps: int = Field(3, ge=1, le=10, description="Future simulation horizon K")
@@ -451,6 +494,33 @@ def root_status():
         "health_check": "/api/health",
         "architecture": "ShieldNet Dual-Engine Ensemble (GRU+Attention 60% + Tabular Linear 40%)"
     }
+
+@app.post("/api/threats", response_model=ThreatResponse)
+async def create_threat(req: ThreatCreateRequest):
+    """Persist a detected network threat event into the existing ShieldNet database."""
+    saved = db_manager.save_threat(
+        ip_address=req.ip_address,
+        source_ip=req.source_ip,
+        destination_ip=req.destination_ip,
+        source_port=req.source_port,
+        destination_port=req.destination_port,
+        protocol=req.protocol,
+        threat_probability=req.threat_probability,
+        predicted_class=req.predicted_class,
+        severity=req.severity,
+        mitre_stage=req.mitre_stage,
+        timestamp=req.timestamp,
+        shap_summary=req.shap_summary,
+    )
+    return {"message": "Threat stored successfully", "id": int(saved["id"]) }
+
+
+@app.get("/api/threats")
+async def list_threats(limit: int = 50):
+    """Return recent threat events in newest-first order."""
+    threats = db_manager.get_all_threats(limit=max(1, min(limit, 200)))
+    return {"threats": threats, "total": len(threats)}
+
 
 @app.get("/api/health")
 def health_check():
@@ -561,7 +631,6 @@ def predict_sequence(req: PredictRequest):
     pred_stage_idx = int(np.argmax(mitre_logits))
     threat_prob = float(1.0 - calibrated_probs[0]) # 1.0 - Benign prob
 
-    
     # Severity classification
     if threat_prob >= 0.85:
         severity = "CRITICAL"
@@ -571,7 +640,7 @@ def predict_sequence(req: PredictRequest):
         severity = "WATCH"
     else:
         severity = "NORMAL"
-        
+
     # 4. Multi-Step Autoregressive Rollout (K steps)
     rollout_trajectory = []
     current_fine = fine_input.clone()
@@ -654,6 +723,30 @@ def predict_sequence(req: PredictRequest):
             status_code=500,
             detail="CONSTRAINT C2 VIOLATION: Prediction returned without an explanation object. PS explicitly requires: 'Black-box outputs without interpretability are not acceptable.'"
         )
+
+    # TODO: ML integration point
+    # When is_flagged == True, send the generated threat event to the threat persistence API.
+    is_flagged = bool(threat_prob >= 0.50 or pred_class_name != "BENIGN")
+    if is_flagged:
+        threat_event = {
+            "ip_address": req.host_ip,
+            "source_ip": req.host_ip,
+            "destination_ip": None,
+            "source_port": None,
+            "destination_port": None,
+            "protocol": None,
+            "threat_probability": round(float(threat_prob), 4),
+            "predicted_class": pred_class_name,
+            "severity": severity,
+            "mitre_stage": MITRE_STAGE_MAP.get(pred_stage_idx, {}).get("name") or "Unknown",
+            "timestamp": pd.Timestamp.now().isoformat(),
+            "shap_summary": {"top_risk_drivers": [driver.get("feature", "") for driver in driving_features[:5] if driver.get("feature")]},
+        }
+        try:
+            _send_threat_event(threat_event)
+        except Exception:
+            print(f"[Threat API] Detection pipeline failed to send threat event for {req.host_ip}")
+
     # 6. Generate Post-Hoc Symbolic MITRE & Autonomous Defense Synthesis
     mitre_reasoning = mitre_reasoner.explain_attack_progression(
         predicted_class=pred_class_name,

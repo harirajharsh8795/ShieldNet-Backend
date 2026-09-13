@@ -38,6 +38,13 @@ const VERCEL_URL = "https://shieldnet-sih.vercel.app/";
 const LOCAL_REACT_URL = "http://localhost:5173/";
 const STREAMLIT_URL = "http://127.0.0.1:8501/";
 
+const defaultDashboardBtn = document.getElementById("dashboard");
+if (defaultDashboardBtn) {
+  defaultDashboardBtn.addEventListener("click", () => {
+    chrome.tabs.create({ url: "https://shieldnet-sih.vercel.app/dashboard" });
+  });
+}
+
 const vercelBtn = document.getElementById("dashboard-vercel");
 if (vercelBtn) {
   vercelBtn.addEventListener("click", () => {
