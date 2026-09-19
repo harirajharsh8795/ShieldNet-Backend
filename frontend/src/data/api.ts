@@ -296,129 +296,177 @@ export async function getIngestionStatus(ingestionId: string): Promise<Ingestion
   return { ...mockIngestion, id: ingestionId };
 }
 
-export async function getTimeline(ingestionId: string): Promise<TimelinePoint[]> {
+export interface LivePredictRequest {
+  scenario_id?: string;
+  filename?: string;
+  raw_csv_text?: string;
+  k_steps?: number;
+  host_ip?: string;
+}
+
+export interface LivePredictResponse {
+  id: string;
+  name: string;
+  filename: string;
+  source_type: string;
+  timestamp: string;
+  host_ip: string;
+  threat_probability: number;
+  threat_score: number;
+  threat_trajectory: number[];
+  projected_k_steps: number[];
+  lead_time_seconds: number;
+  severity: string;
+  predicted_class: string;
+  mitre_stage: number;
+  mitre_stage_name: string;
+  class_distribution?: Array<{ class_name: string; probability: number; is_predicted: boolean }>;
+  driving_features: Array<{ feature: string; score: number; rank: number; impact: string }>;
+  rollout_trajectory: Array<{
+    step: number;
+    step_label: string;
+    threat_probability: number;
+    confidence: number;
+    predicted_stage: number;
+    predicted_stage_name: string;
+  }>;
+  plain_narrative?: string;
+  defense_artifacts?: any;
+}
+
+export async function predictSequence(req: LivePredictRequest): Promise<LivePredictResponse> {
+  const res = await fetch(`${API_BASE}/predict-sequence`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      scenario_id: req.scenario_id,
+      filename: req.filename,
+      raw_csv_text: req.raw_csv_text,
+      k_steps: req.k_steps ?? 4,
+      host_ip: req.host_ip ?? "192.168.10.8",
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Live model prediction failed: ${res.status} ${res.statusText}`);
+  }
+  return await res.json();
+}
+
+export async function fetchLiveSimulation(params: {
+  scenario_id?: string;
+  filename?: string;
+  raw_csv_text?: string;
+  k_steps?: number;
+  host_ip?: string;
+}): Promise<{ points: TimelinePoint[]; prediction: LivePredictResponse }> {
+  const pred = await predictSequence(params);
+  const points: TimelinePoint[] = [];
+  const baseTime = Date.now() - (pred.threat_trajectory.length + pred.projected_k_steps.length) * 10000;
+
+  pred.threat_trajectory.forEach((p, i) => {
+    const stageName: MitreStage =
+      p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
+    points.push({
+      timestamp: new Date(baseTime + i * 10000).toISOString(),
+      kStepOffset: 0,
+      infiltrationProbability: p,
+      predictedMitreStage: stageName,
+      predictionId: `pred_obs_${i}`,
+      isProjection: false,
+    });
+  });
+
+  const lastObsTime = baseTime + pred.threat_trajectory.length * 10000;
+  pred.projected_k_steps.forEach((p, k) => {
+    const stageName: MitreStage =
+      p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
+    points.push({
+      timestamp: new Date(lastObsTime + (k + 1) * 10000).toISOString(),
+      kStepOffset: k + 1,
+      infiltrationProbability: p,
+      predictedMitreStage: stageName,
+      predictionId: `pred_proj_${k + 1}`,
+      isProjection: true,
+    });
+  });
+
+  return { points, prediction: pred };
+}
+
+export async function getTimeline(
+  params: string | { ingestionId?: string; filename?: string; raw_csv_text?: string; scenario_id?: string }
+): Promise<TimelinePoint[]> {
   try {
-    const sessions = await getSampleSessions();
-    const cleanId = (ingestionId || "").toLowerCase();
+    const reqObj: LivePredictRequest =
+      typeof params === "string"
+        ? { scenario_id: params, filename: params }
+        : {
+            scenario_id: params.scenario_id || params.ingestionId,
+            filename: params.filename,
+            raw_csv_text: params.raw_csv_text,
+          };
 
-    // Intelligent exact and keyword matching
-    let matched = sessions.find((s) => s.id === ingestionId || s.name === ingestionId);
-
-    if (!matched) {
-      if (cleanId.includes("benign") || cleanId.includes("normal") || cleanId.startsWith("1_")) {
-        matched = sessions.find((s) => s.id === "sess_benign_normal");
-      } else if (cleanId.includes("portscan") || cleanId.includes("recon")) {
-        matched = sessions.find((s) => s.id === "sess_portscan_recon");
-      } else if (
-        cleanId.includes("scada") ||
-        cleanId.includes("modbus") ||
-        cleanId.includes("grid") ||
-        cleanId.includes("cii") ||
-        cleanId.startsWith("5_")
-      ) {
-        matched = sessions.find((s) => s.id === "session-scada-grid-exfiltration");
-      } else if (
-        cleanId.includes("dos") ||
-        cleanId.includes("ddos") ||
-        cleanId.includes("hulk") ||
-        cleanId.includes("slow") ||
-        cleanId.startsWith("4_")
-      ) {
-        matched = sessions.find((s) => s.id === "sess_slowloris_dos");
-      } else if (
-        cleanId.includes("bot") ||
-        cleanId.includes("ares") ||
-        cleanId.includes("c2") ||
-        cleanId.startsWith("2_")
-      ) {
-        matched = sessions.find((s) => s.id === "sess_bot_c2");
-      } else if (
-        cleanId.includes("ssh") ||
-        cleanId.includes("patator") ||
-        cleanId.includes("ftp") ||
-        cleanId.includes("brute") ||
-        cleanId.startsWith("3_")
-      ) {
-        matched = sessions.find((s) => s.id === "sess_ssh_patator");
-      } else if (cleanId) {
-        // Dynamic custom trajectory inference for ANY arbitrary uploaded file!
-        let hash = 0;
-        for (let i = 0; i < cleanId.length; i++) {
-          hash = (hash << 5) - hash + cleanId.charCodeAt(i);
-          hash |= 0;
-        }
-        const absHash = Math.abs(hash);
-        const baseProb = 0.04 + (absHash % 12) / 100;
-        const growth = 0.06 + ((absHash >> 3) % 9) / 100;
-
-        const dynTrajectory: number[] = [];
-        let curr = baseProb;
-        for (let i = 0; i < 9; i++) {
-          curr = Math.min(0.98, Math.max(0.01, curr + growth * (0.7 + 0.5 * Math.sin(i * 1.5 + (absHash % 4)))));
-          dynTrajectory.push(Number(curr.toFixed(2)));
-        }
-
-        const dynProj: number[] = [];
-        let pCurr = curr;
-        for (let k = 0; k < 5; k++) {
-          pCurr = Math.min(0.99, pCurr + 0.025 * (k + 1));
-          dynProj.push(Number(pCurr.toFixed(2)));
-        }
-
-        matched = {
-          id: ingestionId,
-          name: `Custom Ingested Telemetry (${ingestionId})`,
-          host_ip: `192.168.${(absHash % 250) + 1}.${(absHash % 200) + 10}`,
-          target_ip: `10.0.${(absHash % 100) + 1}.1`,
-          target_service: "TCP/8080 (Extracted Flow Stream)",
-          scenario: "Dynamic multi-channel feature inference on ingested raw telemetry",
-          ground_truth_label: curr > 0.65 ? "Infiltration" : "BENIGN",
-          mitre_stage: curr > 0.8 ? 5 : curr > 0.5 ? 3 : 1,
-          timesteps: 30,
-          threat_trajectory: dynTrajectory,
-          projected_k_steps: dynProj,
-          severity: curr > 0.75 ? "critical" : curr > 0.4 ? "elevated" : "normal",
-          recommended_action: curr > 0.75 ? "BLOCK_IP" : curr > 0.4 ? "RATE_LIMIT" : "NO_ACTION",
-          state_vector_sample: [1.1, -0.5, 2.3, 0.4, 0.0, 1.8, -0.2, 0.7],
-        };
-      }
-    }
-
-    matched = matched || sessions[0];
-
-    const points: TimelinePoint[] = [];
-    const baseTime = Date.now() - (matched.threat_trajectory.length + matched.projected_k_steps.length) * 10000;
-
-    matched.threat_trajectory.forEach((p, i) => {
-      const stageName: MitreStage =
-        p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
-      points.push({
-        timestamp: new Date(baseTime + i * 10000).toISOString(),
-        kStepOffset: 0,
-        infiltrationProbability: p,
-        predictedMitreStage: stageName,
-        predictionId: `pred_obs_${i}`,
-        isProjection: false,
-      });
-    });
-
-    const lastObsTime = baseTime + matched.threat_trajectory.length * 10000;
-    matched.projected_k_steps.forEach((p, k) => {
-      const stageName: MitreStage =
-        p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
-      points.push({
-        timestamp: new Date(lastObsTime + (k + 1) * 10000).toISOString(),
-        kStepOffset: k + 1,
-        infiltrationProbability: p,
-        predictedMitreStage: stageName,
-        predictionId: `pred_proj_${k + 1}`,
-        isProjection: true,
-      });
-    });
-
+    const { points } = await fetchLiveSimulation(reqObj);
     return points;
-  } catch {
-    return mockTimeline;
+  } catch (liveErr) {
+    console.warn("[ShieldNet] Live /api/predict-sequence call unreachable or failed, falling back to offline sessions (Constraint C4):", liveErr);
+    try {
+      const sessions = await getSampleSessions();
+      const ingestionId = typeof params === "string" ? params : (params.scenario_id || params.ingestionId || "");
+      const cleanId = (ingestionId || "").toLowerCase();
+
+      let matched = sessions.find((s) => s.id === ingestionId || s.name === ingestionId);
+      if (!matched) {
+        if (cleanId.includes("benign") || cleanId.includes("normal") || cleanId.startsWith("1_")) {
+          matched = sessions.find((s) => s.id === "sess_benign_normal");
+        } else if (cleanId.includes("portscan") || cleanId.includes("recon")) {
+          matched = sessions.find((s) => s.id === "sess_portscan_recon");
+        } else if (cleanId.includes("scada") || cleanId.includes("modbus") || cleanId.includes("grid") || cleanId.includes("cii") || cleanId.startsWith("5_")) {
+          matched = sessions.find((s) => s.id === "session-scada-grid-exfiltration");
+        } else if (cleanId.includes("dos") || cleanId.includes("ddos") || cleanId.includes("hulk") || cleanId.includes("slow") || cleanId.startsWith("4_")) {
+          matched = sessions.find((s) => s.id === "sess_slowloris_dos");
+        } else if (cleanId.includes("bot") || cleanId.includes("ares") || cleanId.includes("c2") || cleanId.startsWith("2_")) {
+          matched = sessions.find((s) => s.id === "sess_bot_c2");
+        } else if (cleanId.includes("ssh") || cleanId.includes("patator") || cleanId.includes("ftp") || cleanId.includes("brute") || cleanId.startsWith("3_")) {
+          matched = sessions.find((s) => s.id === "sess_ssh_patator");
+        }
+      }
+      matched = matched || sessions[0];
+
+      const points: TimelinePoint[] = [];
+      const baseTime = Date.now() - (matched.threat_trajectory.length + matched.projected_k_steps.length) * 10000;
+
+      matched.threat_trajectory.forEach((p, i) => {
+        const stageName: MitreStage =
+          p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
+        points.push({
+          timestamp: new Date(baseTime + i * 10000).toISOString(),
+          kStepOffset: 0,
+          infiltrationProbability: p,
+          predictedMitreStage: stageName,
+          predictionId: `pred_obs_${i}`,
+          isProjection: false,
+        });
+      });
+
+      const lastObsTime = baseTime + matched.threat_trajectory.length * 10000;
+      matched.projected_k_steps.forEach((p, k) => {
+        const stageName: MitreStage =
+          p < 0.15 ? "Reconnaissance" : p < 0.35 ? "Initial Access" : p < 0.6 ? "Lateral Movement" : p < 0.85 ? "Command & Control" : "Exfiltration";
+        points.push({
+          timestamp: new Date(lastObsTime + (k + 1) * 10000).toISOString(),
+          kStepOffset: k + 1,
+          infiltrationProbability: p,
+          predictedMitreStage: stageName,
+          predictionId: `pred_proj_${k + 1}`,
+          isProjection: true,
+        });
+      });
+
+      return points;
+    } catch {
+      return mockTimeline;
+    }
   }
 }
 
@@ -1655,7 +1703,7 @@ export async function fetchModelBenchmarkMatrix(): Promise<any> {
         training_time_relative: "98.3s (~31% faster training convergence)",
         inference_latency_ms_batch_1: 1.176,
         inference_latency_ms_batch_64: 2.575,
-        macro_f1: 0.6284,
+        macro_f1: 0.4851,
         weighted_f1: 0.9725,
         precision: 0.9485,
         recall: 0.9640,
@@ -1671,7 +1719,7 @@ export async function fetchModelBenchmarkMatrix(): Promise<any> {
       { metric: "Training Time (Convergence)", logreg: "1.2s", plain_lstm: "142.5s", gru_attention: "98.3s", advantage: "GRU trains ~31% faster than LSTM" },
       { metric: "Inference Latency (B=1)", logreg: "0.28 ms", plain_lstm: "1.12 ms", gru_attention: "1.18 ms", advantage: "Real-time edge gateway line-rate processing" },
       { metric: "Inference Latency (B=64)", logreg: "0.23 ms", plain_lstm: "2.42 ms", gru_attention: "2.58 ms", advantage: "High-throughput edge line-rate processing" },
-      { metric: "Multi-Class Macro F1", logreg: "0.4691", plain_lstm: "0.5012", gru_attention: "0.6284", advantage: "+15.93% over LogReg; +12.72% over LSTM" },
+      { metric: "Multi-Class Macro F1", logreg: "0.3014", plain_lstm: "0.3648", gru_attention: "0.4851", advantage: "+18.37% over LogReg; +12.03% over LSTM (Realistic traffic; 0.4203 raw argmax)" },
       { metric: "Attack Detection Recall", logreg: "81.15%", plain_lstm: "89.32%", gru_attention: "96.40%", advantage: "Catches 96.4% of active intrusions" },
       { metric: "Threat Precision", logreg: "84.21%", plain_lstm: "88.74%", gru_attention: "94.85%", advantage: "Minimizes false incident alarms" },
       { metric: "False Positive Rate (FPR)", logreg: "4.12%", plain_lstm: "1.85%", gru_attention: "0.38%", advantage: "91% lower alert fatigue (0.38% vs 4.12%)" },
@@ -1871,35 +1919,31 @@ export async function recoverFabricNode(peerId: string): Promise<any> {
 // ENTERPRISE OAUTH2 & SSO IDP API
 // ---------------------------------------------------------------------
 export async function loginOAuth2(username: string, password: string): Promise<any> {
-  try {
-    const res = await fetch(`${API_BASE}/auth/token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, grant_type: "password" })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem("shieldnet_token", data.access_token);
-      localStorage.setItem("shieldnet_user", JSON.stringify(data.user));
-      return data;
-    }
-  } catch (e) {
-    console.warn("OAuth2 Login API fallback:", e);
+  const res = await fetch(`${API_BASE}/auth/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password, grant_type: "password" })
+  });
+
+  if (res.ok) {
+    const data = await res.json();
+    localStorage.setItem("shieldnet_token", data.access_token);
+    localStorage.setItem("shieldnet_user", JSON.stringify(data.user));
+    return data;
   }
 
-  // Demo fallback
-  const mockUser = {
-    username,
-    display_name: username.includes("admin") ? "Chief Information Security Officer" : "SOC Threat Hunter",
-    role: username.includes("admin") ? "CISO_Admin" : "SecOps_Analyst",
-    clearance_level: username.includes("admin") ? 5 : 3,
-    clearance_label: username.includes("admin") ? "Level 5 - Sovereign Defense" : "Level 3 - Operational Analysis",
-    department: "National Cyber Coordination Centre (NCCC)",
-    permissions: ["soar:approve", "fabric:endorse", "model:anchor", "alerts:override"]
-  };
-  localStorage.setItem("shieldnet_token", "mock_jwt_token_local_2026");
-  localStorage.setItem("shieldnet_user", JSON.stringify(mockUser));
-  return { access_token: "mock_jwt_token_local_2026", user: mockUser };
+  // Strict handling of authentication failure: NEVER start a silent mock session
+  let errorDetail = "Invalid credentials";
+  try {
+    const errData = await res.json();
+    if (errData && errData.detail) {
+      errorDetail = errData.detail;
+    }
+  } catch {
+    errorDetail = `Authentication failed (HTTP ${res.status})`;
+  }
+
+  throw new Error(errorDetail);
 }
 
 export async function fetchCurrentUserProfile(): Promise<any> {

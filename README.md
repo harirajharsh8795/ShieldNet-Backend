@@ -32,9 +32,8 @@ ShieldNet is evaluated on held-out enterprise test distributions (**CIC-IDS-2017
 | **Total Model Parameters** | 1,105 parameters | 304,680 parameters | **260,904 parameters** | Parameter-efficient edge deployment footprint |
 | **Training Epoch Time** | 1.2s (Convex) | 142.5s (Slow gate gradient flow) | **98.3s** | **~31% Faster Training Convergence** |
 | **Inference Latency (B=1)** | 0.237 ms | 2.258 ms | **2.286 ms** | Real-time edge gateway line-rate processing (<3ms) |
-| **Inference Latency (B=64)** | 0.344 ms | 4.460 ms | **5.540 ms** | High-throughput bulk telemetry ingestion |
-| **Multi-Class Macro F1** | 0.4691 | 0.5012 | **0.6284** | **+15.93% over LogReg; +12.72% over LSTM** (Rare attacks) |
-| **Weighted F1-Score** | 0.9898 | 0.9635 | **0.9882** | Balanced sensitivity across normal & attack traffic |
+| **Multi-Class Macro F1** | 0.3014 | 0.3648 | **0.4851** | **+18.37% over LogReg; +12.03% over LSTM** (Realistic imbalanced traffic; 0.4203 raw argmax) |
+| **Weighted F1-Score** | 0.8998 | 0.9335 | **0.9725** | High-fidelity discrimination across dominant normal & threat flows |
 | **Threat Precision** | 0.8421 | 0.8874 | **0.9485** | Minimizes SecOps alert fatigue & false positives |
 | **Attack Recall** | 0.8115 | 0.8932 | **0.9640** | **Catches 96.4% of multi-stage intrusions** |
 | **False Positive Rate (FPR)** | 0.0412 (4.12%) | 0.0185 (1.85%) | **0.0038 (0.38%)** | **91% reduction in false incident alerts** |
@@ -109,7 +108,7 @@ ShieldNet incorporates **SIERL** (*ShieldNet Immutable Evidence & Response Ledge
 1. **Out-of-Distribution (OOD) & Drift Detector (`src/features/ood_detector.py`):**  
    Computes standardized multivariate Z-deviations against enterprise baseline statistics. When incoming traffic drifts outside known distributions, ShieldNet flags `domain_status: OUT_OF_DISTRIBUTION_WARNING` and applies calibrated confidence damping rather than forcing an overconfident erroneous classification.
 2. **Cross-Dataset Schema Adapter (`src/features/schema_adapter.py`):**  
-   Dynamically translates diverse industry formats (**UNSW-NB15**, **CSE-CIC-IDS2018**, **CTU-13**, **DARPA 1998**) into ShieldNet's canonical 84-feature schema with deterministic imputation.
+   Dynamically translates diverse industry formats (**UNSW-NB15**, **CSE-CIC-IDS2018**, **CTU-13**, **DARPA 1998**) into ShieldNet's canonical 84-feature schema with deterministic imputation. *(Note on CICIoT2023 & LANL: Schema-mapping logic exists for these formats and passes unit tests on synthetic fixtures, but has not been validated against real, full-scale CICIoT2023 or LANL data).*
 3. **Frozen Reference Scaler Guard (`src/features/scaler_guard.py`):**  
    Eliminates the critical "self-centering normalization bug" where normalizing an attack-heavy batch centers attacks to zero. Features are strictly standardized against frozen golden distributions.
 4. **Dynamic Adaptive Threshold Manager:**  
@@ -139,10 +138,11 @@ cd ShieldNet/frontend
 npm install
 npm run dev
 ```
-Open **`http://localhost:5173`** in your browser. Default SecOps credentials:
-- `admin@shieldnet.local` / `Admin@123` (Admin Role)
-- `analyst@shieldnet.local` / `Analyst@123` (Analyst Role)
-- `auditor@shieldnet.local` / `Auditor@123` (Auditor Role)
+Open **`http://localhost:5173`** in your browser. Default SecOps credentials (backed by real cryptographic PBKDF2 IdP):
+- `admin@shieldnet.gov.in` / `shieldnet2026` (CISO Sovereign Admin Role - Level 5)
+- `analyst@shieldnet.gov.in` / `analyst2026` (SOC Threat Hunter - Level 3)
+- `auditor@shieldnet.gov.in` / `auditor2026` (Forensic Auditor - Level 4)
+*(Legacy dev aliases: `admin@shieldnet.local` / `Admin@123` also accepted by IdP)*
 
 ### Option B: Run Automated Verifications & Tests
 

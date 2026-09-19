@@ -22,6 +22,8 @@ export interface Ingestion {
   flowCount?: number;
   extractedFeatures?: number;
   matchedScenarioId?: string;
+  rawCsvText?: string;
+  livePrediction?: any;
 }
 
 export interface TimeWindow {

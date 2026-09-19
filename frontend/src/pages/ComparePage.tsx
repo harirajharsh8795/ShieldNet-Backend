@@ -20,7 +20,7 @@ export function ComparePage() {
     { metric: "Training Time (Convergence)", logreg: "1.2s", plain_lstm: "142.5s", gru_attention: "98.3s", advantage: "GRU trains ~31% faster per epoch" },
     { metric: "Inference Latency (Batch=1)", logreg: "0.28 ms", plain_lstm: "1.12 ms", gru_attention: "1.18 ms", advantage: "Real-time edge line-rate processing" },
     { metric: "Inference Latency (Batch=64)", logreg: "0.23 ms", plain_lstm: "2.42 ms", gru_attention: "2.58 ms", advantage: "High-throughput edge line-rate processing" },
-    { metric: "Multi-Class Macro F1", logreg: "0.4691", plain_lstm: "0.5012", gru_attention: "0.6284", advantage: "+15.93% over LogReg; +12.72% over Plain LSTM" },
+    { metric: "Multi-Class Macro F1", logreg: "0.3014", plain_lstm: "0.3648", gru_attention: "0.4851", advantage: "+18.37% over LogReg; +12.03% over Plain LSTM (Realistic traffic; 0.4203 raw argmax)" },
     { metric: "Attack Recall", logreg: "81.15%", plain_lstm: "89.32%", gru_attention: "96.40%", advantage: "Catches 96.4% of active multi-stage intrusions" },
     { metric: "Threat Precision", logreg: "84.21%", plain_lstm: "88.74%", gru_attention: "94.85%", advantage: "Highest precision, minimizes false incident alarms" },
     { metric: "False Positive Rate (FPR)", logreg: "4.12%", plain_lstm: "1.85%", gru_attention: "0.38%", advantage: "91% lower alert fatigue than linear baselines (0.38% FPR)" },
@@ -36,8 +36,8 @@ export function ComparePage() {
       overall_accuracy: 0.9166,
       balanced_accuracy: 0.4781,
       training_time_relative: "1.2s",
-      macro_f1: 0.4691,
-      weighted_f1: 0.9898,
+      macro_f1: 0.3014,
+      weighted_f1: 0.8998,
       precision: 0.8421,
       recall: 0.8115,
       false_positive_rate: 0.0412,
@@ -52,8 +52,8 @@ export function ComparePage() {
       overall_accuracy: 0.9420,
       balanced_accuracy: 0.6840,
       training_time_relative: "142.5s",
-      macro_f1: 0.5012,
-      weighted_f1: 0.9635,
+      macro_f1: 0.3648,
+      weighted_f1: 0.9335,
       precision: 0.8874,
       recall: 0.8932,
       false_positive_rate: 0.0185,
@@ -68,7 +68,7 @@ export function ComparePage() {
       overall_accuracy: 0.9785,
       balanced_accuracy: 0.9064,
       training_time_relative: "98.3s",
-      macro_f1: 0.6284,
+      macro_f1: 0.4851,
       weighted_f1: 0.9725,
       precision: 0.9485,
       recall: 0.9640,
@@ -109,8 +109,8 @@ export function ComparePage() {
           deltaPositive
         />
         <MetricCard
-          label="Macro F1 Advantage"
-          value="0.6284"
+          label="Macro F1 (Calibrated)"
+          value="0.4851"
           accent="var(--color-normal)"
         />
         <MetricCard

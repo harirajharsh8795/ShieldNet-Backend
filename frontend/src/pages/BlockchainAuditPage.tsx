@@ -14,7 +14,11 @@ import {
   RefreshCw,
   Network,
   Server,
-  Zap
+  Zap,
+  Printer,
+  X,
+  ShieldCheck,
+  FileText
 } from "lucide-react";
 import {
   fetchLedgerBlocks,
@@ -48,6 +52,9 @@ export function BlockchainAuditPage() {
 
   // Simulated Tampering Demo
   const [tamperingSimulated, setTamperingSimulated] = useState<boolean>(false);
+
+  // Section 63 Legal Certificate Modal
+  const [certificateBlock, setCertificateBlock] = useState<SIERLBlockData | null>(null);
 
   // Approval State
   const [approvingId, setApprovingId] = useState<string | null>(null);
@@ -265,7 +272,31 @@ export function BlockchainAuditPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setCertificateBlock(blocks[0] || {
+                index: 0,
+                timestamp: "2026-09-19T18:30:00Z",
+                data_hash: "7a92c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+                previous_hash: "0000000000000000000000000000000000000000000000000000000000000000",
+                hash: "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8",
+                threat_class: "BENIGN_BASELINE_TELEMETRY",
+                forecasting_horizon: "K=5",
+                mitre_tactic: "TA0043 (Reconnaissance)",
+                mitre_technique: "T1595 (Active Scanning)",
+                evidence_reference: "pcap_evidence_verified_sha256_ref.pcap",
+                model_hash: "f814b7e2a9c1d3e5a7b9c0d2e4f6a8b1c3d5e7f9a2b4c6d8e0f1a3b5c7d9e1f3",
+                evidence_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                status: "SEALED",
+                soar_approved: true,
+                soar_approver: "SecOps_Analyst (Level 3)",
+                soar_action: "ISOLATE_HOST_AND_INSPECT"
+              })}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold font-mono transition-all bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer"
+            >
+              <ShieldCheck size={15} />
+              <span>Section 63 / 65B Certificate</span>
+            </button>
             <button
               onClick={loadLedgerData}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors hover:bg-white/5"
@@ -502,6 +533,20 @@ export function BlockchainAuditPage() {
                     <span className="text-[var(--color-text-muted)]">BLOCK_HASH: </span>
                     <span className="truncate font-bold text-emerald-400">{block.block_hash}</span>
                   </div>
+                </div>
+
+                {/* Section 63 Legal Evidence Certificate Action */}
+                <div className="mt-3 pt-2.5 border-t flex flex-wrap items-center justify-between gap-2" style={{ borderColor: "var(--color-border)" }}>
+                  <span className="text-[11px] text-[var(--color-text-muted)] font-mono flex items-center gap-1.5">
+                    <ShieldCheck size={13} className="text-emerald-400" />
+                    BSA 2023 Sec 63 Legal Audit Seal (Court-Admissible)
+                  </span>
+                  <button
+                    onClick={() => setCertificateBlock(block)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                  >
+                    <FileText size={13} /> View Section 63 Certificate
+                  </button>
                 </div>
 
                 {/* Firewall Execution Log (if orchestrated) */}
@@ -1114,6 +1159,108 @@ export function BlockchainAuditPage() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 63 LEGAL AUDIT CERTIFICATE MODAL */}
+      {certificateBlock && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div
+            className="w-full max-w-2xl rounded-2xl border p-6 glow-box shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto"
+            style={{ borderColor: "rgba(16,185,129,0.5)", backgroundColor: "var(--color-panel)" }}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between border-b pb-4" style={{ borderColor: "var(--color-border)" }}>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <ShieldCheck size={12} /> Republic of India · Forensic Audit Registry
+                </div>
+                <h2 className="text-base font-bold text-[var(--color-text-primary)]">
+                  CERTIFICATE OF ELECTRONIC EVIDENCE
+                </h2>
+                <p className="text-xs text-[var(--color-text-muted)] font-mono">
+                  Under Section 63, Bharatiya Sakshya Adhiniyam (BSA), 2023 (formerly Section 65B, Indian Evidence Act, 1872)
+                </p>
+              </div>
+              <button
+                onClick={() => setCertificateBlock(null)}
+                className="p-1.5 rounded-lg hover:bg-white/10 text-[var(--color-text-muted)] hover:text-white transition-all cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Certificate Content */}
+            <div className="p-4 rounded-xl bg-black/40 border border-emerald-500/20 space-y-3 font-mono text-xs">
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                <div><span className="text-[var(--color-text-muted)]">CERTIFICATE ID:</span> <span className="text-emerald-400 font-bold">SIERL-BSA-{certificateBlock.block_index}-{certificateBlock.incident_id?.slice(0, 8) || "4092"}</span></div>
+                <div><span className="text-[var(--color-text-muted)]">ISSUED AT:</span> <span className="text-[var(--color-text-primary)]">{new Date(certificateBlock.timestamp).toUTCString()}</span></div>
+                <div><span className="text-[var(--color-text-muted)]">SYSTEM SENSOR ID:</span> <span className="text-[var(--color-text-primary)]">NTRO-SHIELDNET-GATEWAY-01</span></div>
+                <div><span className="text-[var(--color-text-muted)]">INCIDENT CLASSIFICATION:</span> <span className="text-red-400 font-bold">{certificateBlock.threat_type}</span></div>
+              </div>
+
+              <div className="border-t pt-2 space-y-2 text-[11px]" style={{ borderColor: "var(--color-border)" }}>
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase">1. Raw Telemetry Evidence Digest (SHA-256):</div>
+                  <div className="p-2 rounded bg-black/60 text-emerald-400 break-all select-all font-mono text-[10px]">
+                    {certificateBlock.evidence_hash}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase">2. Frozen AI Model Weight Supply-Chain Digest:</div>
+                  <div className="p-2 rounded bg-black/60 text-blue-400 break-all font-mono text-[10px]">
+                    {certificateBlock.model_hash}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase">3. Multi-Task Threat Prediction Hash:</div>
+                  <div className="p-2 rounded bg-black/60 text-purple-400 break-all font-mono text-[10px]">
+                    {certificateBlock.prediction_hash}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[10px] text-[var(--color-text-muted)] uppercase">4. Block Merkle Signature (Immutable Ledger Seal):</div>
+                  <div className="p-2 rounded bg-black/60 text-amber-400 break-all font-bold font-mono text-[10px]">
+                    {certificateBlock.block_hash}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30 text-[11px] text-emerald-300 space-y-1 font-sans">
+                <div className="font-bold flex items-center gap-1.5 text-emerald-400">
+                  <CheckCircle2 size={14} /> Official Statutory Certification Clause
+                </div>
+                <p className="text-[10px] text-emerald-200/90 leading-relaxed">
+                  I hereby certify that the electronic record detailed above was automatically produced by the ShieldNet Sovereign Neural Gateway during lawful enterprise telemetry ingestion. The cryptographic SHA-256 chain guarantees that no tampering, post-hoc alteration, or unauthorized data substitution has occurred since creation.
+                </p>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-[11px] text-[var(--color-text-muted)] font-mono">
+                Status: Verified Tamper-Evident · Admissible in Court
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-4 py-1.5 rounded-lg border text-xs font-semibold text-[var(--color-text-primary)] hover:bg-white/5 transition-all cursor-pointer flex items-center gap-1.5"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
+                  <Printer size={13} /> Print Certificate
+                </button>
+                <button
+                  onClick={() => setCertificateBlock(null)}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition-all cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

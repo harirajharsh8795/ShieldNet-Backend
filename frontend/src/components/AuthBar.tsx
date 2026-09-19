@@ -41,11 +41,10 @@ export function AuthBar() {
       const res = await loginOAuth2(persona.username, password);
       if (res && res.user) {
         setCurrentUser(res.user);
-      } else {
-        setCurrentUser(persona);
       }
-    } catch {
-      setCurrentUser(persona);
+    } catch (err: any) {
+      console.error("Persona authentication failed:", err);
+      alert(`SSO Authentication failed: ${err?.message || "Invalid credentials"}`);
     } finally {
       setIsAuthenticating(false);
     }
@@ -62,11 +61,9 @@ export function AuthBar() {
         setIsLoginModalOpen(false);
         setCustomUsername("");
         setCustomPassword("");
-      } else {
-        setLoginError("Invalid credentials or user not authorized in IdP directory.");
       }
-    } catch {
-      setLoginError("Connection to OAuth2 IdP failed.");
+    } catch (err: any) {
+      setLoginError(err?.message || "Invalid credentials or user not authorized in IdP directory.");
     } finally {
       setIsAuthenticating(false);
     }

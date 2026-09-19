@@ -98,6 +98,42 @@ def _init_user_directory() -> Dict[str, Dict[str, Any]]:
             "permissions": ["telemetry:ingest"],
             "department": "Edge Telemetry Service",
             "mfa_enforced": False
+        },
+        "admin@shieldnet.local": {
+            "username": "admin@shieldnet.local",
+            "display_name": "Chief Information Security Officer (CISO)",
+            "role": "CISO_Admin",
+            "clearance_level": 5,
+            "clearance_label": "Level 5 - Sovereign Defense",
+            "salt_b64": base64.b64encode(salt_admin).decode("utf-8"),
+            "hash_b64": _pbkdf2_hash("Admin@123", salt_admin),
+            "permissions": ["soar:approve", "fabric:endorse", "model:anchor", "alerts:override", "telemetry:ingest", "audit:export"],
+            "department": "National Cyber Coordination Centre (NCCC)",
+            "mfa_enforced": False
+        },
+        "analyst@shieldnet.local": {
+            "username": "analyst@shieldnet.local",
+            "display_name": "Senior SOC Threat Hunter",
+            "role": "SecOps_Analyst",
+            "clearance_level": 3,
+            "clearance_label": "Level 3 - Operational Analysis",
+            "salt_b64": base64.b64encode(salt_analyst).decode("utf-8"),
+            "hash_b64": _pbkdf2_hash("Analyst@123", salt_analyst),
+            "permissions": ["alerts:triage", "alerts:override", "simulation:run", "telemetry:ingest"],
+            "department": "NTRO Central SOC",
+            "mfa_enforced": False
+        },
+        "auditor@shieldnet.local": {
+            "username": "auditor@shieldnet.local",
+            "display_name": "Independent Forensic Auditor",
+            "role": "Forensic_Auditor",
+            "clearance_level": 4,
+            "clearance_label": "Level 4 - Forensic Integrity",
+            "salt_b64": base64.b64encode(salt_auditor).decode("utf-8"),
+            "hash_b64": _pbkdf2_hash("Auditor@123", salt_auditor),
+            "permissions": ["ledger:verify", "evidence:audit", "compliance:export"],
+            "department": "National Critical Information Infrastructure Protection Centre (NCIIPC)",
+            "mfa_enforced": False
         }
     }
 

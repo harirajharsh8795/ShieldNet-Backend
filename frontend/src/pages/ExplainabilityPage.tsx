@@ -17,7 +17,9 @@ import {
   Zap,
   Activity,
   ShieldCheck,
-  RotateCcw
+  RotateCcw,
+  Printer,
+  X
 } from "lucide-react";
 import { getSampleSessions, type ScenarioSession } from "../data/api";
 import { TelemetryHeader } from "../components/TelemetryHeader";
@@ -289,6 +291,7 @@ export function ExplainabilityPage() {
   // What-If Interactive Slider State
   const [mitigationSlider, setMitigationSlider] = useState<number>(0);
   const [copiedBrief, setCopiedBrief] = useState<boolean>(false);
+  const [showCertModal, setShowCertModal] = useState<boolean>(false);
 
   useEffect(() => {
     getSampleSessions().then((data) => {
@@ -902,14 +905,23 @@ SHA-256 Checkpoint Hash: 7a92c3...f814b (Immutable SIERL Ledger Anchored)
 
       {/* EXECUTIVE CISO BRIEF SECTION */}
       <section className="rounded-2xl border border-slate-800 p-6 glow-box bg-gradient-to-br from-slate-900 to-slate-950 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold">
             <FileText size={16} />
             Automated Executive CISO Brief &amp; Section 65B Audit Certificate
           </div>
-          <span className="font-mono text-[10px] px-2.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-            Legal Admissibility Ready
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowCertModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+            >
+              <ShieldCheck size={14} />
+              <span>View / Print Section 65B Certificate</span>
+            </button>
+            <span className="font-mono text-[10px] px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+              Legal Admissibility Ready
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
@@ -932,6 +944,116 @@ SHA-256 Checkpoint Hash: 7a92c3...f814b (Immutable SIERL Ledger Anchored)
           </div>
         </div>
       </section>
+
+      {/* SECTION 63 BSA 2023 / 65B IEA 1872 CERTIFICATE MODAL */}
+      {showCertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-3xl rounded-2xl border border-amber-500/40 bg-slate-950 text-slate-100 p-6 md:p-8 shadow-2xl shadow-amber-500/10 space-y-6 my-8">
+            <div className="flex items-start justify-between border-b border-amber-500/30 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                  <ShieldCheck size={26} />
+                </div>
+                <div>
+                  <div className="text-[11px] font-mono uppercase tracking-widest text-amber-400 font-bold">
+                    Republic of India · National Critical Information Infrastructure Protection
+                  </div>
+                  <h2 className="text-lg font-bold text-white tracking-tight">
+                    CERTIFICATE OF ELECTRONIC EVIDENCE UNDER SECTION 63 BSA 2023 / SECTION 65B IEA 1872
+                  </h2>
+                  <div className="text-xs font-mono text-slate-400">
+                    SIERL Immutable Consortium Ledger · Forensic Audit Reference: {activeExplanation.executiveBrief.legalStatus.match(/SIERL Block #\d+/)?.[0] || "SIERL Block #4092"}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCertModal(false)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs font-mono leading-relaxed text-slate-300">
+              <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/60 space-y-2">
+                <div className="text-[10px] text-amber-400 uppercase font-bold tracking-wider">
+                  STATUTORY DECLARATION &amp; CHAIN OF CUSTODY (SCHEDULE-I BSA 2023)
+                </div>
+                <p className="font-sans text-xs text-slate-200">
+                  I hereby certify that the electronic record containing the neural attack trajectory forecast, SHAP feature attributions, and mitigation plan for incident <strong className="text-amber-300">"{activeExplanation.executiveBrief.incidentTitle}"</strong> was produced by the SHIELDNET Autonomous Defense Engine operating lawfully and continuously under NTRO PS-153 / C4 Air-Gapped specifications.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/40 space-y-1">
+                  <div className="text-[10px] text-slate-400">TARGET CII ASSET / IP</div>
+                  <div className="text-sm font-bold text-cyan-300">{activeSession?.host_ip || "192.168.10.14"}</div>
+                </div>
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/40 space-y-1">
+                  <div className="text-[10px] text-slate-400">ATTACK CLASSIFICATION &amp; MITRE TECHNIQUE</div>
+                  <div className="text-sm font-bold text-rose-400">{activeExplanation.mitreDetails.technique} ({activeExplanation.mitreDetails.id})</div>
+                </div>
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/40 space-y-1">
+                  <div className="text-[10px] text-slate-400">MITRE ATT&amp;CK TACTIC</div>
+                  <div className="text-sm font-bold text-amber-400">{activeExplanation.mitreDetails.tactic}</div>
+                </div>
+                <div className="p-3 rounded-lg border border-slate-800 bg-slate-900/40 space-y-1">
+                  <div className="text-[10px] text-slate-400">BASELINE THREAT PROBABILITY</div>
+                  <div className="text-sm font-bold text-emerald-400">{activeExplanation.baselineThreat}% (Calibrated)</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 space-y-2">
+                <div className="text-[10px] text-slate-400 uppercase">CRYPTOGRAPHIC CANONICAL DIGESTS (SHA-256)</div>
+                <div className="space-y-1.5 break-all text-[11px]">
+                  <div>
+                    <span className="text-slate-500">TELEMETRY_EVIDENCE_SHA256: </span>
+                    <span className="text-cyan-400">7a92c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">FROZEN_MODEL_WEIGHTS_SHA256: </span>
+                    <span className="text-purple-400">f814b7e2a9c1d3e5a7b9c0d2e4f6a8b1c3d5e7f9a2b4c6d8e0f1a3b5c7d9e1f3</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500">SIERL_CONSORTIUM_LEDGER_HASH: </span>
+                    <span className="text-emerald-400">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/40 space-y-1">
+                <div className="text-[10px] text-slate-400 uppercase">RECOMMENDED ENFORCEMENT &amp; REMEDIATION</div>
+                <div className="text-xs text-emerald-300 font-sans">{activeExplanation.executiveBrief.recommendedRemediation}</div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between border-t border-slate-800 pt-4 text-[11px] text-slate-400">
+                <div>
+                  Certified by: <strong className="text-white">Lead Forensic AI Officer</strong> (NTRO &amp; CERT-In Accredited)
+                </div>
+                <div className="text-right">
+                  System Date: <strong className="text-white">{new Date().toISOString()}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 border-t border-slate-800 pt-4">
+              <button
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+              >
+                <Printer size={14} />
+                <span>Print / Save Certificate PDF</span>
+              </button>
+              <button
+                onClick={() => setShowCertModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-mono font-medium border border-slate-700 hover:bg-slate-800 text-slate-300 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

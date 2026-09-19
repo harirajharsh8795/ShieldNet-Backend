@@ -189,14 +189,27 @@ export function UploadPage() {
     filename: string,
     datasetName: DatasetName,
     sessionId?: string,
-    fileSizeBytes?: number
+    fileSizeBytes?: number,
+    rawCsvText?: string
   ) {
     setPendingSource({ type: sourceType, filename, dataset: datasetName });
     setProcessing(true);
     setStepIndex(0);
 
+    // If no rawCsvText provided but file is in /sample_telemetry, fetch it directly
+    if (!rawCsvText && filename.endsWith(".csv")) {
+      try {
+        const res = await fetch(`/sample_telemetry/${filename}`);
+        if (res.ok) {
+          rawCsvText = await res.text();
+        }
+      } catch {
+        // Backend demo_test_csvs fallback will resolve filename
+      }
+    }
+
     for (let i = 0; i < PROCESSING_STEPS.length; i++) {
-      await new Promise((r) => setTimeout(r, 380));
+      await new Promise((r) => setTimeout(r, 200));
       setStepIndex(i);
     }
 
@@ -215,16 +228,25 @@ export function UploadPage() {
       uploadedAt: new Date().toISOString(),
       status: "ready",
       matchedScenarioId: matchedId,
+      rawCsvText,
     });
 
-    await new Promise((r) => setTimeout(r, 250));
+    await new Promise((r) => setTimeout(r, 200));
     navigate("/dashboard/simulation");
   }
 
-  function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>, sourceType: SourceType) {
+  async function handleFileSelected(e: React.ChangeEvent<HTMLInputElement>, sourceType: SourceType) {
     const file = e.target.files?.[0];
     if (!file) return;
-    beginProcessing(sourceType, file.name, "custom", undefined, file.size);
+    let rawCsvText: string | undefined = undefined;
+    if (sourceType === "csv" || file.name.endsWith(".csv")) {
+      try {
+        rawCsvText = await file.text();
+      } catch (err) {
+        console.warn("Could not read file text:", err);
+      }
+    }
+    beginProcessing(sourceType, file.name, "custom", undefined, file.size, rawCsvText);
   }
 
   if (processing && pendingSource) {

@@ -23,9 +23,11 @@ import {
   getSampleSessions,
   evaluateMitigationActions,
   getMitreReasoning,
+  fetchLiveSimulation,
   type ScenarioSession,
   type MitigationResponse,
   type MitreReasoningResponse,
+  type LivePredictResponse,
 } from "../data/api";
 import { useAppStore } from "../store/useAppStore";
 import type { FlaggedFlow, Severity, TimelinePoint } from "../data/types";
@@ -40,6 +42,7 @@ export function SimulationPage() {
   const [sessions, setSessions] = useState<ScenarioSession[]>([]);
   const [selectedSessionId, setSelectedSessionId] = useState<string>("sess_bot_c2");
   const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
+  const [livePrediction, setLivePrediction] = useState<LivePredictResponse | null>(null);
   const [flows, setFlows] = useState<FlaggedFlow[]>([]);
   const [severityFilter, setSeverityFilter] = useState<Severity | "all">("all");
   const [selectedPoint, setSelectedPoint] = useState<TimelinePoint | null>(null);
@@ -60,7 +63,7 @@ export function SimulationPage() {
       setSessions(sList);
       const targetId = querySession || activeIngestion?.matchedScenarioId || activeIngestion?.id || sList[0]?.id || "sess_bot_c2";
       const matched = sList.find(s => s.id === targetId || s.name.toLowerCase().includes((targetId || "").toLowerCase())) || sList[0];
-      if (matched) {
+      if (matched && !activeIngestion) {
         setSelectedSessionId(matched.id);
         setActiveIngestion({
           id: matched.id,
@@ -71,6 +74,8 @@ export function SimulationPage() {
           status: "ready",
           matchedScenarioId: matched.id,
         });
+      } else if (matched && activeIngestion && !activeIngestion.matchedScenarioId) {
+        setSelectedSessionId(matched.id);
       }
     });
   }, [querySession]);
@@ -81,25 +86,65 @@ export function SimulationPage() {
 
     const currentSess = sessions.find((s) => s.id === sessId || s.name === sessId) || sessions[0];
 
-    Promise.all([
-      getTimeline(sessId),
-      getFlaggedFlows(),
-      evaluateMitigationActions(sessId),
-      getMitreReasoning({
-        predicted_class: currentSess?.ground_truth_label || "SSH-Patator",
-        confidence: currentSess && currentSess.threat_trajectory ? currentSess.threat_trajectory.slice(-1)[0] : 0.98,
-        host_ip: currentSess?.host_ip || "172.16.0.1",
-        target_ip: currentSess?.target_ip || "192.168.10.50",
-      }),
-    ]).then(([tl, fl, mit, reason]) => {
-      setTimeline(tl);
-      setFlows(fl);
-      setMitigationData(mit);
-      setSelectedAction(mit.safety_shield_recommendation || "RESET_CONNECTIONS");
-      setMitreReasoning(reason);
-      setLoading(false);
-    });
-  }, [activeIngestion?.id, activeIngestion?.matchedScenarioId, selectedSessionId, replayKey, sessions]);
+    // Execute genuine Dual-Engine PyTorch World Model predictive inference!
+    fetchLiveSimulation({
+      scenario_id: activeIngestion?.matchedScenarioId || sessId,
+      filename: activeIngestion?.filename,
+      raw_csv_text: activeIngestion?.rawCsvText,
+      k_steps: 5,
+      host_ip: currentSess?.host_ip || "192.168.10.8",
+    })
+      .then(({ points: tl, prediction: pred }) => {
+        setTimeline(tl);
+        setLivePrediction(pred);
+
+        return Promise.all([
+          getFlaggedFlows(),
+          evaluateMitigationActions(sessId),
+          getMitreReasoning({
+            predicted_class: pred.predicted_class || currentSess?.ground_truth_label || "SSH-Patator",
+            confidence: pred.threat_probability ?? (pred.threat_trajectory ? pred.threat_trajectory.slice(-1)[0] : 0.98),
+            host_ip: pred.host_ip || currentSess?.host_ip || "172.16.0.1",
+            target_ip: currentSess?.target_ip || "192.168.10.50",
+          }),
+        ]).then(([fl, mit, reason]) => {
+          setFlows(fl);
+          setMitigationData(mit);
+          setSelectedAction(mit.safety_shield_recommendation || "RESET_CONNECTIONS");
+          setMitreReasoning(reason);
+          setLoading(false);
+        });
+      })
+      .catch((err) => {
+        console.warn("[ShieldNet] Live inference error, falling back to offline sessions (C4):", err);
+        Promise.all([
+          getTimeline(sessId),
+          getFlaggedFlows(),
+          evaluateMitigationActions(sessId),
+          getMitreReasoning({
+            predicted_class: currentSess?.ground_truth_label || "SSH-Patator",
+            confidence: currentSess && currentSess.threat_trajectory ? currentSess.threat_trajectory.slice(-1)[0] : 0.98,
+            host_ip: currentSess?.host_ip || "172.16.0.1",
+            target_ip: currentSess?.target_ip || "192.168.10.50",
+          }),
+        ]).then(([tl, fl, mit, reason]) => {
+          setTimeline(tl);
+          setFlows(fl);
+          setMitigationData(mit);
+          setSelectedAction(mit.safety_shield_recommendation || "RESET_CONNECTIONS");
+          setMitreReasoning(reason);
+          setLoading(false);
+        });
+      });
+  }, [
+    activeIngestion?.id,
+    activeIngestion?.matchedScenarioId,
+    activeIngestion?.filename,
+    activeIngestion?.rawCsvText,
+    selectedSessionId,
+    replayKey,
+    sessions,
+  ]);
 
   function handleSessionChange(id: string) {
     setSelectedSessionId(id);
@@ -226,23 +271,23 @@ export function SimulationPage() {
       </div>
 
       {/* Host Meta Banner */}
-      {currentSession && (
+      {(livePrediction || currentSession) && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 rounded-xl border p-3.5 font-mono text-xs text-[var(--color-text-secondary)]" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel-raised)" }}>
           <div>
             <span className="text-[var(--color-text-muted)]">ACTIVE FILE: </span>
-            <span className="text-emerald-400 font-bold truncate">{activeIngestion?.filename || currentSession.name}</span>
+            <span className="text-emerald-400 font-bold truncate">{activeIngestion?.filename || livePrediction?.filename || currentSession?.name}</span>
           </div>
           <div>
             <span className="text-[var(--color-text-muted)]">ADVERSARY HOST: </span>
-            <span className="text-[var(--color-accent)]">{currentSession.host_ip}</span>
+            <span className="text-[var(--color-accent)]">{livePrediction?.host_ip || currentSession?.host_ip}</span>
           </div>
           <div>
             <span className="text-[var(--color-text-muted)]">TARGET CII ASSET: </span>
-            <span className="text-[var(--color-text-primary)]">{currentSession.target_ip}</span>
+            <span className="text-[var(--color-text-primary)]">{currentSession?.target_ip || "192.168.10.50"}</span>
           </div>
           <div>
-            <span className="text-[var(--color-text-muted)]">GROUND TRUTH: </span>
-            <span className="text-[var(--color-elevated)]">{currentSession.ground_truth_label}</span>
+            <span className="text-[var(--color-text-muted)]">PREDICTED CLASS: </span>
+            <span className="text-[var(--color-elevated)] font-bold">{livePrediction?.predicted_class || currentSession?.ground_truth_label}</span>
           </div>
         </div>
       )}
@@ -250,7 +295,7 @@ export function SimulationPage() {
       {/* Symbolic MITRE ATT&CK Lifecycle Timeline */}
       <MitreLifecycleTimeline
         reasoning={mitreReasoning}
-        currentStage={currentSession?.mitre_stage || 2}
+        currentStage={livePrediction?.mitre_stage ?? (currentSession?.mitre_stage || 2)}
       />
 
       {/* Out-of-Distribution (OOD) Domain Guard Visualizer */}
@@ -293,7 +338,11 @@ export function SimulationPage() {
                       <span>Inspect SHAP Attribution ↓</span>
                     </button>
                     <span className="font-mono text-xs text-[var(--color-accent)]">
-                      {isCritical ? "CRITICAL RISK ELEVATION" : "NORMAL DYNAMICS"}
+                      {livePrediction
+                        ? `LEAD TIME: ${livePrediction.lead_time_seconds}s | P(Threat): ${(livePrediction.threat_probability * 100).toFixed(1)}%`
+                        : isCritical
+                        ? "CRITICAL RISK ELEVATION"
+                        : "NORMAL DYNAMICS"}
                     </span>
                   </div>
                 </div>
@@ -325,8 +374,8 @@ export function SimulationPage() {
           {/* Dynamic Scenario-Specific SHAP Feature Attribution (Immediately explains the graph!) */}
           <ShapExplanationCard
             sessionId={currentSession?.id}
-            filename={activeIngestion?.filename}
-            currentProbability={currentSession?.threat_trajectory?.slice(-1)[0] ?? 0.88}
+            filename={activeIngestion?.filename || livePrediction?.filename}
+            currentProbability={livePrediction?.threat_probability ?? (currentSession?.threat_trajectory?.slice(-1)[0] ?? 0.88)}
             onOpenDetailedDrawer={() => {
               if (timeline.length > 0) {
                 setSelectedPoint(timeline[timeline.length - 1]);
@@ -340,10 +389,10 @@ export function SimulationPage() {
             selectedAction={selectedAction}
             onSelectAction={setSelectedAction}
             onOpenDossier={() => setIsDossierOpen(true)}
-            scenarioName={currentSession?.name}
-            hostIp={currentSession?.host_ip}
+            scenarioName={livePrediction?.name || currentSession?.name}
+            hostIp={livePrediction?.host_ip || currentSession?.host_ip}
             targetIp={currentSession?.target_ip}
-            baselineRisk={currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : (latestObserved?.infiltrationProbability ?? 0.88)}
+            baselineRisk={livePrediction?.threat_probability ?? (currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : (latestObserved?.infiltrationProbability ?? 0.88))}
           />
         </div>
 
@@ -366,22 +415,22 @@ export function SimulationPage() {
       <IncidentDossierModal
         isOpen={isDossierOpen}
         onClose={() => setIsDossierOpen(false)}
-        scenarioName={currentSession?.name || "SSH / FTP Brute Force"}
-        hostIp={currentSession?.host_ip || "172.16.0.1"}
+        scenarioName={livePrediction?.name || currentSession?.name || "SSH / FTP Brute Force"}
+        hostIp={livePrediction?.host_ip || currentSession?.host_ip || "172.16.0.1"}
         targetIp={currentSession?.target_ip || "192.168.10.50"}
-        predictedClass={currentSession?.ground_truth_label || "SSH-Patator"}
-        confidence={currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : 0.98}
+        predictedClass={livePrediction?.predicted_class || currentSession?.ground_truth_label || "SSH-Patator"}
+        confidence={livePrediction?.threat_probability ?? (currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : 0.98)}
       />
 
       {/* 1-Click NCIIPC / CERT-In Executive Threat Intelligence Memo Modal */}
       <ExecutiveMemoModal
         isOpen={isMemoOpen}
         onClose={() => setIsMemoOpen(false)}
-        scenarioName={currentSession?.name || "Ares Botnet / Infiltration"}
-        hostIp={currentSession?.host_ip || "172.16.0.1"}
+        scenarioName={livePrediction?.name || currentSession?.name || "Ares Botnet / Infiltration"}
+        hostIp={livePrediction?.host_ip || currentSession?.host_ip || "172.16.0.1"}
         targetIp={currentSession?.target_ip || "192.168.10.50"}
-        predictedClass={currentSession?.ground_truth_label || "Botnet C2"}
-        confidence={currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : 0.94}
+        predictedClass={livePrediction?.predicted_class || currentSession?.ground_truth_label || "Botnet C2"}
+        confidence={livePrediction?.threat_probability ?? (currentSession?.threat_trajectory ? currentSession.threat_trajectory.slice(-1)[0] : 0.94)}
       />
     </div>
   );

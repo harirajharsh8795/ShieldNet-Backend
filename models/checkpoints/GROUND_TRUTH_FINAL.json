@@ -1,5 +1,5 @@
 {
-  "audit_timestamp_utc": "2026-08-30T06:20:26Z",
+  "audit_timestamp_utc": "2026-09-19T03:32:57Z",
   "audit_note": "ALL metrics computed from real inference. ZERO hardcoded numbers.",
   "checkpoint": {
     "path": "models/checkpoints/world_model_v1.pt",
@@ -98,6 +98,6 @@
   },
   "k_step_rollout": {
     "k": 5,
-    "latency_ms_mean_200runs": 15.211827007587999
+    "latency_ms_mean_200runs": 20.091053000105603
   }
 }

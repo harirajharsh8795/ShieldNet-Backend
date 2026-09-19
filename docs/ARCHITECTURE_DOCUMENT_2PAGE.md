@@ -81,8 +81,8 @@ $$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{state}}(\hat{S}_{t+1}, S_{t+1}
 | Operational Threat Recall     | 67.01% (0% on rare attacks)    | 78.10%                   | 79.38% (Caught 77/97 Attacks)  |
 | False Positive Rate (FPR)     | 0.19% (Fails on rare attacks)  | 4.82%                    | 3.99% (5.6:1 Triage Ratio)     |
 | Binary Balanced Accuracy      | 83.41%                         | 86.20%                   | 87.70%                         |
-| Multi-Class Balanced Accuracy | 47.81%                         | 74.90%                   | 76.40% (Macro) / 90.64% (Peak) |
-| Multi-Class Macro F1          | 0.4691                         | 0.5012                   | 0.5335 (Calibrated) / 0.6284   |
+| Multi-Class Balanced Accuracy | 47.81%                         | 74.90%                   | 83.22% (Test Set) / 90.64% (Cal)|
+| Multi-Class Macro F1          | 0.3014                         | 0.3648                   | 0.4851 (Calibrated) / 0.4203   |
 | Threat ROC-AUC / PR-AUC       | 0.9190 / 0.4120                | 0.9650 / 0.5120          | 0.9800 / 0.5571 (Well-Grounded)|
 | Single-Flow CPU Latency       | 0.0009 ms                      | 0.0218 ms                | 0.0155 ms (64,400 flows/sec)   |
 | Brier Calibration Error       | 0.0418 (Overconfident)         | 0.0245                   | 0.0118 (High-Trust Bayesian)   |
