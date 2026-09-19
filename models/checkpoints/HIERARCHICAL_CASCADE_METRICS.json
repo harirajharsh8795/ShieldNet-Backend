@@ -1,0 +1,22 @@
+{
+  "evaluation_timestamp": "2026-09-20T00:15:00Z",
+  "dataset": "data/processed/sequences_test.parquet (N=10909)",
+  "stage1_sentinel_gatekeeper": {
+    "optimal_threshold": 0.9000000000000002,
+    "accuracy": 0.9797414978458154,
+    "binary_f1": 0.3667621776504298,
+    "threat_precision": 0.25396825396825395,
+    "threat_recall": 0.6597938144329897
+  },
+  "stage2_hierarchical_13class": {
+    "macro_f1": 0.5846093083245247,
+    "overall_accuracy": 0.9791914932624438,
+    "balanced_accuracy": 0.7461486287790394,
+    "weighted_f1": 0.984407281523541
+  },
+  "stage2_hierarchical_grouped_10class": {
+    "macro_f1": 0.6218968627266441,
+    "overall_accuracy": 0.9793748281235677,
+    "balanced_accuracy": 0.8252962477157816
+  }
+}
