@@ -1,0 +1,94 @@
+{
+  "evaluation_timestamp": "2026-09-20T08:50:00Z",
+  "dataset": "sequences_test.parquet (N=10909)",
+  "methods": {
+    "baseline_flat_13class": {
+      "accuracy": 0.892749106242552,
+      "macro_f1": 0.42027378703871143,
+      "weighted_f1": 0.9368621256695862
+    },
+    "method1_sentinel_cascade": {
+      "accuracy": 0.9791914932624438,
+      "macro_f1": 0.5846093083245247
+    },
+    "method2_7family_soc_hierarchy": {
+      "accuracy": 0.9752497937482812,
+      "macro_f1": 0.5442496968267297,
+      "per_family": {
+        "BENIGN Normal Telemetry": {
+          "precision": 0.997077401715848,
+          "recall": 0.9781724010358861,
+          "f1-score": 0.987534432046314,
+          "support": 10812.0
+        },
+        "Denial of Service (DoS / DDoS)": {
+          "precision": 0.2647058823529412,
+          "recall": 0.6428571428571429,
+          "f1-score": 0.375,
+          "support": 14.0
+        },
+        "Credential Access & Brute Force": {
+          "precision": 0.42857142857142855,
+          "recall": 1.0,
+          "f1-score": 0.6,
+          "support": 18.0
+        },
+        "Web Application Exploits": {
+          "precision": 0.6428571428571429,
+          "recall": 1.0,
+          "f1-score": 0.782608695652174,
+          "support": 9.0
+        },
+        "Botnet C2 & Reverse Shells": {
+          "precision": 0.116751269035533,
+          "recall": 0.45098039215686275,
+          "f1-score": 0.18548387096774194,
+          "support": 51.0
+        },
+        "Reconnaissance & Port Scanning": {
+          "precision": 0.4,
+          "recall": 1.0,
+          "f1-score": 0.5714285714285714,
+          "support": 2.0
+        },
+        "Lateral Movement & Infiltration": {
+          "precision": 0.2,
+          "recall": 0.6666666666666666,
+          "f1-score": 0.3076923076923077,
+          "support": 3.0
+        },
+        "accuracy": 0.9752497937482812,
+        "macro avg": {
+          "precision": 0.4357090177904134,
+          "recall": 0.8198109432452226,
+          "f1-score": 0.5442496968267297,
+          "support": 10909.0
+        },
+        "weighted avg": {
+          "precision": 0.9904630180974884,
+          "recall": 0.9752497937482812,
+          "f1-score": 0.9819269748859568,
+          "support": 10909.0
+        }
+      }
+    },
+    "method3_operational_10class": {
+      "accuracy": 0.9793748281235677,
+      "macro_f1": 0.6218968627266441
+    },
+    "method4_decoupled_crt": {
+      "accuracy": 0.9687414061783848,
+      "macro_f1": 0.3729023768092323
+    },
+    "method5_botnet_specialist": {
+      "optimal_threshold": 0.6,
+      "bot_f1": 0.3058823529411765
+    },
+    "method6_unified_expert_system": {
+      "accuracy": 0.9745164543037859,
+      "macro_f1_13class": 0.5268271982641732,
+      "macro_f1_operational_10class": 0.5460049258497375,
+      "macro_f1_7family": 0.5055197883646557
+    }
+  }
+}
