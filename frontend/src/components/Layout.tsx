@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Eye, Menu, Shield, X, Download } from "lucide-react";
+import { BarChart3, Eye, Menu, Shield, X, Download, ShieldCheck } from "lucide-react";
 import { OfflineStatusBadge } from "./OfflineStatusBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sparkle3DBackground } from "./Sparkle3DBackground";
@@ -20,6 +20,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/architecture", label: "Architecture", end: false },
   { to: "/dashboard/explainability", label: "Explainability", icon: Eye, end: false },
   { to: "/dashboard/baseline", label: "Baseline Comparison", icon: BarChart3, end: false },
+  { to: "/certificate", label: "Sec 65B Certificate", icon: ShieldCheck, end: false },
   { to: "/dashboard", label: "Live Demo", end: false },
 ];
 
@@ -32,11 +33,20 @@ export function Layout({ children }: { children: ReactNode }) {
     if (end) {
       return location.pathname === to;
     }
+    if (to === "/certificate") {
+      return (
+        location.pathname === "/certificate" ||
+        location.pathname === "/dashboard/certificate" ||
+        (location.pathname === "/dashboard/blockchain" && location.search.includes("tab=certificate"))
+      );
+    }
     if (to === "/dashboard") {
       return (
         location.pathname.startsWith("/dashboard") &&
         !location.pathname.startsWith("/dashboard/explainability") &&
-        !location.pathname.startsWith("/dashboard/baseline")
+        !location.pathname.startsWith("/dashboard/baseline") &&
+        !location.pathname.startsWith("/dashboard/certificate") &&
+        !(location.pathname === "/dashboard/blockchain" && location.search.includes("tab=certificate"))
       );
     }
     return location.pathname === to || location.pathname.startsWith(`${to}/`);

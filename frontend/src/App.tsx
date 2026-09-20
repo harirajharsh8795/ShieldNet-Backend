@@ -7,6 +7,7 @@ import { ArchitecturePage } from "./pages/ArchitecturePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { ExplainabilityPage } from "./pages/ExplainabilityPage";
 import { ComparePage } from "./pages/ComparePage";
+import { BlockchainAuditPage } from "./pages/BlockchainAuditPage";
 
 export default function App() {
   return (
@@ -22,6 +23,12 @@ export default function App() {
             <Route path="/dashboard/explainability" element={<ExplainabilityPage />} />
             <Route path="/baseline" element={<ComparePage />} />
             <Route path="/dashboard/baseline" element={<ComparePage />} />
+
+            {/* Direct Section 63 / 65B Legal Evidence Certificate */}
+            <Route path="/certificate" element={<BlockchainAuditPage defaultTab="certificate" />} />
+            <Route path="/dashboard/certificate" element={<DashboardPage />} />
+            <Route path="/section65b" element={<Navigate to="/certificate" replace />} />
+            <Route path="/section63" element={<Navigate to="/certificate" replace />} />
 
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/dashboard/live" element={<DashboardPage />} />

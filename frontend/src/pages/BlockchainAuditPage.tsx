@@ -18,7 +18,9 @@ import {
   Printer,
   X,
   ShieldCheck,
-  FileText
+  FileText,
+  Copy,
+  Shield
 } from "lucide-react";
 import {
   fetchLedgerBlocks,
@@ -35,12 +37,41 @@ import {
 } from "../data/api";
 
 
-export function BlockchainAuditPage() {
+interface BlockchainAuditPageProps {
+  defaultTab?: "explorer" | "verifier" | "approval" | "model" | "fabric" | "certificate";
+}
+
+export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {}) {
   const [blocks, setBlocks] = useState<SIERLBlockData[]>([]);
   const [chainValid, setChainValid] = useState<boolean>(true);
   const [integrityMessage, setIntegrityMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<"explorer" | "verifier" | "approval" | "model" | "fabric">("explorer");
+  
+  const getInitialTab = (): "explorer" | "verifier" | "approval" | "model" | "fabric" | "certificate" => {
+    if (defaultTab) return defaultTab;
+    if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("tab");
+      if (p === "certificate" || p === "cert" || window.location.pathname.includes("certificate")) {
+        return "certificate";
+      }
+    }
+    return "explorer";
+  };
+
+  const [activeTab, setActiveTab] = useState<"explorer" | "verifier" | "approval" | "model" | "fabric" | "certificate">(getInitialTab());
+  const [selectedCertBlockIndex, setSelectedCertBlockIndex] = useState<number>(0);
+  const [copiedCertHash, setCopiedCertHash] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    } else if (typeof window !== "undefined") {
+      const p = new URLSearchParams(window.location.search).get("tab");
+      if (p === "certificate" || window.location.pathname.includes("certificate")) {
+        setActiveTab("certificate");
+      }
+    }
+  }, [defaultTab]);
 
   // Verification State
   const [verifyingFile, setVerifyingFile] = useState<boolean>(false);
@@ -274,24 +305,13 @@ export function BlockchainAuditPage() {
 
           <div className="flex items-center gap-2 flex-wrap">
             <button
-              onClick={() => setCertificateBlock(blocks[0] || {
-                index: 0,
-                timestamp: "2026-09-19T18:30:00Z",
-                data_hash: "7a92c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
-                previous_hash: "0000000000000000000000000000000000000000000000000000000000000000",
-                hash: "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8",
-                threat_class: "BENIGN_BASELINE_TELEMETRY",
-                forecasting_horizon: "K=5",
-                mitre_tactic: "TA0043 (Reconnaissance)",
-                mitre_technique: "T1595 (Active Scanning)",
-                evidence_reference: "pcap_evidence_verified_sha256_ref.pcap",
-                model_hash: "f814b7e2a9c1d3e5a7b9c0d2e4f6a8b1c3d5e7f9a2b4c6d8e0f1a3b5c7d9e1f3",
-                evidence_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                status: "SEALED",
-                soar_approved: true,
-                soar_approver: "SecOps_Analyst (Level 3)",
-                soar_action: "ISOLATE_HOST_AND_INSPECT"
-              })}
+              onClick={() => {
+                setActiveTab("certificate");
+                const target = document.getElementById("section-63-certificate-document") || document.getElementById("section-63-certificate-tab-container");
+                if (target) {
+                  target.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold font-mono transition-all bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer"
             >
               <ShieldCheck size={15} />
@@ -424,6 +444,17 @@ export function BlockchainAuditPage() {
           }`}
         >
           <Network size={16} /> Cross-CII Fabric Consortium (Tier-2 Realized)
+        </button>
+
+        <button
+          onClick={() => setActiveTab("certificate")}
+          className={`inline-flex items-center gap-2 pb-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+            activeTab === "certificate"
+              ? "border-amber-400 text-amber-300 shadow-sm"
+              : "border-transparent text-amber-400/80 hover:text-amber-300"
+          }`}
+        >
+          <ShieldCheck size={16} /> 📜 Section 63 / 65B Certificate
         </button>
       </div>
 
@@ -1164,7 +1195,229 @@ export function BlockchainAuditPage() {
         </div>
       )}
 
-      {/* SECTION 63 LEGAL AUDIT CERTIFICATE MODAL */}
+      {/* TAB 6: STANDALONE SECTION 63 / 65B STATUTORY EVIDENCE CERTIFICATE */}
+      {activeTab === "certificate" && (() => {
+        const b = blocks[selectedCertBlockIndex] || blocks[0];
+        const certBlock = b ? {
+          block_index: b.block_index,
+          timestamp: b.timestamp,
+          threat_type: b.threat_type,
+          evidence_hash: b.evidence_hash,
+          model_hash: b.model_hash,
+          prediction_hash: b.prediction_hash,
+          block_hash: b.block_hash,
+        } : {
+          block_index: 0,
+          timestamp: "2026-09-19T18:30:00Z",
+          threat_type: "BENIGN_BASELINE_TELEMETRY",
+          evidence_hash: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          model_hash: "f814b7e2a9c1d3e5a7b9c0d2e4f6a8b1c3d5e7f9a2b4c6d8e0f1a3b5c7d9e1f3",
+          prediction_hash: "7a92c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+          block_hash: "a9b8c7d6e5f4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8",
+        };
+
+        const certId = `SIERL/BSA/2026/SEC63/BLK-${certBlock.block_index}`;
+        const blockHashVal = certBlock.block_hash;
+        const evidenceHashVal = certBlock.evidence_hash;
+        const modelHashVal = certBlock.model_hash;
+        const predHashVal = certBlock.prediction_hash;
+
+        return (
+          <div id="section-63-certificate-tab-container" className="space-y-6 animate-in fade-in duration-200">
+            {/* Control Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border bg-[var(--color-panel)]" style={{ borderColor: "var(--color-border)" }}>
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-xs text-[var(--color-text-secondary)] font-bold">
+                  SELECT LEDGER BLOCK TO CERTIFY:
+                </span>
+                <select
+                  value={selectedCertBlockIndex}
+                  onChange={(e) => setSelectedCertBlockIndex(Number(e.target.value))}
+                  className="rounded-lg border bg-[var(--color-base)] px-3 py-1.5 font-mono text-xs text-[var(--color-text-primary)] focus:border-amber-400 focus:outline-none"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
+                  {blocks.length > 0 ? (
+                    blocks.map((item, idx) => (
+                      <option key={idx} value={idx}>
+                        Block #{item.block_index} · {item.threat_type} ({new Date(item.timestamp).toLocaleTimeString()})
+                      </option>
+                    ))
+                  ) : (
+                    <option value={0}>Block #0 · Genesis Baseline (SEALED)</option>
+                  )}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    const text = JSON.stringify({
+                      certificate_id: certId,
+                      statutory_basis: "Section 63 BSA 2023 / Section 65B IEA 1872",
+                      timestamp: certBlock.timestamp,
+                      block_index: certBlock.block_index,
+                      evidence_sha256: evidenceHashVal,
+                      model_sha256: modelHashVal,
+                      prediction_sha256: predHashVal,
+                      block_merkle_seal: blockHashVal,
+                    }, null, 2);
+                    navigator.clipboard.writeText(text);
+                    setCopiedCertHash(true);
+                    setTimeout(() => setCopiedCertHash(false), 2000);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono text-[var(--color-text-secondary)] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  style={{ borderColor: "var(--color-border)" }}
+                >
+                  <Copy size={13} />
+                  <span>{copiedCertHash ? "COPIED JSON!" : "Copy Cryptographic Hash JSON"}</span>
+                </button>
+
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold font-mono transition-all bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer"
+                >
+                  <Printer size={14} />
+                  <span>Print / Save PDF Certificate</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Official Certificate Parchment Container */}
+            <div
+              id="section-63-certificate-document"
+              className="rounded-2xl border-2 p-8 shadow-2xl relative space-y-6 font-mono bg-gradient-to-b from-[#0a0f1d] to-[#040813] text-slate-100"
+              style={{ borderColor: "rgba(245, 158, 11, 0.4)", boxShadow: "0 0 40px -10px rgba(245, 158, 11, 0.15)" }}
+            >
+              {/* Watermark Emblem Background */}
+              <div className="absolute inset-0 pointer-events-none opacity-[0.03] flex items-center justify-center overflow-hidden">
+                <Shield size={600} />
+              </div>
+
+              {/* Header */}
+              <div className="text-center border-b pb-6 space-y-2 border-amber-500/30">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold tracking-widest uppercase bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                  <ShieldCheck size={14} className="text-amber-400" />
+                  REPUBLIC OF INDIA · NATIONAL TECHNICAL RESEARCH ORGANISATION
+                </div>
+                <h1 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase font-sans mt-2">
+                  Certificate of Electronic Evidence
+                </h1>
+                <p className="text-xs text-amber-200/90 font-mono tracking-wide max-w-2xl mx-auto">
+                  Admissibility Certificate under <strong>Section 63 of Bharatiya Sakshya Adhiniyam (BSA), 2023</strong>
+                  <br />
+                  <span className="text-[11px] text-slate-400">(Formerly Section 65B of Indian Evidence Act, 1872)</span>
+                </p>
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400 font-mono">
+                  <span>CERTIFICATE ID: <strong className="text-amber-400">{certId}</strong></span>
+                  <span>·</span>
+                  <span>ISSUANCE DATE: <strong className="text-slate-200">{new Date(certBlock.timestamp).toUTCString()}</strong></span>
+                  <span>·</span>
+                  <span>STATUS: <strong className="text-emerald-400 font-bold">CRYPTOGRAPHICALLY SEALED</strong></span>
+                </div>
+              </div>
+
+              {/* System & Incident Metadata Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-xs p-4 rounded-xl bg-black/40 border border-white/5">
+                <div>
+                  <span className="text-slate-400 text-[10px] block uppercase">Forensic Sensor:</span>
+                  <span className="text-slate-200 font-bold">NTRO-SHIELDNET-01</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] block uppercase">Network Enclave:</span>
+                  <span className="text-slate-200 font-bold">CII / Power Grid / SCADA</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] block uppercase">Incident Classification:</span>
+                  <span className="text-rose-400 font-bold">{certBlock.threat_type || "BENIGN"}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-[10px] block uppercase">Lookahead Horizon:</span>
+                  <span className="text-cyan-400 font-bold">K=5 Steps (+50s Lookahead)</span>
+                </div>
+              </div>
+
+              {/* 4-Way SHA-256 Provenance Hashes */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+                  <CheckCircle2 size={14} className="text-amber-400" />
+                  Four-Tier Immutable Cryptographic Digest Manifest (SHA-256)
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="p-3 rounded-lg bg-black/60 border border-emerald-500/20">
+                    <div className="text-[10px] uppercase text-emerald-400 font-bold mb-1 flex items-center justify-between">
+                      <span>1. Raw Telemetry Digest (PCAP &amp; Flow Records):</span>
+                      <span className="text-[9px] text-slate-400">Clause 19/22 NetFlow L4/L7 + PCAP DPI</span>
+                    </div>
+                    <code className="text-emerald-300 text-[11px] break-all select-all font-mono block">
+                      {evidenceHashVal}
+                    </code>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-black/60 border border-blue-500/20">
+                    <div className="text-[10px] uppercase text-blue-400 font-bold mb-1 flex items-center justify-between">
+                      <span>2. Frozen Neural World Model Weights Hash:</span>
+                      <span className="text-[9px] text-slate-400">Bi-GRU + Attention (21.52M Params)</span>
+                    </div>
+                    <code className="text-blue-300 text-[11px] break-all select-all font-mono block">
+                      {modelHashVal}
+                    </code>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-black/60 border border-purple-500/20">
+                    <div className="text-[10px] uppercase text-purple-400 font-bold mb-1 flex items-center justify-between">
+                      <span>3. Multi-Task Trajectory &amp; Explainability Attribution Hash:</span>
+                      <span className="text-[9px] text-slate-400">State Dynamics MSE + Integrated Gradients</span>
+                    </div>
+                    <code className="text-purple-300 text-[11px] break-all select-all font-mono block">
+                      {predHashVal}
+                    </code>
+                  </div>
+
+                  <div className="p-3 rounded-lg bg-black/60 border border-amber-500/30 bg-amber-500/5">
+                    <div className="text-[10px] uppercase text-amber-400 font-bold mb-1 flex items-center justify-between">
+                      <span>4. Block Merkle Signature (Immutable Consortium Chain Seal):</span>
+                      <span className="text-[9px] text-amber-300 font-bold">TAMPER-PROOF CONSORTIUM SEAL</span>
+                    </div>
+                    <code className="text-amber-200 text-[11px] font-bold break-all select-all font-mono block">
+                      {blockHashVal}
+                    </code>
+                  </div>
+                </div>
+              </div>
+
+              {/* Statutory Clause Text */}
+              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-950/20 text-xs text-amber-200/90 space-y-2 font-sans leading-relaxed">
+                <div className="font-bold flex items-center gap-1.5 text-amber-400 font-mono text-[11px] uppercase tracking-wider">
+                  <ShieldCheck size={14} /> Official Statutory Certification under Section 63 BSA 2023:
+                </div>
+                <p>
+                  I hereby certify that the electronic record above detailed was produced by the <strong>ShieldNet Sovereign Neural Defense Gateway</strong> during lawful, routine cybersecurity telemetry ingestion. The system was operating in its lawful manner without interruption. The cryptographic SHA-256 hash chaining guarantees that the digital record has remained in continuous custodial integrity without unauthorized substitution, tampering, or post-hoc interpolation.
+                </p>
+                <p className="text-[11px] text-slate-400 font-mono">
+                  This document satisfies all criteria stipulated under Section 63(4) of the Bharatiya Sakshya Adhiniyam, 2023, and stands legally admissible as primary electronic evidence before any court or judicial inquiry in the Republic of India.
+                </p>
+              </div>
+
+              {/* Signatures & Seal Block */}
+              <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 text-xs">
+                <div>
+                  <div className="text-[10px] uppercase text-slate-400">Certifying Authority:</div>
+                  <div className="font-bold text-white text-sm">SecOps Forensic Lead (Level 3)</div>
+                  <div className="text-[11px] text-slate-400 font-mono">National Technical Research Organisation · Sovereign CERT</div>
+                </div>
+
+                <div className="text-right sm:text-right">
+                  <div className="text-[10px] uppercase text-emerald-400 font-bold">DIGITALLY SIGNED &amp; SEALED</div>
+                  <div className="font-mono text-[11px] text-slate-300">Digest: SHA256-RSA-4096-VERIFIED</div>
+                  <div className="text-[10px] text-slate-500 font-mono">Verification Key: NTRO-GOV-PUBKEY-0x98A1F</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {certificateBlock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div

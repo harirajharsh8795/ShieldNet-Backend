@@ -296,6 +296,7 @@ export function SimulationPage() {
       <MitreLifecycleTimeline
         reasoning={mitreReasoning}
         currentStage={livePrediction?.mitre_stage ?? (currentSession?.mitre_stage || 2)}
+        onSelectAction={setSelectedAction}
       />
 
       {/* Out-of-Distribution (OOD) Domain Guard Visualizer */}

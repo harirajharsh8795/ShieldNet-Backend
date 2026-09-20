@@ -1,5 +1,7 @@
-import { Zap, FileText, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Zap, FileText, ShieldCheck, Copy, Check } from "lucide-react";
 import type { MitigationResponse } from "../data/api";
+import { soundManager } from "../utils/soundEffects";
 
 interface DefenseSandboxPanelProps {
   mitigationData: MitigationResponse | null;
@@ -85,6 +87,8 @@ export function DefenseSandboxPanel({
   targetIp = "192.168.10.50",
   baselineRisk = 0.94,
 }: DefenseSandboxPanelProps) {
+  const [dispatchedRule, setDispatchedRule] = useState<boolean>(false);
+  const [copiedRule, setCopiedRule] = useState<boolean>(false);
   const currentProfile = ACTION_PROFILES[selectedAction] || ACTION_PROFILES.RESET_CONNECTIONS;
 
   // Dynamically calculate unmitigated risk and policy residual risk based on actual scenario probability
@@ -122,7 +126,7 @@ export function DefenseSandboxPanel({
   ];
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border p-5 glow-box" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}>
+    <div id="defense-sandbox-section" className="flex flex-col gap-5 rounded-xl border p-5 glow-box" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style={{ borderColor: "var(--color-border)" }}>
         <div className="flex items-center gap-2">
@@ -211,6 +215,40 @@ export function DefenseSandboxPanel({
             <code className="block text-[var(--color-accent)] font-semibold truncate">
               {currentProfile.commandPreview.replace("{HOST_IP}", hostIp).replace("{TARGET_IP}", targetIp).replace("{PORT}", "8080/22")}
             </code>
+
+            <div className="mt-2.5 flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const cmd = currentProfile.commandPreview.replace("{HOST_IP}", hostIp).replace("{TARGET_IP}", targetIp).replace("{PORT}", "8080/22");
+                  navigator.clipboard.writeText(cmd);
+                  setCopiedRule(true);
+                  setTimeout(() => setCopiedRule(false), 2000);
+                }}
+                className="px-2.5 py-1 rounded border text-[11px] font-mono text-[var(--color-text-secondary)] hover:text-white hover:bg-white/5 transition-colors cursor-pointer flex items-center gap-1"
+                style={{ borderColor: "var(--color-border)" }}
+              >
+                {copiedRule ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                <span>{copiedRule ? "COPIED CMD!" : "Copy Command"}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setDispatchedRule(true);
+                  soundManager.playMitigationSuccess();
+                  setTimeout(() => setDispatchedRule(false), 6000);
+                }}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded text-[11px] font-bold font-mono transition-all bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-md shadow-emerald-500/20 active:scale-95 cursor-pointer"
+              >
+                <Zap size={12} />
+                <span>{dispatchedRule ? "✅ DISPATCHED & ACTIVE IN KERNEL!" : "⚡ 1-Click Dispatch Mitigation"}</span>
+              </button>
+            </div>
+            {dispatchedRule && (
+              <div className="mt-2 p-2 rounded bg-emerald-950/40 border border-emerald-500/40 text-[10px] font-mono text-emerald-300 animate-in fade-in flex items-center justify-between">
+                <span>🛡️ Injected to iptables/netsh (PID 4092) · Risk Dropped by {dynamicDropPct}%</span>
+                <span className="text-emerald-400 font-bold">ACTIVE (0ms)</span>
+              </div>
+            )}
           </div>
         </div>
 

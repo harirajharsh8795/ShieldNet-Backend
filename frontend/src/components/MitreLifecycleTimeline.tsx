@@ -13,10 +13,12 @@ import {
   ShieldCheck
 } from "lucide-react";
 import type { MitreReasoningResponse } from "../data/api";
+import { soundManager } from "../utils/soundEffects";
 
 interface MitreLifecycleTimelineProps {
   reasoning: MitreReasoningResponse | null;
   currentStage: number;
+  onSelectAction?: (action: string) => void;
 }
 
 interface KillChainStageDetail {
@@ -139,7 +141,7 @@ const KILL_CHAIN_STAGES: KillChainStageDetail[] = [
   },
 ];
 
-export function MitreLifecycleTimeline({ reasoning, currentStage }: MitreLifecycleTimelineProps) {
+export function MitreLifecycleTimeline({ reasoning, currentStage, onSelectAction }: MitreLifecycleTimelineProps) {
   // Map internal stage (1..5) to 7-stage explorer index:
   // 1 -> Stage 1 (Recon)
   // 2 -> Stage 3 (Delivery / Initial Access)
@@ -281,9 +283,24 @@ export function MitreLifecycleTimeline({ reasoning, currentStage }: MitreLifecyc
 
             <div className="pt-2 mt-1 border-t border-emerald-900/30 flex items-center justify-between font-mono text-[10px] text-emerald-400">
               <span>Recourse Operator: <code className="text-white font-bold">{selectedStage.mitigationAction}</code></span>
-              <span className="flex items-center gap-1 text-cyan-300 font-bold hover:underline cursor-pointer">
-                Simulate <ArrowRight size={10} />
-              </span>
+              <button
+                onClick={() => {
+                  soundManager.playAlertPing();
+                  if (onSelectAction && selectedStage.mitigationAction) {
+                    onSelectAction(selectedStage.mitigationAction);
+                  }
+                  const target = document.getElementById("defense-sandbox-section");
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    window.scrollBy({ top: 350, behavior: "smooth" });
+                  }
+                }}
+                className="flex items-center gap-1 text-cyan-300 font-bold hover:text-cyan-200 bg-cyan-950/60 hover:bg-cyan-900/80 px-2 py-0.5 rounded border border-cyan-500/40 transition-all cursor-pointer shadow-sm active:scale-95"
+                title="Select mitigation and scroll to Interactive Defense Policy Sandbox"
+              >
+                <span>Simulate Policy</span> <ArrowRight size={10} />
+              </button>
             </div>
           </div>
         </div>

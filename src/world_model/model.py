@@ -196,8 +196,9 @@ class WorldModel(nn.Module):
             mitre_logits_list.append(out["mitre_logits"])
             attention_weights_list.append(out["attention_weights"])
             
-            # Autoregressive update: drop oldest state, append predicted state
-            next_input = pred_state.unsqueeze(1)      # (B, 1, 84)
+            # Autoregressive update with residual smoothing to prevent error compounding at k=4,5
+            stabilized_state = 0.90 * pred_state + 0.10 * current_seq[:, -1, :]
+            next_input = stabilized_state.unsqueeze(1)      # (B, 1, 84)
             current_seq = torch.cat([current_seq[:, 1:, :], next_input], dim=1)
             
         return {

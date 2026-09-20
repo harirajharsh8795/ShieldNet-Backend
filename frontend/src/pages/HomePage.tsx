@@ -9,6 +9,7 @@ import {
   Radio,
   Terminal,
   Zap,
+  ShieldCheck,
 } from "lucide-react";
 import { MITREStageBadge } from "../components/MITREStageBadge";
 import { ProbabilityTimeline } from "../components/ProbabilityTimeline";
@@ -52,7 +53,7 @@ export function HomePage() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-normal)] opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-normal)]"></span>
             </span>
-            <span>SHIELDNET SOVEREIGN · 21.52M FLOWS TRAINED · AIR-GAPPED C4</span>
+            <span>SHIELDNET SOVEREIGN · 21.52M FLOWS TRAINED · 0.7553 SOTA MACRO-F1 · AIR-GAPPED C4</span>
           </div>
 
           <h1 className="mt-5 max-w-2xl text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-5xl lg:text-6xl lg:leading-[1.12]">
@@ -86,6 +87,14 @@ export function HomePage() {
             >
               <UploadCloud size={16} className="text-[var(--color-accent)]" />
               Ingest PCAP / CSV
+            </Link>
+
+            <Link
+              to="/certificate"
+              className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-4 py-3 text-sm font-semibold text-amber-300 transition-all hover:bg-amber-500/25 hover:border-amber-400 active:scale-[0.98] shadow-md shadow-amber-500/10"
+            >
+              <ShieldCheck size={16} className="text-amber-400" />
+              Sec 65B Certificate
             </Link>
 
             <Link
@@ -163,12 +172,12 @@ export function HomePage() {
               <div className="mt-1 font-bold text-[var(--color-accent)]">K = 5 Windows</div>
             </div>
             <div className="rounded-lg border p-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">CTU-13 ROC-AUC</div>
-              <div className="mt-1 font-bold text-[var(--color-normal)]">99.96% (Peak)</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">MACRO-F1 (SOTA)</div>
+              <div className="mt-1 font-bold text-[var(--color-normal)]">0.7553 Fused</div>
             </div>
             <div className="rounded-lg border p-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">LATENCY</div>
-              <div className="mt-1 font-bold text-[var(--color-text-primary)]">&lt; 1.2ms / flow</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">LATENCY (p95)</div>
+              <div className="mt-1 font-bold text-[var(--color-text-primary)]">48.2 ms (p95)</div>
             </div>
           </div>
 
@@ -197,19 +206,19 @@ export function HomePage() {
           accent="var(--color-accent)"
         />
         <MetricCard
-          label="Botnet Threat ROC-AUC"
-          value="99.96%"
+          label="SOTA Canonical Macro-F1"
+          value="0.7553 (75.5%)"
           accent="var(--color-normal)"
         />
         <MetricCard
-          label="Line-Rate Throughput"
-          value="12,116 /s"
-          accent="var(--color-elevated)"
+          label="Benchmark Accuracy (Peak)"
+          value="99.28%"
+          accent="var(--color-accent)"
         />
         <MetricCard
-          label="MITRE & CVE Explainability"
-          value="100% Native"
-          accent="var(--color-watch)"
+          label="False Positive Rate (FPR)"
+          value="0.35% (Ultra-Low)"
+          accent="var(--color-normal)"
         />
       </section>
 

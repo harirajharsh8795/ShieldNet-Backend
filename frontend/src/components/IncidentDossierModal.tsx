@@ -172,7 +172,17 @@ export function IncidentDossierModal({
           <span className="text-xs font-mono text-[var(--color-text-secondary)]">
             Compliant with NCIIPC Sovereign Mandate (CAF/OT-2026)
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <a
+              href="/certificate"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold border border-amber-500/40 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25 transition-all shadow-sm"
+              title="Open Section 63 BSA 2023 / Section 65B IEA 1872 Admissibility Certificate in New Tab"
+            >
+              <ShieldCheck size={14} className="text-amber-400" />
+              <span>Sec 65B Certificate ↗</span>
+            </a>
             <button
               onClick={handleDownload}
               className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-medium text-white transition-all shadow-md hover:scale-105"

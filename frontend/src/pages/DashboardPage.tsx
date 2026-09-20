@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Upload, Bell, Radio, Lock } from "lucide-react";
+import { Activity, Upload, Bell, Radio, Lock, ShieldCheck } from "lucide-react";
 import { UploadPage } from "./UploadPage";
 import { SimulationPage } from "./SimulationPage";
 import { LiveMonitorPage } from "./LiveMonitorPage";
@@ -12,7 +12,8 @@ const tabs = [
   { to: "/dashboard/live", label: "Live Network Sniffer", icon: Radio },
   { to: "/dashboard/simulation", label: "Continuous Trajectory Forecasting (K=5)", icon: Activity },
   { to: "/dashboard/alerts", label: "Autonomous SOAR & Alert Sentinel", icon: Bell, highlight: true },
-  { to: "/dashboard/blockchain", label: "SIERL Immutable Consortium Ledger", icon: Lock, highlight: true },
+  { to: "/dashboard/blockchain", label: "SIERL Immutable Consortium Ledger", icon: Lock },
+  { to: "/certificate", label: "📜 Section 63 / 65B Certificate", icon: ShieldCheck, highlight: true },
 ];
 
 export function DashboardPage() {
@@ -23,7 +24,13 @@ export function DashboardPage() {
     if (location.pathname === "/dashboard/live") return <LiveMonitorPage />;
     if (location.pathname === "/dashboard/simulation") return <SimulationPage />;
     if (location.pathname === "/dashboard/alerts") return <AlertSentinelPage />;
-    if (location.pathname === "/dashboard/blockchain") return <BlockchainAuditPage />;
+    if (location.pathname === "/dashboard/blockchain") {
+      const isCert = new URLSearchParams(location.search).get("tab") === "certificate";
+      return <BlockchainAuditPage defaultTab={isCert ? "certificate" : undefined} />;
+    }
+    if (location.pathname === "/dashboard/certificate" || location.pathname === "/certificate") {
+      return <BlockchainAuditPage defaultTab="certificate" />;
+    }
     return <UploadPage />;
   };
 

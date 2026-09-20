@@ -36,10 +36,12 @@ class FrozenReferenceScalerGuard:
             self.scale = np.ones(84, dtype=np.float32)
             self.is_loaded = False
 
-    def transform(self, X: np.ndarray, clip_range: float = 5.0) -> np.ndarray:
+    def transform(self, X: np.ndarray, clip_range: float = 5.0, clip_max: float = 15.0) -> np.ndarray:
         """
         Applies strict reference standardization: Z = (X - μ_ref) / (σ_ref + ε).
         Never computes mean across the input X.
+        Uses asymmetric clamping [-5.0, +15.0] to preserve extreme volumetric signatures
+        (e.g., DoS, SCADA bursts) without artificial flatline saturation.
         """
         X_arr = np.asarray(X, dtype=np.float32)
         n_features = min(X_arr.shape[-1], 84)
@@ -48,8 +50,8 @@ class FrozenReferenceScalerGuard:
         scale_slice = self.scale[:n_features] + 1e-6
         
         normalized = (X_arr[..., :n_features] - mean_slice) / scale_slice
-        cleaned = np.nan_to_num(normalized, nan=0.0, posinf=clip_range, neginf=-clip_range)
-        return np.clip(cleaned, -clip_range, clip_range)
+        cleaned = np.nan_to_num(normalized, nan=0.0, posinf=clip_max, neginf=-clip_range)
+        return np.clip(cleaned, -clip_range, clip_max)
 
     def guard_batch(self, X: np.ndarray) -> np.ndarray:
         """Validates and standardizes live streaming telemetry batches."""
