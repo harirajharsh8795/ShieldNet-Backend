@@ -36,6 +36,8 @@ models/checkpoints/*.pth
 models/checkpoints/*.joblib
 !models/checkpoints/world_model_v1.pt
 !models/checkpoints/ensemble_logreg.joblib
+!models/checkpoints/sota_lightgbm_fused.joblib
+!models/checkpoints/optimal_gbdt_weights.npy
 !models/checkpoints/scaler.joblib
 !models/checkpoints/.gitkeep
 
