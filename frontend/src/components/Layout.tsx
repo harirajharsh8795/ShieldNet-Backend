@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Eye, Menu, Shield, X, Download, ShieldCheck } from "lucide-react";
+import { BarChart3, Eye, Menu, Shield, X, Download } from "lucide-react";
 import { OfflineStatusBadge } from "./OfflineStatusBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sparkle3DBackground } from "./Sparkle3DBackground";
@@ -20,7 +20,6 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/architecture", label: "Architecture", end: false },
   { to: "/dashboard/explainability", label: "Explainability", icon: Eye, end: false },
   { to: "/dashboard/baseline", label: "Baseline Comparison", icon: BarChart3, end: false },
-  { to: "/certificate", label: "Sec 65B Certificate", icon: ShieldCheck, end: false },
   { to: "/dashboard", label: "Live Demo", end: false },
 ];
 
@@ -62,7 +61,7 @@ export function Layout({ children }: { children: ReactNode }) {
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-40 border-b backdrop-blur-md" style={{ borderColor: "var(--color-border)", backgroundColor: "color-mix(in srgb, var(--color-base) 88%, transparent)" }}>
+      <header className="sticky top-0 z-40 border-b backdrop-blur-md print:hidden" style={{ borderColor: "var(--color-border)", backgroundColor: "color-mix(in srgb, var(--color-base) 88%, transparent)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           {/* Left: Brand Identity */}
           <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setIsMobileNavOpen(false)}>
@@ -173,7 +172,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {children}
       </main>
 
-      <footer className="relative z-10 border-t" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}>
+      <footer className="relative z-10 border-t print:hidden" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}>
         <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>

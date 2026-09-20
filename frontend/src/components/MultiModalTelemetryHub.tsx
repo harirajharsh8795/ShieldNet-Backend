@@ -4,105 +4,157 @@ import {
   Layers, 
   CheckCircle2, 
   Zap, 
-  ArrowRight,
-  FileCode,
-  Radio
+  Radio,
+  Download
 } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { useNavigate } from "react-router-dom";
+import type { SourceType, DatasetName } from "../data/types";
 
-interface DatasetMeta {
-  id: string;
+export interface SampleTelemetryFile {
   name: string;
-  institution: string;
-  modality: "NetFlow L4/L7" | "Raw Packet (PCAP)" | "Host Authentication" | "Industrial IoT";
-  format: "CSV (84-Dim)" | "PCAP (Binary)" | "JSON / Kerberos" | "CSV (46-Dim Adapted)";
-  records: string;
-  attacksCovered: string[];
-  schemaAdapterMethod: string;
-  statusBadge: string;
-  targetScenarioId: string;
-  sampleFilename: string;
+  type: SourceType;
+  size: string;
+  scenarioId: string;
+  label: string;
+  desc: string;
+  severity: "critical" | "elevated" | "normal";
+  host_ip: string;
+  target_ip: string;
+  ground_truth: string;
+  category: "attack" | "pcap" | "cii" | "benign";
 }
 
-const MANDATED_DATASETS: DatasetMeta[] = [
+export const SAMPLE_FILES: SampleTelemetryFile[] = [
   {
-    id: "cic-ids",
-    name: "CIC-IDS-2017 / 2018",
-    institution: "Canadian Institute for Cybersecurity (UNB)",
-    modality: "NetFlow L4/L7",
-    format: "CSV (84-Dim)",
-    records: "2.8 Million Flows · 14 Attack Vectors",
-    attacksCovered: ["SSH-Patator", "FTP-Patator", "DoS Hulk", "Slowloris", "DDoS Flood", "PortScan"],
-    schemaAdapterMethod: "Native 77 NetFlow Extractor + Deterministic L7 Proxy Imputation (pcap_imputer)",
-    statusBadge: "BENCHMARK CHAMPION (87.70% BA)",
-    targetScenarioId: "sess_ssh_patator",
-    sampleFilename: "3_SSH_FTP_Patator_BruteForce.csv",
+    name: "1_BENIGN_Normal_Enterprise_Traffic.csv",
+    type: "csv",
+    size: "17.2 KB",
+    scenarioId: "sess_benign_normal",
+    label: "Normal Enterprise Workstation Baseline",
+    desc: "Stationary benign HTTPS/TLS & DNS queries. Baseline equilibrium with zero anomalous progression.",
+    severity: "normal",
+    host_ip: "192.168.10.15",
+    target_ip: "192.168.10.1",
+    ground_truth: "BENIGN (Normal Browsing)",
+    category: "benign",
   },
   {
-    id: "unsw-nb15",
-    name: "UNSW-NB15 Benchmark",
-    institution: "Australian Cyber Security Centre (ACSC / ADFA)",
-    modality: "NetFlow L4/L7",
-    format: "CSV (84-Dim)",
-    records: "2.54 Million Records · 9 Attack Families",
-    attacksCovered: ["Fuzzers", "Analysis", "Backdoors", "DoS", "Exploits", "Generic", "Reconnaissance"],
-    schemaAdapterMethod: "Cross-Dataset Schema Adapter (schema_adapter.py) with 49-to-84 feature projection",
-    statusBadge: "EMPIRICAL TESTED (F1: 91.2%)",
-    targetScenarioId: "sess_bot_c2",
-    sampleFilename: "2_Botnet_Ares_C2_Periodic_Beacon.csv",
+    name: "2_Botnet_Ares_C2_Periodic_Beacon.csv",
+    type: "csv",
+    size: "17.3 KB",
+    scenarioId: "sess_bot_c2",
+    label: "Botnet C2 Periodic Beaconing (ARES/Mirai)",
+    desc: "Low-jitter periodic heartbeat beacons to external C2 controller with subtle payload expansion.",
+    severity: "critical",
+    host_ip: "192.168.10.14",
+    target_ip: "172.16.0.1",
+    ground_truth: "Botnet C2 (MITRE T1071)",
+    category: "attack",
   },
   {
-    id: "ctu-13",
-    name: "CTU-13 Botnet Repository",
-    institution: "Czech Technical University (ATG Group)",
-    modality: "NetFlow L4/L7",
-    format: "CSV (84-Dim)",
-    records: "13 Real Botnet Capture Scenarios",
-    attacksCovered: ["Neris", "Rbot", "Virut", "Menti", "Sogou", "Ares/Mirai C2 Beaconing"],
-    schemaAdapterMethod: "Flow IAT Jitter + Reverse Shell Payload Entropy Tracking (L=3 Temporal Sequences)",
-    statusBadge: "ACTIVE FORECAST (LEAD TIME +22.4s)",
-    targetScenarioId: "sess_bot_c2",
-    sampleFilename: "2_Botnet_Ares_C2_Periodic_Beacon.csv",
+    name: "3_SSH_FTP_Patator_BruteForce.csv",
+    type: "csv",
+    size: "17.2 KB",
+    scenarioId: "sess_ssh_patator",
+    label: "SSH-Patator Automated Credential Assault",
+    desc: "High-frequency dictionary brute force authentication attacking Port 22 with RST flag storms.",
+    severity: "critical",
+    host_ip: "192.168.10.8",
+    target_ip: "192.168.10.50",
+    ground_truth: "SSH-Patator (MITRE T1110)",
+    category: "attack",
   },
   {
-    id: "ciciot2023",
-    name: "CICIoT2023 Smart-Grid & IoT",
-    institution: "University of New Brunswick / IoT Security Lab",
-    modality: "Industrial IoT",
-    format: "CSV (46-Dim Adapted)",
-    records: "46 IoT Telemetry Channels · 33 Attack Classes",
-    attacksCovered: ["DDoS-SYN_Flood", "Mirai-UDP_Plain", "Recon-PortScan", "Command Injection"],
-    schemaAdapterMethod: "Adaptive Zero-Imputation Adapter with dynamic scaling alignment",
-    statusBadge: "CROSS-DOMAIN HARDENED",
-    targetScenarioId: "session-ciciot-ddos-flood",
-    sampleFilename: "6_CICIoT2023_SmartGrid_IoT_Flood.csv",
+    name: "4_Volumetric_DDoS_Hulk_Flood.csv",
+    type: "csv",
+    size: "12.3 KB",
+    scenarioId: "sess_slowloris_dos",
+    label: "Slowloris & HTTP Volumetric Exhaustion",
+    desc: "Massive socket pool exhaustion holding incomplete HTTP GET headers, starving enterprise web servers.",
+    severity: "critical",
+    host_ip: "192.168.10.5",
+    target_ip: "192.168.10.50",
+    ground_truth: "DoS Hulk / Slowloris (MITRE T1498)",
+    category: "attack",
   },
   {
-    id: "lanl-auth",
-    name: "LANL Enterprise Auth Logs",
-    institution: "Los Alamos National Laboratory (Cyber Defense)",
-    modality: "Host Authentication",
-    format: "JSON / Kerberos",
-    records: "1.6 Billion Events · 58 Days Red-Team Operations",
-    attacksCovered: ["Pass-the-Hash (T1550)", "Kerberos Ticket Forgery", "Auth Velocity Burst", "AD Fan-Out"],
-    schemaAdapterMethod: "Auth Log Fuser (auth_log_fuser.py) translating auth bursts to continuous velocity",
-    statusBadge: "LATERAL MOVEMENT TRACKER",
-    targetScenarioId: "sess_lanl_lateral_movement",
-    sampleFilename: "7_LANL_Enterprise_Kerberos_LateralMovement.csv",
+    name: "5_CII_SCADA_Infiltration_Attack.csv",
+    type: "csv",
+    size: "17.2 KB",
+    scenarioId: "session-scada-grid-exfiltration",
+    label: "NCIIPC Power Grid Substation Intrusion",
+    desc: "Unauthorized Modbus/DNP3 industrial gateway command injection and ICS coil read/write bursts.",
+    severity: "critical",
+    host_ip: "10.0.100.42",
+    target_ip: "192.168.10.50",
+    ground_truth: "CII SCADA Infiltration (MITRE T0814)",
+    category: "cii",
   },
   {
-    id: "darpa-pcap",
-    name: "DARPA Military Cyber Range",
-    institution: "US DoD / MIT Lincoln Laboratory",
-    modality: "Raw Packet (PCAP)",
-    format: "PCAP (Binary)",
-    records: "Multi-Stage Attack PCAP Traces",
-    attacksCovered: ["External Reconnaissance", "Exploitation via Buffer Overflow", "Privilege Escalation"],
-    schemaAdapterMethod: "Universal PCAP Extractor (UniversalPCAPExtractor) via native Scapy packet parsing",
-    statusBadge: "TRUE L7 DPI VERIFIED",
-    targetScenarioId: "outside_darpa1998_military.pcap",
-    sampleFilename: "outside_darpa1998_military.pcap",
+    name: "6_CICIoT2023_SmartGrid_IoT_Flood.csv",
+    type: "csv",
+    size: "1.4 KB",
+    scenarioId: "session-ciciot-ddos-flood",
+    label: "CICIoT2023 Smart-Grid IoT Botnet & DDoS Flood",
+    desc: "Volumetric SYN/UDP flood across 46 IoT telemetry channels automatically adapted to ShieldNet 84-channel World Model state space.",
+    severity: "critical",
+    host_ip: "192.168.1.105",
+    target_ip: "10.0.100.50",
+    ground_truth: "CICIoT2023 DDoS-SYN_Flood (MITRE T1498)",
+    category: "attack",
+  },
+  {
+    name: "7_LANL_Enterprise_Kerberos_LateralMovement.csv",
+    type: "csv",
+    size: "1.2 KB",
+    scenarioId: "sess_lanl_lateral_movement",
+    label: "LANL Enterprise Kerberos/NTLM Lateral Movement",
+    desc: "Red-team adversary credential harvesting via NTLM Pass-the-Hash, high auth velocity burst, and fan-out across critical Active Directory hosts.",
+    severity: "critical",
+    host_ip: "COMP_PIVOT_01",
+    target_ip: "DC_01",
+    ground_truth: "LANL Lateral Movement (MITRE T1078, T1021, T1550)",
+    category: "attack",
+  },
+  {
+    name: "sample_enterprise_capture.pcap",
+    type: "pcap",
+    size: "0.35 KB",
+    scenarioId: "sess_ssh_patator",
+    label: "Enterprise Raw Packet Capture (.pcap)",
+    desc: "Raw tcpdump/Wireshark packet capture with TCP SYN/ACK handshakes and packet micro-dynamics.",
+    severity: "elevated",
+    host_ip: "192.168.1.105",
+    target_ip: "192.168.1.1",
+    ground_truth: "Enterprise Traffic Stream",
+    category: "pcap",
+  },
+  {
+    name: "sample_scada_modbus.pcap",
+    type: "pcap",
+    size: "0.84 KB",
+    scenarioId: "session-scada-grid-exfiltration",
+    label: "SCADA Modbus ICS Packet Stream (.pcap)",
+    desc: "Industrial telemetry packets on Port 502 with coil read/write queries and function codes.",
+    severity: "critical",
+    host_ip: "10.0.100.42",
+    target_ip: "192.168.10.50",
+    ground_truth: "Industrial Modbus/TCP",
+    category: "pcap",
+  },
+  {
+    name: "outside_darpa1998_military.pcap",
+    type: "pcap",
+    size: "185 KB",
+    scenarioId: "sess_ssh_patator",
+    label: "DARPA 1998 Military Intrusion (.pcap)",
+    desc: "Authentic US Department of Defense military cyber range packet trace with raw IP/TCP packets (PS Clause 64).",
+    severity: "critical",
+    host_ip: "172.16.112.50",
+    target_ip: "172.16.114.168",
+    ground_truth: "Military Cyber Range Attack",
+    category: "pcap",
   },
 ];
 
@@ -164,22 +216,41 @@ const KNOWLEDGE_BASES: KnowledgeBaseMeta[] = [
   },
 ];
 
-export function MultiModalTelemetryHub() {
-  const [activeTab, setActiveTab] = useState<"datasets" | "knowledge" | "architecture">("datasets");
+interface MultiModalTelemetryHubProps {
+  onLaunchFile?: (
+    sourceType: SourceType,
+    filename: string,
+    datasetName: DatasetName,
+    scenarioId?: string,
+    fileSizeBytes?: number,
+    rawCsvText?: string
+  ) => void;
+}
+
+export function MultiModalTelemetryHub({ onLaunchFile }: MultiModalTelemetryHubProps) {
+  const [activeTab, setActiveTab] = useState<"telemetry" | "knowledge" | "architecture">("telemetry");
+  const [selectedFilter, setSelectedFilter] = useState<"all" | "attack" | "cii" | "pcap" | "benign">("all");
   const setActiveIngestion = useAppStore((s) => s.setActiveIngestion);
   const navigate = useNavigate();
 
-  const handle1ClickLoad = (dataset: DatasetMeta) => {
-    setActiveIngestion({
-      id: dataset.targetScenarioId,
-      sourceType: dataset.format.includes("PCAP") ? "pcap" : "csv",
-      filename: dataset.sampleFilename,
-      datasetName: dataset.id === "cic-ids" ? "cic-ids-2018" : (dataset.id as any),
-      uploadedAt: new Date().toISOString(),
-      status: "ready",
-      matchedScenarioId: dataset.targetScenarioId,
-    });
-    navigate(`/dashboard/simulation?session=${dataset.targetScenarioId}`);
+  const handleLaunchFile = (file: SampleTelemetryFile) => {
+    if (onLaunchFile) {
+      onLaunchFile(file.type, file.name, "custom", file.scenarioId);
+    } else {
+      setActiveIngestion({
+        id: file.scenarioId,
+        sourceType: file.type,
+        filename: file.name,
+        datasetName: "custom",
+        fileSize: file.size,
+        flowCount: file.type === "pcap" ? 14 : 128,
+        extractedFeatures: 84,
+        uploadedAt: new Date().toISOString(),
+        status: "ready",
+        matchedScenarioId: file.scenarioId,
+      });
+      navigate(`/dashboard/simulation?session=${file.scenarioId}`);
+    }
   };
 
   return (
@@ -197,14 +268,14 @@ export function MultiModalTelemetryHub() {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-bold text-[var(--color-text-primary)]">
-                MULTI-MODAL TRI-TELEMETRY FUSION &amp; SOVEREIGN KNOWLEDGE HUB
+                MULTI-MODAL TELEMETRY BENCHMARK &amp; KNOWLEDGE HUB
               </h2>
               <span className="font-mono text-[9px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
                 PS 26153 NTRO MANDATED
               </span>
             </div>
             <p className="text-xs text-[var(--color-text-muted)] mt-0.5 font-sans">
-              Ingests 6 standardized cyber datasets, fuses NetFlow + Raw PCAP + Host Auth telemetry into 84 continuous dimensions, and correlates predictions with 3 authoritative knowledge bases.
+              10 pre-loaded real telemetry captures (.csv &amp; .pcap) ready for offline inspection &amp; instant forward simulation rollout.
             </p>
           </div>
         </div>
@@ -212,14 +283,14 @@ export function MultiModalTelemetryHub() {
         {/* Tab Navigation */}
         <div className="flex items-center gap-1.5 p-1 rounded-lg bg-[var(--color-base)] border" style={{ borderColor: "var(--color-border)" }}>
           <button
-            onClick={() => setActiveTab("datasets")}
+            onClick={() => setActiveTab("telemetry")}
             className={`px-3 py-1 rounded text-xs font-mono font-semibold transition-all ${
-              activeTab === "datasets"
+              activeTab === "telemetry"
                 ? "bg-[var(--color-accent)] text-slate-950 shadow-sm"
                 : "text-[var(--color-text-secondary)] hover:text-white"
             }`}
           >
-            Mandated Datasets (6)
+            Telemetry Benchmarks &amp; Captures (10)
           </button>
           <button
             onClick={() => setActiveTab("knowledge")}
@@ -229,7 +300,7 @@ export function MultiModalTelemetryHub() {
                 : "text-[var(--color-text-secondary)] hover:text-white"
             }`}
           >
-            Knowledge Bases (3)
+            Sovereign Knowledge Bases (3)
           </button>
           <button
             onClick={() => setActiveTab("architecture")}
@@ -244,85 +315,119 @@ export function MultiModalTelemetryHub() {
         </div>
       </div>
 
-      {/* TAB 1: 6 MANDATED DATASETS */}
-      {activeTab === "datasets" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {MANDATED_DATASETS.map((ds) => (
-            <div
-              key={ds.id}
-              className="flex flex-col justify-between rounded-xl border p-4 bg-[var(--color-base)] hover:border-[var(--color-accent)]/60 transition-all group"
-              style={{ borderColor: "var(--color-border)" }}
-            >
-              <div className="flex flex-col gap-2.5">
-                {/* Header Row */}
-                <div className="flex items-center justify-between font-mono text-[10px]">
-                  <span className="px-2 py-0.5 rounded bg-[var(--color-panel-raised)] text-[var(--color-accent)] border border-white/10 font-bold">
-                    {ds.modality}
-                  </span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
-                    {ds.statusBadge}
-                  </span>
-                </div>
-
-                {/* Title & Institution */}
-                <div>
-                  <h3 className="font-bold text-sm text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] transition-colors">
-                    {ds.name}
-                  </h3>
-                  <p className="text-[11px] text-[var(--color-text-muted)] font-mono">
-                    {ds.institution}
-                  </p>
-                </div>
-
-                {/* Format & Records */}
-                <div className="flex items-center gap-2 font-mono text-[11px] text-[var(--color-text-secondary)]">
-                  <FileCode size={13} className="text-cyan-400 shrink-0" />
-                  <span className="truncate">{ds.records}</span>
-                </div>
-
-                {/* Ingestion Strategy */}
-                <div className="rounded-lg p-2.5 bg-[var(--color-panel-raised)] border border-white/5 flex flex-col gap-1">
-                  <span className="font-mono text-[9px] uppercase tracking-wider text-[var(--color-accent)] font-bold">
-                    Ingestion &amp; Feature Schema:
-                  </span>
-                  <p className="text-[11px] text-[var(--color-text-secondary)] font-sans leading-snug">
-                    {ds.schemaAdapterMethod}
-                  </p>
-                </div>
-
-                {/* Attack Tags */}
-                <div className="flex flex-wrap gap-1 mt-0.5">
-                  {ds.attacksCovered.slice(0, 3).map((atk) => (
-                    <span
-                      key={atk}
-                      className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-rose-950/40 text-rose-300 border border-rose-900/40"
-                    >
-                      {atk}
-                    </span>
-                  ))}
-                  {ds.attacksCovered.length > 3 && (
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-slate-800 text-slate-400">
-                      +{ds.attacksCovered.length - 3} more
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Bottom Action Button */}
-              <div className="pt-3 mt-3 border-t flex items-center justify-between" style={{ borderColor: "color-mix(in srgb, var(--color-text-primary) 8%, transparent)" }}>
-                <span className="font-mono text-[10px] text-[var(--color-text-muted)]">
-                  {ds.format}
-                </span>
+      {/* TAB 1: 10 CONSOLIDATED TELEMETRY BENCHMARKS & CAPTURES */}
+      {activeTab === "telemetry" && (
+        <div className="flex flex-col gap-4">
+          {/* Category Filter Tabs */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { id: "all", label: "All Telemetry (10)" },
+                { id: "attack", label: "⚔️ Attack Scenarios (7)" },
+                { id: "cii", label: "⚡ Critical CII SCADA (1)" },
+                { id: "pcap", label: "🦈 Raw PCAP Captures (3)" },
+                { id: "benign", label: "🟢 Benign Baseline (1)" },
+              ].map((tab) => (
                 <button
-                  onClick={() => handle1ClickLoad(ds)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono font-bold bg-[var(--color-accent)]/15 text-[var(--color-accent)] border border-[var(--color-accent)]/40 hover:bg-[var(--color-accent)] hover:text-slate-950 transition-all cursor-pointer"
+                  key={tab.id}
+                  onClick={() => setSelectedFilter(tab.id as any)}
+                  className={`px-3 py-1 rounded-md font-mono text-xs font-semibold transition-all ${
+                    selectedFilter === tab.id
+                      ? "bg-[var(--color-accent)] text-slate-950 shadow-sm"
+                      : "bg-[var(--color-base)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-[var(--color-border)]"
+                  }`}
                 >
-                  <span>1-Click Ingest</span>
-                  <ArrowRight size={12} />
+                  {tab.label}
                 </button>
-              </div>
+              ))}
             </div>
-          ))}
+
+            <span className="font-mono text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/30">
+              OFFLINE READY (C4 AIR-GAP)
+            </span>
+          </div>
+
+          {/* Grid of Telemetry Cards */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {SAMPLE_FILES.filter(
+              (f) =>
+                selectedFilter === "all" ||
+                f.category === selectedFilter ||
+                (selectedFilter === "attack" && (f.category === "attack" || f.category === "cii"))
+            ).map((file) => (
+              <div
+                key={file.name}
+                className="flex flex-col justify-between rounded-lg border p-4 bg-[var(--color-base)] hover:border-[var(--color-accent)] transition-all group"
+                style={{ borderColor: "var(--color-border)" }}
+              >
+                <div>
+                  {/* Header badges */}
+                  <div className="flex items-center justify-between mb-2 font-mono text-[10px]">
+                    <span className={`rounded px-2 py-0.5 font-bold ${
+                      file.type === "pcap" ? "bg-pink-500/20 text-pink-300 border border-pink-500/30" : "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                    }`}>
+                      {file.type.toUpperCase()} · {file.size}
+                    </span>
+                    <span className={`rounded px-1.5 py-0.5 font-bold ${
+                      file.severity === "critical"
+                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
+                        : file.severity === "elevated"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                    }`}>
+                      {file.severity.toUpperCase()}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h4 className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-accent)] mb-1">
+                    {file.label}
+                  </h4>
+
+                  {/* Subnet Route */}
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-[var(--color-text-muted)] mb-2">
+                    <span className="text-[var(--color-text-secondary)]">{file.host_ip}</span>
+                    <span>→</span>
+                    <span className="text-[var(--color-accent)]">{file.target_ip}</span>
+                  </div>
+
+                  {/* Ground Truth Label */}
+                  <div className="mb-2">
+                    <span className="inline-block font-mono text-[10px] text-purple-300 bg-purple-500/15 px-2 py-0.5 rounded border border-purple-500/25">
+                      {file.ground_truth}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-[11px] text-[var(--color-text-secondary)] line-clamp-2 mb-3">
+                    {file.desc}
+                  </p>
+                </div>
+
+                {/* Action Buttons: BOTH Download AND Launch Forecast! */}
+                <div className="flex items-center gap-2 pt-2.5 border-t font-mono text-xs" style={{ borderColor: "var(--color-border)" }}>
+                  <a
+                    href={`/sample_telemetry/${file.name}`}
+                    download={file.name}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded py-1.5 bg-white/5 hover:bg-white/10 text-[var(--color-text-primary)] text-[11px] border border-white/10 transition-colors"
+                    title={`Download authentic ${file.type.toUpperCase()} file to your computer`}
+                  >
+                    <Download size={12} />
+                    <span>Download</span>
+                  </a>
+                  <button
+                    onClick={() => handleLaunchFile(file)}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded py-1.5 text-[11px] font-bold text-slate-950 shadow-sm hover:opacity-90 transition-all hover:scale-[1.02] cursor-pointer"
+                    style={{ backgroundColor: file.type === "pcap" ? "var(--color-mitre-initial)" : "var(--color-accent)" }}
+                    title="Run 84-Dim extraction & forward simulation"
+                  >
+                    <Zap size={12} />
+                    <span>Launch Forecast</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -395,7 +500,7 @@ export function MultiModalTelemetryHub() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b pb-3" style={{ borderColor: "var(--color-border)" }}>
             <div>
               <h3 className="font-bold text-sm text-[var(--color-text-primary)]">
-                Tri-Telemetry State Unification Pipeline ($s_t \in \mathbb&#123;R&#125;^&#123;84&#125;$)
+                Tri-Telemetry State Unification Pipeline (s_t &isin; &reals;⁸⁴ · 84 Dimensions)
               </h3>
               <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                 Deterministic transformation ensuring zero test-set leakage, cross-dataset alignment, and frozen reference scaling.

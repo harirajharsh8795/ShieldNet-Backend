@@ -50,7 +50,7 @@ export function AboutPage() {
         <div className="relative max-w-4xl">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-[var(--color-accent)] border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10">
             <ShieldCheck size={13} />
-            Smart India Hackathon 2026 · Problem Statement ShieldNet
+            Smart India Hackathon 2026 · PS-153 (NTRO) Sovereign Cyber Defense
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-[var(--color-text-primary)] sm:text-4xl lg:text-5xl">
             See the attack trajectory,<br />

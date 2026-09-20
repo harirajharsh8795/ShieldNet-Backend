@@ -276,7 +276,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
     <div className="w-full space-y-6">
       {/* Header Banner */}
       <div
-        className="rounded-xl border p-6 glow-box"
+        className="rounded-xl border p-6 glow-box print:hidden"
         style={{
           borderColor: "var(--color-border)",
           backgroundColor: "var(--color-panel)",
@@ -387,7 +387,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="flex border-b gap-4 pb-2" style={{ borderColor: "var(--color-border)" }}>
+      <div className="flex border-b gap-4 pb-2 print:hidden" style={{ borderColor: "var(--color-border)" }}>
         <button
           onClick={() => setActiveTab("explorer")}
           className={`inline-flex items-center gap-2 pb-2 text-sm font-medium border-b-2 transition-all ${
@@ -1225,7 +1225,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
         return (
           <div id="section-63-certificate-tab-container" className="space-y-6 animate-in fade-in duration-200">
             {/* Control Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border bg-[var(--color-panel)]" style={{ borderColor: "var(--color-border)" }}>
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border bg-[var(--color-panel)] print:hidden" style={{ borderColor: "var(--color-border)" }}>
               <div className="flex items-center gap-3">
                 <span className="font-mono text-xs text-[var(--color-text-secondary)] font-bold">
                   SELECT LEDGER BLOCK TO CERTIFY:
@@ -1421,6 +1421,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
       {certificateBlock && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div
+            id="section-63-certificate-modal"
             className="w-full max-w-2xl rounded-2xl border p-6 glow-box shadow-2xl relative space-y-4 max-h-[90vh] overflow-y-auto"
             style={{ borderColor: "rgba(16,185,129,0.5)", backgroundColor: "var(--color-panel)" }}
           >
@@ -1439,7 +1440,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
               </div>
               <button
                 onClick={() => setCertificateBlock(null)}
-                className="p-1.5 rounded-lg hover:bg-white/10 text-[var(--color-text-muted)] hover:text-white transition-all cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-white/10 text-[var(--color-text-muted)] hover:text-white transition-all cursor-pointer print:hidden"
               >
                 <X size={20} />
               </button>
@@ -1495,7 +1496,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
             </div>
 
             {/* Footer Actions */}
-            <div className="flex items-center justify-between pt-2">
+            <div className="flex items-center justify-between pt-2 print:hidden">
               <span className="text-[11px] text-[var(--color-text-muted)] font-mono">
                 Status: Verified Tamper-Evident · Admissible in Court
               </span>

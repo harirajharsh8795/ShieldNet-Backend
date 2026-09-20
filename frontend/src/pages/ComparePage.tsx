@@ -175,8 +175,8 @@ export function ComparePage() {
           >
             <Layers size={13} />
             {m.name}
-            <span className={`text-[10px] px-1.5 py-0.2 rounded ml-1 ${
-              m.status === "Champion" ? "bg-emerald-950 text-emerald-400 border border-emerald-500/30" : "bg-black/30 text-[var(--color-text-muted)]"
+            <span className={`text-[10px] px-1.5 py-0.5 rounded ml-1 font-bold ${
+              m.status?.includes("Champion") ? "bg-emerald-950 text-emerald-400 border border-emerald-500/30" : "bg-black/30 text-[var(--color-text-muted)]"
             }`}>
               {m.status}
             </span>
