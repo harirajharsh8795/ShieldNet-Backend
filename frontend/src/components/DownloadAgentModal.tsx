@@ -110,18 +110,25 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <a
-                  href="https://github.com/harirajharsh8795/ShieldNet-Backend/archive/refs/heads/main.zip"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2.5 text-xs font-bold text-slate-950 hover:brightness-110 transition-all shadow-lg"
+                  href="/shieldnet_daemon.zip"
+                  download="shieldnet_daemon.zip"
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-2.5 text-xs font-bold text-slate-950 hover:brightness-110 transition-all shadow-lg cursor-pointer"
                 >
                   <Download size={14} />
-                  Download Full Desktop Agent Package (.ZIP)
+                  Download Full Desktop Agent Daemon (.ZIP)
                 </a>
-                <p className="text-[10px] text-center text-slate-500 mt-2">
-                  After extracting, simply run <code className="text-cyan-400">run_offline.bat</code> to start the agent.
+                <a
+                  href="/RUN_SHIELDNET.bat"
+                  download="RUN_SHIELDNET.bat"
+                  className="flex items-center justify-center gap-2 w-full rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-all cursor-pointer"
+                >
+                  <Download size={13} />
+                  Download 1-Click Launcher (RUN_SHIELDNET.bat)
+                </a>
+                <p className="text-[10px] text-center text-slate-500 mt-1">
+                  After extracting, simply run <code className="text-cyan-400">RUN_SHIELDNET.bat</code> or <code className="text-cyan-400">python cli.py daemon run --mock</code>.
                 </p>
               </div>
             </div>

@@ -1,0 +1,37 @@
+[Unit]
+Description=ShieldNet Offline Autonomous Network Detection Daemon
+Documentation=https://github.com/shieldnet
+After=network.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Security hardening: Run unprivileged with fine-grained network capture capabilities
+# User=shieldnet
+# Group=shieldnet
+AmbientCapabilities=CAP_NET_RAW CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_RAW CAP_NET_ADMIN
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+
+# Working directory and execution path (adjust according to deployment location)
+WorkingDirectory=/opt/shieldnet/shieldnet_daemon
+ExecStart=/opt/shieldnet/shieldnet_daemon/.venv/bin/python -m daemon.service
+
+# Auto-recovery and lifecycle
+Restart=always
+RestartSec=5s
+KillMode=process
+TimeoutStopSec=10s
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=shieldnet-daemon
+
+# Performance
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+{
+  "onnx/world_model.onnx": "0361fbf67bb5a0d91a16218277f652e8261d7673862694e4482a353f7258cb6b",
+  "checkpoints/scaler_reference.npz": "5a7e0f7e65654dc62b2c7d30279c164969a3e88348c0106fbc702ca8f7671096",
+  "checkpoints/logreg_params.npz": "85a7be22010f1e7df1693234b8e0a5f2bc66869e0e88a73aa1c43bfe4b03c3d8"
+}
