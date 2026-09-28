@@ -40,6 +40,7 @@ export function AuthBar() {
     setIsSwitching(true);
     setIsOpen(false);
     const pwdMap: Record<string, string> = {
+      "soc-analyst@ntro.gov.in": "ShieldNet@Defense2026",
       "admin@shieldnet.local": "Admin@123",
       "analyst@shieldnet.local": "Analyst@123",
       "auditor@shieldnet.local": "Auditor@123",
@@ -47,7 +48,7 @@ export function AuthBar() {
       "analyst@shieldnet.gov.in": "analyst2026",
       "auditor@shieldnet.gov.in": "auditor2026",
     };
-    const password = pwdMap[persona.username] || "Admin@123";
+    const password = pwdMap[persona.username] || "ShieldNet@Defense2026";
     try {
       await login(persona.username, password);
     } catch (err: any) {
@@ -67,71 +68,93 @@ export function AuthBar() {
     return "#8B5CF6"; // Purple
   };
 
-  // If user is not authenticated, render prominent Login and Sign Up triggers
+  // Helper to get initials from officer name or username
+  const getInitials = (name?: string, username?: string): string => {
+    if (name) {
+      const parts = name.replace(/[()]/g, "").trim().split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+      if (parts.length === 1 && parts[0].length >= 2) {
+        return parts[0].substring(0, 2).toUpperCase();
+      }
+    }
+    if (username) {
+      const clean = username.split("@")[0].replace(/[^a-zA-Z]/g, "");
+      if (clean.length >= 2) return clean.substring(0, 2).toUpperCase();
+    }
+    return "SO";
+  };
+
+  // 1. If user is not authenticated, render a SINGLE prominent Login / Sign Up button
   if (!isAuthenticated || !user) {
     return (
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => openAuthModal("login")}
-          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-cyan-500/15 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500/25 transition-all shadow-sm cursor-pointer"
-        >
+      <button
+        type="button"
+        id="navbar-auth-btn"
+        onClick={() => openAuthModal("login")}
+        className="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all cursor-pointer shadow-sm hover:shadow-cyan-500/20 group"
+        style={{
+          background: "linear-gradient(135deg, rgba(34, 211, 238, 0.14) 0%, rgba(59, 130, 246, 0.14) 100%)",
+          borderColor: "rgba(34, 211, 238, 0.45)",
+          color: "#22d3ee",
+        }}
+        title="Access ShieldNet Command Terminal (Login / Sign Up)"
+      >
+        <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 group-hover:scale-110 transition-transform">
           <LogIn size={13} />
-          <span>Login</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => openAuthModal("signup")}
-          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
-        >
-          <UserPlus size={13} />
-          <span>Sign Up</span>
-        </button>
-      </div>
+        </div>
+        <span className="font-semibold tracking-wide text-cyan-300 group-hover:text-cyan-200">
+          Login / Sign Up
+        </span>
+      </button>
     );
   }
 
+  const officerName = user.display_name || user.username.split("@")[0] || "Officer";
+  const officerInitials = getInitials(user.display_name, user.username);
+  const roleColor = getRoleColor(user.role);
+
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Active Persona Pill */}
+      {/* Active Officer Identity Pill */}
       <button
         type="button"
+        id="authenticated-user-pill"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all hover:bg-[var(--color-panel)] cursor-pointer"
+        className="flex items-center gap-2 rounded-xl border px-2.5 sm:px-3 py-1.5 text-xs font-medium transition-all hover:bg-[var(--color-panel)] cursor-pointer"
         style={{
           borderColor: "var(--color-border)",
           backgroundColor: "color-mix(in srgb, var(--color-panel) 85%, transparent)",
         }}
-        title={`Authenticated as ${user.display_name} (${user.role})`}
+        title={`Authenticated as ${officerName} (${user.role} - ${user.clearance_label || `Level ${user.clearance_level}`})`}
       >
+        {/* Officer Avatar with Initials */}
         <div
-          className="flex h-5 w-5 items-center justify-center rounded-full shrink-0"
+          className="flex h-6 w-6 items-center justify-center rounded-lg shrink-0 text-[10px] font-bold font-mono shadow-sm"
           style={{
-            backgroundColor: `${getRoleColor(user.role)}20`,
-            color: getRoleColor(user.role),
+            backgroundColor: `${roleColor}25`,
+            color: roleColor,
+            border: `1px solid ${roleColor}50`,
           }}
         >
-          {user.role?.includes("CISO") || user.role?.includes("Admin") ? (
-            <Shield size={12} />
-          ) : user.role?.includes("Auditor") ? (
-            <Key size={12} />
-          ) : (
-            <UserCheck size={12} />
-          )}
+          {officerInitials}
         </div>
 
-        <div className="text-left hidden lg:block">
+        {/* Officer Display Name & Role */}
+        <div className="text-left block max-w-[120px] sm:max-w-[180px]">
           <div className="flex items-center gap-1.5 leading-tight">
-            <span className="font-semibold text-[var(--color-text-primary)]">
-              {user.role}
+            <span className="font-bold text-[var(--color-text-primary)] text-xs truncate">
+              {officerName}
             </span>
             <span
-              className="inline-block h-1.5 w-1.5 rounded-full animate-pulse"
-              style={{ backgroundColor: getRoleColor(user.role) }}
+              className="inline-block h-2 w-2 rounded-full animate-pulse shrink-0"
+              style={{ backgroundColor: roleColor }}
+              title="Session Active"
             />
           </div>
-          <div className="text-[10px] text-[var(--color-text-muted)] leading-tight font-mono">
-            {user.clearance_label?.split("-")[0]?.trim() || `Level ${user.clearance_level || 5}`}
+          <div className="text-[10px] text-[var(--color-text-muted)] leading-tight font-mono truncate">
+            {user.role} · L{user.clearance_level || 5}
           </div>
         </div>
 
@@ -254,7 +277,7 @@ export function AuthBar() {
                       />
                       <div className="truncate">
                         <div className="font-semibold text-[var(--color-text-primary)] text-[11px] truncate">
-                          {p.role}
+                          {p.display_name || p.role}
                         </div>
                         <div className="text-[9.5px] text-[var(--color-text-muted)] truncate font-mono">
                           {p.username}

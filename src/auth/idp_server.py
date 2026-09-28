@@ -51,6 +51,18 @@ def _init_user_directory() -> Dict[str, Dict[str, Any]]:
     salt_ingress = _generate_salt()
 
     return {
+        "soc-analyst@ntro.gov.in": {
+            "username": "soc-analyst@ntro.gov.in",
+            "display_name": "Senior SOC Lead (NTRO)",
+            "role": "CISO_Admin",
+            "clearance_level": 5,
+            "clearance_label": "Level 5 - Sovereign Defense",
+            "salt_b64": base64.b64encode(salt_admin).decode("utf-8"),
+            "hash_b64": _pbkdf2_hash("ShieldNet@Defense2026", salt_admin),
+            "permissions": ["soar:approve", "fabric:endorse", "model:anchor", "alerts:override", "telemetry:ingest", "audit:export"],
+            "department": "NTRO Central Cyber Command",
+            "mfa_enforced": False
+        },
         "admin@shieldnet.gov.in": {
             "username": "admin@shieldnet.gov.in",
             "display_name": "Chief Information Security Officer (CISO)",

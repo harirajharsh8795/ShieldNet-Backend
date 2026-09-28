@@ -222,8 +222,8 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
   const { login, isLoading, targetPath, setTargetPath } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("admin@shieldnet.local");
-  const [password, setPassword] = useState("Admin@123");
+  const [username, setUsername] = useState("soc-analyst@ntro.gov.in");
+  const [password, setPassword] = useState("ShieldNet@Defense2026");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -265,10 +265,73 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
   };
 
   return (
-    <div className="space-y-5">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
+      {/* FEATURED: OFFICIAL SIH PPT PRESENTATION CREDENTIALS BOX */}
+      <div
+        className="rounded-2xl border p-3.5 sm:p-4 relative overflow-hidden transition-all shadow-xl"
+        style={{
+          background: "linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%)",
+          borderColor: "rgba(34, 211, 238, 0.45)",
+          boxShadow: "0 10px 25px -5px rgba(34, 211, 238, 0.15)",
+        }}
+      >
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5">
+            <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+            <span className="text-[10.5px] font-mono font-bold tracking-wider uppercase text-cyan-300">
+              ⭐ Official SIH PPT Presentation Credentials
+            </span>
+          </div>
+          <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-semibold">
+            NTRO Sovereign SOC
+          </span>
+        </div>
+
+        <p className="text-[11px] text-[var(--color-text-secondary)] mb-2.5">
+          These credentials match your SIH pitch deck slides for rapid evaluator demonstration:
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono mb-3">
+          <div className="p-2 rounded-xl bg-black/40 border border-white/10 flex flex-col justify-center">
+            <span className="text-[9px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">
+              Officer ID (Email):
+            </span>
+            <span className="font-bold text-cyan-300 text-xs select-all">soc-analyst@ntro.gov.in</span>
+          </div>
+          <div className="p-2 rounded-xl bg-black/40 border border-white/10 flex flex-col justify-center">
+            <span className="text-[9px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">
+              Security Key (Pass):
+            </span>
+            <span className="font-bold text-emerald-300 text-xs select-all">ShieldNet@Defense2026</span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleQuickPersona("soc-analyst@ntro.gov.in", "ShieldNet@Defense2026")}
+          disabled={isLoading}
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-bold uppercase tracking-wider text-black transition-all shadow-md hover:opacity-95 disabled:opacity-50 cursor-pointer"
+          style={{
+            background: "linear-gradient(135deg, #22d3ee 0%, #34d399 50%, #10b981 100%)",
+            boxShadow: "0 0 15px rgba(34, 211, 238, 0.4)",
+          }}
+        >
+          <Zap size={14} className="text-black fill-black" />
+          <span>1-Click Authenticate as Senior SOC Lead (NTRO)</span>
+        </button>
+      </div>
+
+      <div className="relative flex items-center justify-center my-3">
+        <div className="border-t w-full" style={{ borderColor: "var(--color-border)" }}></div>
+        <span className="bg-[var(--color-panel,#111827)] px-3 text-[10px] uppercase font-mono text-[var(--color-text-muted)] shrink-0">
+          Or Enter Credentials Manually
+        </span>
+        <div className="border-t w-full" style={{ borderColor: "var(--color-border)" }}></div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1.5">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-1">
             Enterprise Email / Sovereign Call-Sign
           </label>
           <div className="relative">
@@ -280,8 +343,8 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin@shieldnet.local or officer@shieldnet.gov.in"
-              className="w-full rounded-xl border pl-9 pr-3 py-2.5 text-xs text-[var(--color-text-primary)] outline-none transition-all focus:border-[var(--color-accent)] font-mono"
+              placeholder="soc-analyst@ntro.gov.in"
+              className="w-full rounded-xl border pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] outline-none transition-all focus:border-[var(--color-accent)] font-mono"
               style={{
                 backgroundColor: "var(--color-base, #0a0e17)",
                 borderColor: "var(--color-border, #1f2937)",
@@ -291,7 +354,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center justify-between mb-1">
             <label className="block text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
               Security Key / Password
             </label>
@@ -307,7 +370,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full rounded-xl border pl-9 pr-10 py-2.5 text-xs text-[var(--color-text-primary)] outline-none transition-all focus:border-[var(--color-accent)] font-mono"
+              className="w-full rounded-xl border pl-9 pr-10 py-2 text-xs text-[var(--color-text-primary)] outline-none transition-all focus:border-[var(--color-accent)] font-mono"
               style={{
                 backgroundColor: "var(--color-base, #0a0e17)",
                 borderColor: "var(--color-border, #1f2937)",
@@ -333,7 +396,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-black transition-all shadow-lg hover:opacity-95 disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-black transition-all shadow-lg hover:opacity-95 disabled:opacity-50 cursor-pointer"
           style={{
             background: "linear-gradient(135deg, #22d3ee 0%, #38bdf8 50%, #0284c7 100%)",
             boxShadow: "0 0 20px rgba(34, 211, 238, 0.35)",
@@ -353,14 +416,14 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         </button>
       </form>
 
-      {/* QUICK 1-CLICK PERSONAS FOR JUDGES & EVALUATION */}
+      {/* ADDITIONAL EVALUATION PERSONAS */}
       <div className="pt-2 border-t" style={{ borderColor: "var(--color-border)" }}>
-        <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1">
             <Zap size={11} className="text-amber-400" />
-            Quick 1-Click Evaluation Personas:
+            Additional Evaluation Personas:
           </span>
-          <span className="text-[10px] text-[var(--color-text-muted)]">Instant Verification</span>
+          <span className="text-[9.5px] text-[var(--color-text-muted)]">Tiered Clearance Demo</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -369,18 +432,18 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("admin@shieldnet.local", "Admin@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 group cursor-pointer"
+            className="flex flex-col text-left p-2 rounded-xl border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
             }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Level 5</span>
+              <span className="text-[9.5px] font-bold text-emerald-400 uppercase tracking-wider">Level 5</span>
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
             </div>
-            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-1">CISO Admin</div>
-            <div className="text-[10px] text-[var(--color-text-muted)] truncate font-mono">admin@shieldnet.local</div>
+            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-0.5">CISO Admin</div>
+            <div className="text-[9.5px] text-[var(--color-text-muted)] truncate font-mono">admin@shieldnet.local</div>
           </button>
 
           {/* Persona 2: SOC Threat Hunter */}
@@ -388,18 +451,18 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("analyst@shieldnet.local", "Analyst@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-blue-500/50 hover:bg-blue-500/5 group cursor-pointer"
+            className="flex flex-col text-left p-2 rounded-xl border transition-all hover:border-blue-500/50 hover:bg-blue-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
             }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Level 3</span>
+              <span className="text-[9.5px] font-bold text-blue-400 uppercase tracking-wider">Level 3</span>
               <span className="h-1.5 w-1.5 rounded-full bg-blue-400 group-hover:scale-125 transition-transform" />
             </div>
-            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-1">SOC Threat Hunter</div>
-            <div className="text-[10px] text-[var(--color-text-muted)] truncate font-mono">analyst@shieldnet.local</div>
+            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-0.5">SOC Threat Hunter</div>
+            <div className="text-[9.5px] text-[var(--color-text-muted)] truncate font-mono">analyst@shieldnet.local</div>
           </button>
 
           {/* Persona 3: Forensic Auditor */}
@@ -407,23 +470,23 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("auditor@shieldnet.local", "Auditor@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-amber-500/50 hover:bg-amber-500/5 group cursor-pointer"
+            className="flex flex-col text-left p-2 rounded-xl border transition-all hover:border-amber-500/50 hover:bg-amber-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
             }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Level 4</span>
+              <span className="text-[9.5px] font-bold text-amber-400 uppercase tracking-wider">Level 4</span>
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
             </div>
-            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-1">Forensic Auditor</div>
-            <div className="text-[10px] text-[var(--color-text-muted)] truncate font-mono">auditor@shieldnet.local</div>
+            <div className="text-xs font-semibold text-[var(--color-text-primary)] mt-0.5">Forensic Auditor</div>
+            <div className="text-[9.5px] text-[var(--color-text-muted)] truncate font-mono">auditor@shieldnet.local</div>
           </button>
         </div>
       </div>
 
-      <div className="text-center">
+      <div className="text-center pt-1">
         <button
           type="button"
           onClick={onSwitchMode}

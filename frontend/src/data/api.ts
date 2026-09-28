@@ -1949,6 +1949,18 @@ export async function loginOAuth2(username: string, password: string): Promise<a
     const u = username.trim().toLowerCase();
     const p = password.trim();
     const validAccounts: Record<string, { pwd: string; user: any }> = {
+      "soc-analyst@ntro.gov.in": {
+        pwd: "ShieldNet@Defense2026",
+        user: {
+          username: "soc-analyst@ntro.gov.in",
+          display_name: "Senior SOC Lead (NTRO)",
+          role: "CISO_Admin",
+          clearance_level: 5,
+          clearance_label: "Level 5 - Sovereign Defense",
+          department: "NTRO Central Cyber Command",
+          permissions: ["soar:approve", "fabric:endorse", "model:anchor", "alerts:override", "telemetry:ingest", "audit:export"]
+        }
+      },
       "admin@shieldnet.local": {
         pwd: "Admin@123",
         user: {
@@ -2141,7 +2153,15 @@ export async function fetchEnterprisePersonas(): Promise<any[]> {
   }
   return [
     {
-      username: "admin@shieldnet.gov.in",
+      username: "soc-analyst@ntro.gov.in",
+      display_name: "Senior SOC Lead (NTRO)",
+      role: "CISO_Admin",
+      clearance_level: 5,
+      clearance_label: "Level 5 - Sovereign Defense",
+      department: "NTRO Central Cyber Command"
+    },
+    {
+      username: "admin@shieldnet.local",
       display_name: "Chief Information Security Officer (CISO)",
       role: "CISO_Admin",
       clearance_level: 5,

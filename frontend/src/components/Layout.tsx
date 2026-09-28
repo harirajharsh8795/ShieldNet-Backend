@@ -149,8 +149,9 @@ export function Layout({ children }: { children: ReactNode }) {
             <AuthBar />
           </div>
 
-          {/* Mobile hamburger menu toggle */}
+          {/* Mobile header controls */}
           <div className="flex items-center gap-2 lg:hidden">
+            <AuthBar />
             <ThemeToggle />
             <button
               type="button"
