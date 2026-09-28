@@ -27,7 +27,9 @@ interface AuthContextType {
   logout: () => void;
   authMode: "login" | "signup";
   setAuthMode: (mode: "login" | "signup") => void;
-  openAuthModal: (mode?: "login" | "signup") => void;
+  targetPath: string | null;
+  setTargetPath: (path: string | null) => void;
+  openAuthModal: (mode?: "login" | "signup", targetPath?: string) => void;
   closeAuthModal: () => void;
   isAuthModalOpen: boolean;
 }
@@ -51,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [targetPath, setTargetPath] = useState<string | null>(null);
 
   useEffect(() => {
     // If token exists, verify/refresh user profile
@@ -111,18 +114,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     setAuthMode("login");
+    setTargetPath(null);
   };
 
-  const openAuthModal = (mode: "login" | "signup" = "login") => {
+  const openAuthModal = (mode: "login" | "signup" = "login", path?: string) => {
     setAuthMode(mode);
+    if (path) setTargetPath(path);
     setIsAuthModalOpen(true);
   };
 
   const closeAuthModal = () => {
-    // Only allow closing if user is already authenticated
-    if (user) {
-      setIsAuthModalOpen(false);
-    }
+    setIsAuthModalOpen(false);
+    setTargetPath(null);
   };
 
   return (
@@ -137,6 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         authMode,
         setAuthMode,
+        targetPath,
+        setTargetPath,
         openAuthModal,
         closeAuthModal,
         isAuthModalOpen

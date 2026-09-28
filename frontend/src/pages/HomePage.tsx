@@ -16,11 +16,20 @@ import { ProbabilityTimeline } from "../components/ProbabilityTimeline";
 import { MetricCard } from "../components/MetricCard";
 import { CoreCapabilitiesSection } from "../components/CoreCapabilitiesSection";
 import { HowItWorksSection } from "../components/HowItWorksSection";
+import { useAuth } from "../context/AuthContext";
 import { getTimeline } from "../data/api";
 import type { TimelinePoint } from "../data/types";
 
 export function HomePage() {
+  const { isAuthenticated, openAuthModal } = useAuth();
   const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
+
+  const handleProtectedAction = (e: React.MouseEvent, dest: string) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      openAuthModal("login", dest);
+    }
+  };
 
   useEffect(() => {
     getTimeline("ing_sample_cicids2018").then(setTimeline);
@@ -73,6 +82,7 @@ export function HomePage() {
           <div className="mt-8 flex flex-wrap items-center gap-3.5">
             <Link
               to="/live"
+              onClick={(e) => handleProtectedAction(e, "/dashboard/live")}
               className="inline-flex items-center gap-2.5 rounded-lg bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-[var(--color-base)] shadow-lg shadow-cyan-500/20 transition-all hover:scale-[1.02] hover:opacity-95 active:scale-[0.98]"
             >
               <Radio size={16} className="animate-pulse" />
@@ -82,6 +92,7 @@ export function HomePage() {
 
             <Link
               to="/upload"
+              onClick={(e) => handleProtectedAction(e, "/upload")}
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-accent)] hover:bg-[var(--color-panel-raised)] active:scale-[0.98]"
               style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}
             >
@@ -91,6 +102,7 @@ export function HomePage() {
 
             <Link
               to="/certificate"
+              onClick={(e) => handleProtectedAction(e, "/certificate")}
               className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-4 py-3 text-sm font-semibold text-amber-300 transition-all hover:bg-amber-500/25 hover:border-amber-400 active:scale-[0.98] shadow-md shadow-amber-500/10"
             >
               <ShieldCheck size={16} className="text-amber-400" />
@@ -99,6 +111,7 @@ export function HomePage() {
 
             <Link
               to="/compare"
+              onClick={(e) => handleProtectedAction(e, "/compare")}
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-normal)] hover:bg-[var(--color-panel-raised)] active:scale-[0.98]"
               style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}
             >
@@ -392,6 +405,7 @@ export function HomePage() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <Link
               to="/dashboard"
+              onClick={(e) => handleProtectedAction(e, "/dashboard")}
               className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-6 py-3 text-sm font-semibold text-[var(--color-base)] shadow-lg shadow-cyan-500/20 transition-transform hover:scale-105 active:scale-95"
             >
               Open Command Center
@@ -399,6 +413,7 @@ export function HomePage() {
             </Link>
             <Link
               to="/live"
+              onClick={(e) => handleProtectedAction(e, "/dashboard/live")}
               className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-normal)] hover:bg-[var(--color-panel-raised)]"
               style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-base)" }}
             >

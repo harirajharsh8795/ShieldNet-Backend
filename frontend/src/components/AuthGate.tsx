@@ -1,4 +1,5 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Shield,
   Lock,
@@ -14,6 +15,7 @@ import {
   User,
   Fingerprint,
   Zap,
+  ArrowLeft,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -25,15 +27,36 @@ export function AuthGate() {
     isAuthModalOpen,
     closeAuthModal,
   } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // If already authenticated and modal is not explicitly triggered to switch persona, don't show
+  const isPublicPage =
+    location.pathname === "/" ||
+    location.pathname === "/about" ||
+    location.pathname === "/architecture";
+  const isProtectedPage = !isPublicPage;
+
+  // 1. If already authenticated and modal is not explicitly triggered, do not render
   if (isAuthenticated && !isAuthModalOpen) {
     return null;
   }
 
+  // 2. If NOT authenticated, but on a public page and modal wasn't explicitly triggered:
+  // Allow user to view landing page freely!
+  if (!isAuthenticated && isPublicPage && !isAuthModalOpen) {
+    return null;
+  }
+
+  const handleDismiss = () => {
+    closeAuthModal();
+    if (isProtectedPage && !isAuthenticated) {
+      navigate("/");
+    }
+  };
+
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200"
       style={{
         backgroundColor: "rgba(5, 9, 18, 0.94)",
         backdropFilter: "blur(20px)",
@@ -64,17 +87,31 @@ export function AuthGate() {
             style={{ backgroundColor: "var(--color-accent-secondary, #3b82f6)" }}
           />
 
-          {/* Close button ONLY if already authenticated (allows switching/registering without lock) */}
-          {isAuthenticated && (
-            <button
-              onClick={closeAuthModal}
-              className="absolute top-5 right-5 text-xs font-mono text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] rounded-md border px-2 py-1 transition-all"
-              style={{ borderColor: "var(--color-border)" }}
-              title="Return to Dashboard"
-            >
-              ESC / Close
-            </button>
-          )}
+          {/* Dismiss button */}
+          <div className="absolute top-5 right-5 flex items-center gap-2">
+            {isProtectedPage && !isAuthenticated ? (
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="text-xs font-mono text-[var(--color-text-muted)] hover:text-cyan-400 rounded-lg border px-2.5 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer"
+                style={{ borderColor: "var(--color-border)", backgroundColor: "rgba(0,0,0,0.4)" }}
+                title="Return to Public Landing Page"
+              >
+                <ArrowLeft size={13} />
+                <span>Public Home</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="text-xs font-mono text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] rounded-lg border px-2.5 py-1.5 transition-all cursor-pointer"
+                style={{ borderColor: "var(--color-border)", backgroundColor: "rgba(0,0,0,0.4)" }}
+                title="Close Modal"
+              >
+                ESC / Close
+              </button>
+            )}
+          </div>
 
           {/* Header Banner */}
           <div className="flex flex-col items-center text-center mb-6">
@@ -94,7 +131,11 @@ export function AuthGate() {
 
             <div className="inline-flex items-center gap-2 rounded-full px-3 py-0.5 text-[10px] font-mono font-semibold uppercase tracking-widest text-cyan-400 border border-cyan-500/30 bg-cyan-950/40 mb-2">
               <Fingerprint size={12} />
-              <span>Sovereign Zero-Trust Identity Gateway</span>
+              <span>
+                {isProtectedPage && !isAuthenticated
+                  ? "Operational Clearance Required"
+                  : "Sovereign Zero-Trust Identity Gateway"}
+              </span>
             </div>
 
             <h2
@@ -104,7 +145,9 @@ export function AuthGate() {
               SHIELDNET CYBER COMMAND GATE
             </h2>
             <p className="mt-1 text-xs text-[var(--color-text-secondary)] max-w-md">
-              National Critical Information Infrastructure Protection (NTRO SIH26153). Valid security clearance credentials required to decrypt command console.
+              {isProtectedPage && !isAuthenticated
+                ? "Live network intrusion forecasting, simulation trajectories, and blockchain ledger evidence are restricted. Enter credentials or use quick evaluation personas below to unlock."
+                : "National Critical Information Infrastructure Protection (NTRO SIH26153). Valid security clearance credentials required to decrypt command console."}
             </p>
           </div>
 
@@ -119,7 +162,7 @@ export function AuthGate() {
             <button
               type="button"
               onClick={() => setAuthMode("login")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 authMode === "login"
                   ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -131,7 +174,7 @@ export function AuthGate() {
             <button
               type="button"
               onClick={() => setAuthMode("signup")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 authMode === "signup"
                   ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
                   : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
@@ -176,17 +219,34 @@ export function AuthGate() {
 // SIGN IN COMPONENT
 // -----------------------------------------------------------------------------
 function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, targetPath, setTargetPath } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [username, setUsername] = useState("admin@shieldnet.local");
   const [password, setPassword] = useState("Admin@123");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const handlePostAuthRedirect = () => {
+    if (targetPath) {
+      const dest = targetPath;
+      setTargetPath(null);
+      navigate(dest);
+    } else if (
+      location.pathname === "/" ||
+      location.pathname === "/about" ||
+      location.pathname === "/architecture"
+    ) {
+      navigate("/dashboard");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
     try {
       await login(username.trim(), password.trim());
+      handlePostAuthRedirect();
     } catch (err: any) {
       setErrorMsg(err?.message || "Invalid defense credentials. Please check or use quick personas.");
     }
@@ -198,6 +258,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
     setErrorMsg("");
     try {
       await login(userStr, passStr);
+      handlePostAuthRedirect();
     } catch (err: any) {
       setErrorMsg(err?.message || "Persona authentication failed.");
     }
@@ -255,7 +316,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] cursor-pointer"
             >
               {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>
@@ -286,7 +347,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
           ) : (
             <>
               <Key size={15} />
-              <span>Authenticate &amp; Decrypt Console</span>
+              <span>Authenticate &amp; Unlock Console</span>
             </>
           )}
         </button>
@@ -308,7 +369,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("admin@shieldnet.local", "Admin@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 group"
+            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-emerald-500/50 hover:bg-emerald-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
@@ -327,7 +388,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("analyst@shieldnet.local", "Analyst@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-blue-500/50 hover:bg-blue-500/5 group"
+            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-blue-500/50 hover:bg-blue-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
@@ -346,7 +407,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
             type="button"
             onClick={() => handleQuickPersona("auditor@shieldnet.local", "Auditor@123")}
             disabled={isLoading}
-            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-amber-500/50 hover:bg-amber-500/5 group"
+            className="flex flex-col text-left p-2.5 rounded-xl border transition-all hover:border-amber-500/50 hover:bg-amber-500/5 group cursor-pointer"
             style={{
               backgroundColor: "color-mix(in srgb, var(--color-base) 60%, transparent)",
               borderColor: "var(--color-border)",
@@ -366,7 +427,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         <button
           type="button"
           onClick={onSwitchMode}
-          className="text-xs text-cyan-400 hover:text-cyan-300 font-medium inline-flex items-center gap-1"
+          className="text-xs text-cyan-400 hover:text-cyan-300 font-medium inline-flex items-center gap-1 cursor-pointer"
         >
           <span>Need a new defense profile? Register New Operator</span>
           <ChevronRight size={13} />
@@ -380,13 +441,29 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
 // SIGN UP / NEW ENROLLMENT COMPONENT
 // -----------------------------------------------------------------------------
 function SignupForm({ onSwitchMode }: { onSwitchMode: () => void }) {
-  const { signup, isLoading } = useAuth();
+  const { signup, isLoading, targetPath, setTargetPath } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("SecOps_Analyst");
   const [department, setDepartment] = useState("NTRO Advanced Threat Unit");
   const [errorMsg, setErrorMsg] = useState("");
+
+  const handlePostAuthRedirect = () => {
+    if (targetPath) {
+      const dest = targetPath;
+      setTargetPath(null);
+      navigate(dest);
+    } else if (
+      location.pathname === "/" ||
+      location.pathname === "/about" ||
+      location.pathname === "/architecture"
+    ) {
+      navigate("/dashboard");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -410,6 +487,7 @@ function SignupForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         role,
         department: department.trim(),
       });
+      handlePostAuthRedirect();
     } catch (err: any) {
       setErrorMsg(err?.message || "Registration failed. Username may already exist.");
     }
@@ -564,7 +642,7 @@ function SignupForm({ onSwitchMode }: { onSwitchMode: () => void }) {
         <button
           type="button"
           onClick={onSwitchMode}
-          className="text-xs text-[var(--color-text-secondary)] hover:text-cyan-400 transition-colors"
+          className="text-xs text-[var(--color-text-secondary)] hover:text-cyan-400 transition-colors cursor-pointer"
         >
           Already enrolled? <span className="text-cyan-400 underline underline-offset-2">Switch to Sign In</span>
         </button>

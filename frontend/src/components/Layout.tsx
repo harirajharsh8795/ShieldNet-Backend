@@ -25,16 +25,25 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Live Demo", end: false },
 ];
 
+const PUBLIC_PATHS = ["/", "/about", "/architecture"];
+
+const isPublicRoute = (pathname: string) => {
+  return PUBLIC_PATHS.includes(pathname);
+};
+
 export function Layout({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const location = useLocation();
   const { isAuthenticated, openAuthModal } = useAuth();
 
-  const handleNavClick = (e: React.MouseEvent, _to: string) => {
-    if (!isAuthenticated) {
+  const isProtectedPage = !isPublicRoute(location.pathname);
+  const shouldBlockContent = isProtectedPage && !isAuthenticated;
+
+  const handleNavClick = (e: React.MouseEvent, to: string) => {
+    if (!isPublicRoute(to) && !isAuthenticated) {
       e.preventDefault();
-      openAuthModal("login");
+      openAuthModal("login", to);
       return;
     }
     setIsMobileNavOpen(false);
@@ -79,14 +88,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <Link
             to="/"
             className="flex items-center gap-3 shrink-0"
-            onClick={(e) => {
-              if (!isAuthenticated) {
-                e.preventDefault();
-                openAuthModal("login");
-              } else {
-                setIsMobileNavOpen(false);
-              }
-            }}
+            onClick={() => setIsMobileNavOpen(false)}
           >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-lg shadow-sm"
@@ -129,8 +131,14 @@ export function Layout({ children }: { children: ReactNode }) {
           {/* Right: Operational Status, Theme, & User Clearance Controls */}
           <div className="hidden items-center gap-3 lg:flex shrink-0">
             <button
-              onClick={() => setIsDownloadModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all shadow-sm"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  openAuthModal("login");
+                } else {
+                  setIsDownloadModalOpen(true);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all shadow-sm cursor-pointer"
               title="Deploy Local Defense Agents"
             >
               <Download size={13} />
@@ -194,9 +202,9 @@ export function Layout({ children }: { children: ReactNode }) {
       <main
         id="main-content"
         className={`relative z-10 mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 transition-all duration-300 ${
-          !isAuthenticated ? "pointer-events-none select-none blur-md opacity-25 filter grayscale" : ""
+          shouldBlockContent ? "pointer-events-none select-none blur-md opacity-25 filter grayscale" : ""
         }`}
-        aria-hidden={!isAuthenticated}
+        aria-hidden={shouldBlockContent}
       >
         {children}
       </main>
@@ -218,9 +226,9 @@ export function Layout({ children }: { children: ReactNode }) {
               Offline Neural World Model Architecture (Constraint C4 Compliant)
             </div>
             <div className="flex flex-wrap items-center gap-4 text-[var(--color-text-muted)]">
-              <Link to="/" onClick={(e) => handleNavClick(e, "/")} className="hover:text-[var(--color-text-primary)]">Home</Link>
-              <Link to="/about" onClick={(e) => handleNavClick(e, "/about")} className="hover:text-[var(--color-text-primary)]">About</Link>
-              <Link to="/architecture" onClick={(e) => handleNavClick(e, "/architecture")} className="hover:text-[var(--color-text-primary)]">Architecture</Link>
+              <Link to="/" className="hover:text-[var(--color-text-primary)]">Home</Link>
+              <Link to="/about" className="hover:text-[var(--color-text-primary)]">About</Link>
+              <Link to="/architecture" className="hover:text-[var(--color-text-primary)]">Architecture</Link>
               <Link to="/dashboard/explainability" onClick={(e) => handleNavClick(e, "/dashboard/explainability")} className="hover:text-[var(--color-text-primary)]">Explainability</Link>
               <Link to="/dashboard/baseline" onClick={(e) => handleNavClick(e, "/dashboard/baseline")} className="hover:text-[var(--color-text-primary)]">Baseline Comparison</Link>
               <Link to="/dashboard" onClick={(e) => handleNavClick(e, "/dashboard")} className="hover:text-[var(--color-text-primary)]">Live Demo</Link>
