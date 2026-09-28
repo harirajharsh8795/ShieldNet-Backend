@@ -102,7 +102,6 @@ export function HomePage() {
 
             <Link
               to="/certificate"
-              onClick={(e) => handleProtectedAction(e, "/certificate")}
               className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-4 py-3 text-sm font-semibold text-amber-300 transition-all hover:bg-amber-500/25 hover:border-amber-400 active:scale-[0.98] shadow-md shadow-amber-500/10"
             >
               <ShieldCheck size={16} className="text-amber-400" />
@@ -111,7 +110,6 @@ export function HomePage() {
 
             <Link
               to="/compare"
-              onClick={(e) => handleProtectedAction(e, "/compare")}
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium text-[var(--color-text-primary)] transition-all hover:border-[var(--color-normal)] hover:bg-[var(--color-panel-raised)] active:scale-[0.98]"
               style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}
             >

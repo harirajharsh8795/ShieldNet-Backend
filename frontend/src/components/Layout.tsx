@@ -25,10 +25,35 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Live Demo", end: false },
 ];
 
-const PUBLIC_PATHS = ["/", "/about", "/architecture"];
+// Auth gate applies ONLY to Live Demo and its operational tools (NetFlow sniffer, PCAP ingestion, K-step rollout, SOAR, Blockchain)
+export const isLiveDemoRoute = (pathname: string): boolean => {
+  // Publicly accessible pages (No login required)
+  if (
+    pathname === "/" ||
+    pathname === "/about" ||
+    pathname === "/architecture" ||
+    pathname === "/explainability" ||
+    pathname === "/dashboard/explainability" ||
+    pathname === "/baseline" ||
+    pathname === "/compare" ||
+    pathname === "/dashboard/baseline" ||
+    pathname === "/certificate" ||
+    pathname === "/dashboard/certificate" ||
+    pathname === "/section65b" ||
+    pathname === "/section63"
+  ) {
+    return false;
+  }
 
-const isPublicRoute = (pathname: string) => {
-  return PUBLIC_PATHS.includes(pathname);
+  // Restricted operational Live Demo routes
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname === "/live" ||
+    pathname === "/upload" ||
+    pathname === "/simulation" ||
+    pathname === "/alerts" ||
+    pathname === "/blockchain"
+  );
 };
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -37,13 +62,13 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { isAuthenticated, openAuthModal } = useAuth();
 
-  const isProtectedPage = !isPublicRoute(location.pathname);
+  const isProtectedPage = isLiveDemoRoute(location.pathname);
   const shouldBlockContent = isProtectedPage && !isAuthenticated;
 
   const handleNavClick = (e: React.MouseEvent, to: string) => {
-    if (!isPublicRoute(to) && !isAuthenticated) {
+    if (isLiveDemoRoute(to) && !isAuthenticated) {
       e.preventDefault();
-      openAuthModal("login", to);
+      openAuthModal("login", "/dashboard/live");
       return;
     }
     setIsMobileNavOpen(false);

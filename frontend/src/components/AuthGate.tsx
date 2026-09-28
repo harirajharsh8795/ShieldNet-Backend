@@ -30,11 +30,14 @@ export function AuthGate() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isPublicPage =
-    location.pathname === "/" ||
-    location.pathname === "/about" ||
-    location.pathname === "/architecture";
-  const isProtectedPage = !isPublicPage;
+  // Auth gate applies ONLY to Live Demo and its operational tools (NetFlow sniffer, PCAP ingestion, K-step rollout, SOAR, Blockchain)
+  const isProtectedPage =
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname === "/live" ||
+    location.pathname === "/upload" ||
+    location.pathname === "/simulation" ||
+    location.pathname === "/alerts" ||
+    location.pathname === "/blockchain";
 
   // 1. If already authenticated and modal is not explicitly triggered, do not render
   if (isAuthenticated && !isAuthModalOpen) {
@@ -42,17 +45,27 @@ export function AuthGate() {
   }
 
   // 2. If NOT authenticated, but on a public page and modal wasn't explicitly triggered:
-  // Allow user to view landing page freely!
-  if (!isAuthenticated && isPublicPage && !isAuthModalOpen) {
+  // Allow user to view public page freely!
+  if (!isAuthenticated && !isProtectedPage && !isAuthModalOpen) {
     return null;
   }
 
   const handleDismiss = () => {
     closeAuthModal();
-    if (isProtectedPage && !isAuthenticated) {
-      navigate("/");
-    }
+    // When backing out without login, ALWAYS return safely to the Landing Page (/)
+    navigate("/");
   };
+
+  // Keyboard Escape listener to safely return to Landing Page
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleDismiss();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div
@@ -61,6 +74,11 @@ export function AuthGate() {
         backgroundColor: "rgba(5, 9, 18, 0.94)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          handleDismiss();
+        }
       }}
       role="dialog"
       aria-modal="true"
@@ -87,30 +105,19 @@ export function AuthGate() {
             style={{ backgroundColor: "var(--color-accent-secondary, #3b82f6)" }}
           />
 
-          {/* Dismiss button */}
-          <div className="absolute top-5 right-5 flex items-center gap-2">
-            {isProtectedPage && !isAuthenticated ? (
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className="text-xs font-mono text-[var(--color-text-muted)] hover:text-cyan-400 rounded-lg border px-2.5 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer"
-                style={{ borderColor: "var(--color-border)", backgroundColor: "rgba(0,0,0,0.4)" }}
-                title="Return to Public Landing Page"
-              >
-                <ArrowLeft size={13} />
-                <span>Public Home</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleDismiss}
-                className="text-xs font-mono text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] rounded-lg border px-2.5 py-1.5 transition-all cursor-pointer"
-                style={{ borderColor: "var(--color-border)", backgroundColor: "rgba(0,0,0,0.4)" }}
-                title="Close Modal"
-              >
-                ESC / Close
-              </button>
-            )}
+          {/* Dismiss button: Always returns to Landing Page */}
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center gap-2">
+            <button
+              type="button"
+              id="auth-back-to-landing-btn"
+              onClick={handleDismiss}
+              className="text-xs font-mono text-[var(--color-text-muted)] hover:text-cyan-400 hover:border-cyan-500/50 rounded-xl border px-3 py-1.5 transition-all flex items-center gap-1.5 cursor-pointer bg-black/40 shadow-sm"
+              style={{ borderColor: "var(--color-border)" }}
+              title="Return to Public Landing Page"
+            >
+              <ArrowLeft size={13} />
+              <span>Back to Landing Page</span>
+            </button>
           </div>
 
           {/* Header Banner */}
@@ -192,9 +199,21 @@ export function AuthGate() {
             <SignupForm onSwitchMode={() => setAuthMode("login")} />
           )}
 
+          {/* Quick Return to Landing Page */}
+          <div className="mt-4 pt-3 border-t text-center" style={{ borderColor: "var(--color-border)" }}>
+            <button
+              type="button"
+              onClick={handleDismiss}
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--color-text-muted)] hover:text-cyan-400 hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={13} />
+              <span>Cancel &amp; Return to Public Landing Page</span>
+            </button>
+          </div>
+
           {/* Footer Security Badges */}
           <div
-            className="mt-6 pt-4 border-t flex flex-wrap items-center justify-between gap-3 text-[10px] text-[var(--color-text-muted)] font-mono"
+            className="mt-4 pt-4 border-t flex flex-wrap items-center justify-between gap-3 text-[10px] text-[var(--color-text-muted)] font-mono"
             style={{ borderColor: "var(--color-border)" }}
           >
             <div className="flex items-center gap-2">
@@ -219,8 +238,7 @@ export function AuthGate() {
 // SIGN IN COMPONENT
 // -----------------------------------------------------------------------------
 function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
-  const { login, isLoading, targetPath, setTargetPath } = useAuth();
-  const location = useLocation();
+  const { login, isLoading, targetPath, setTargetPath, closeAuthModal } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("soc-analyst@ntro.gov.in");
   const [password, setPassword] = useState("ShieldNet@Defense2026");
@@ -228,17 +246,10 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
   const [errorMsg, setErrorMsg] = useState("");
 
   const handlePostAuthRedirect = () => {
-    if (targetPath) {
-      const dest = targetPath;
-      setTargetPath(null);
-      navigate(dest);
-    } else if (
-      location.pathname === "/" ||
-      location.pathname === "/about" ||
-      location.pathname === "/architecture"
-    ) {
-      navigate("/dashboard");
-    }
+    const dest = targetPath || "/dashboard/live";
+    setTargetPath(null);
+    closeAuthModal();
+    navigate(dest);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -504,8 +515,7 @@ function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
 // SIGN UP / NEW ENROLLMENT COMPONENT
 // -----------------------------------------------------------------------------
 function SignupForm({ onSwitchMode }: { onSwitchMode: () => void }) {
-  const { signup, isLoading, targetPath, setTargetPath } = useAuth();
-  const location = useLocation();
+  const { signup, isLoading, targetPath, setTargetPath, closeAuthModal } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -515,17 +525,10 @@ function SignupForm({ onSwitchMode }: { onSwitchMode: () => void }) {
   const [errorMsg, setErrorMsg] = useState("");
 
   const handlePostAuthRedirect = () => {
-    if (targetPath) {
-      const dest = targetPath;
-      setTargetPath(null);
-      navigate(dest);
-    } else if (
-      location.pathname === "/" ||
-      location.pathname === "/about" ||
-      location.pathname === "/architecture"
-    ) {
-      navigate("/dashboard");
-    }
+    const dest = targetPath || "/dashboard/live";
+    setTargetPath(null);
+    closeAuthModal();
+    navigate(dest);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
