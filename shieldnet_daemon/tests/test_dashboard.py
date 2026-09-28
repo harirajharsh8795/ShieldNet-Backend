@@ -51,21 +51,42 @@ def dashboard_env(tmp_path):
     shap_vec_1[15] = 0.88  # Flow IAT Mean
     shap_vec_1[58] = 0.65  # SYN Flag Count
 
+    forecast_1 = [
+        {"step": 1, "step_ahead": "t+1", "threat_probability": 0.965, "predicted_class": "PortScan", "mitre_stage": 1, "mitre_tactic": "Discovery", "is_trigger": True},
+        {"step": 2, "step_ahead": "t+2", "threat_probability": 0.500, "predicted_class": "PortScan", "mitre_stage": 1, "mitre_tactic": "Discovery", "is_trigger": False},
+        {"step": 3, "step_ahead": "t+3", "threat_probability": 0.400, "predicted_class": "PortScan", "mitre_stage": 1, "mitre_tactic": "Discovery", "is_trigger": False},
+        {"step": 4, "step_ahead": "t+4", "threat_probability": 0.300, "predicted_class": "PortScan", "mitre_stage": 1, "mitre_tactic": "Discovery", "is_trigger": False},
+        {"step": 5, "step_ahead": "t+5", "threat_probability": 0.200, "predicted_class": "PortScan", "mitre_stage": 1, "mitre_tactic": "Discovery", "is_trigger": False},
+    ]
+
     rec1 = ledger.append_record(
         prediction="PortScan",
         threat_probability=0.965,
         mitre_stage=1,
         mitre_tactic="Discovery / Reconnaissance",
         severity="HIGH",
-        shap_summary="top_drivers: Flow IAT Mean, SYN Flag Count",
+        shap_summary=json.dumps({
+            "triggering_step": 1,
+            "triggering_step_ahead": "t+1",
+            "k_step_forecast": forecast_1,
+            "top_drivers": ["Flow IAT Mean (+0.8800)", "SYN Flag Count (+0.6500)"],
+        }),
         shap_vector=shap_vec_1,
         timestamp=time.time() - 10.0,
     )
 
-    # 2. Second record: DDoS SYN Flood
+    # 2. Second record: DDoS SYN Flood (Early triggered at t+3)
     shap_vec_2 = np.zeros(len(CANONICAL_84_FEATURES), dtype=np.float32)
     shap_vec_2[29] = 0.95  # Flow Packets/s
     shap_vec_2[44] = 0.72  # Fwd PSH Flags
+
+    forecast_2 = [
+        {"step": 1, "step_ahead": "t+1", "threat_probability": 0.600, "predicted_class": "BENIGN", "mitre_stage": 0, "mitre_tactic": "Normal Operations", "is_trigger": False},
+        {"step": 2, "step_ahead": "t+2", "threat_probability": 0.700, "predicted_class": "DDoS", "mitre_stage": 4, "mitre_tactic": "Lateral Movement", "is_trigger": False},
+        {"step": 3, "step_ahead": "t+3", "threat_probability": 0.992, "predicted_class": "DDoS", "mitre_stage": 5, "mitre_tactic": "Impact / Denial of Service", "is_trigger": True},
+        {"step": 4, "step_ahead": "t+4", "threat_probability": 0.980, "predicted_class": "DDoS", "mitre_stage": 5, "mitre_tactic": "Impact / Denial of Service", "is_trigger": False},
+        {"step": 5, "step_ahead": "t+5", "threat_probability": 0.950, "predicted_class": "DDoS", "mitre_stage": 5, "mitre_tactic": "Impact / Denial of Service", "is_trigger": False},
+    ]
 
     rec2 = ledger.append_record(
         prediction="DDoS",
@@ -73,7 +94,12 @@ def dashboard_env(tmp_path):
         mitre_stage=5,
         mitre_tactic="Impact / Denial of Service",
         severity="CRITICAL",
-        shap_summary="top_drivers: Flow Packets/s, Fwd PSH Flags",
+        shap_summary=json.dumps({
+            "triggering_step": 3,
+            "triggering_step_ahead": "t+3",
+            "k_step_forecast": forecast_2,
+            "top_drivers": ["Flow Packets/s (+0.9500)", "Fwd PSH Flags (+0.7200)"],
+        }),
         shap_vector=shap_vec_2,
         timestamp=time.time() - 2.0,
     )
@@ -92,6 +118,7 @@ def dashboard_env(tmp_path):
         "total_alerts": 2,
         "memory_rss_mb": 185.4,
         "cpu_percent": 1.2,
+        "latest_forecast": forecast_2,
     }
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status_data, f)
@@ -153,6 +180,9 @@ def test_dashboard_index_html_serving(dashboard_env):
     assert "ShieldNet // AI Command Center" in html_text
     assert "AIR-GAP OFFLINE" in html_text
     assert "TAMPER-EVIDENT ACTION LEDGER" in html_text
+    assert "AUTOREGRESSIVE K=5 FORWARD THREAT TRAJECTORY" in html_text
+    assert "Trigger Horizon" in html_text
+    assert "Ledger Retention Policy" in html_text
 
 
 def test_dashboard_api_status_live_and_offline(dashboard_env):
@@ -257,3 +287,100 @@ def test_dashboard_api_stats_aggregation(dashboard_env):
     assert stats["severity_distribution"] == {"CRITICAL": 1, "HIGH": 1}
     assert "Stage 1: Discovery / Reconnaissance" in stats["mitre_distribution"]
     assert "Stage 5: Impact / Denial of Service" in stats["mitre_distribution"]
+    assert "ledger_capacity" in stats
+    assert stats["ledger_capacity"]["total_records"] == 2
+
+
+def test_dashboard_k_step_forecast_endpoints(dashboard_env):
+    """Verifies that K=5 forward threat trajectory is served across status, ledger list, and detail."""
+    # 1. /api/status has latest_forecast
+    status_url = f"{dashboard_env['base_url']}/api/status"
+    st, body, _ = fetch_url(status_url)
+    assert st == 200
+    st_data = json.loads(body.decode("utf-8"))
+    assert "latest_forecast" in st_data
+    assert len(st_data["latest_forecast"]) == 5
+    assert st_data["latest_forecast"][2]["step_ahead"] == "t+3"
+    assert st_data["latest_forecast"][2]["is_trigger"] is True
+
+    # 2. /api/ledger returns triggering_step and k_step_forecast
+    ledger_url = f"{dashboard_env['base_url']}/api/ledger?limit=5"
+    st, body, _ = fetch_url(ledger_url)
+    assert st == 200
+    records = json.loads(body.decode("utf-8"))
+    assert len(records) == 2
+    # rec2 triggered at t+3
+    assert records[0]["triggering_step"] == 3
+    assert records[0]["triggering_step_ahead"] == "t+3"
+    assert len(records[0]["k_step_forecast"]) == 5
+
+    # rec1 triggered at t+1
+    assert records[1]["triggering_step"] == 1
+    assert records[1]["triggering_step_ahead"] == "t+1"
+
+    # 3. /api/ledger/record/2 returns detailed forecast
+    detail_url = f"{dashboard_env['base_url']}/api/ledger/record/2"
+    st, body, _ = fetch_url(detail_url)
+    assert st == 200
+    rec_detail = json.loads(body.decode("utf-8"))
+    assert rec_detail["triggering_step"] == 3
+    assert rec_detail["triggering_step_ahead"] == "t+3"
+    assert len(rec_detail["k_step_forecast"]) == 5
+    assert rec_detail["k_step_forecast"][2]["predicted_class"] == "DDoS"
+
+
+def test_dashboard_ledger_row_capping_and_stats(tmp_path):
+    """Verifies dashboard stats, list, and verification work with capped ledger and rolling anchor."""
+    db_path = tmp_path / "capped_ledger.db"
+    status_path = tmp_path / "capped_status.json"
+    port = get_free_port()
+
+    # Create capped ledger with max_records=3
+    ledger = ActionLedger(db_path=db_path, max_records=3)
+    for i in range(1, 6):
+        ledger.append_record(
+            prediction="PortScan",
+            threat_probability=0.90,
+            mitre_stage=1,
+            mitre_tactic="Discovery",
+            severity="HIGH",
+            shap_summary=json.dumps({"triggering_step": 1, "triggering_step_ahead": "t+1"}),
+        )
+
+    # Total appended = 5, but capped at 3 -> 2 pruned
+    assert ledger.count_records() == 3
+
+    server = DashboardServer(host="127.0.0.1", port=port, db_path=db_path, status_path=status_path)
+    server.start(block=False)
+    time.sleep(0.3)
+
+    try:
+        base_url = f"http://127.0.0.1:{port}"
+
+        # /api/stats should show capacity and pruned count
+        st, body, _ = fetch_url(f"{base_url}/api/stats")
+        assert st == 200
+        stats = json.loads(body.decode("utf-8"))
+        assert stats["total_records"] == 3
+        cap = stats["ledger_capacity"]
+        assert cap["max_records"] == 3
+        assert cap["pruned_records"] == 2
+        assert "Capped at 3 rows" in cap["retention_policy"]
+
+        # /api/ledger/verify should succeed anchored at rolling checkpoint
+        st, body, _ = fetch_url(f"{base_url}/api/ledger/verify")
+        assert st == 200
+        audit = json.loads(body.decode("utf-8"))
+        assert audit["is_valid"] is True
+        assert audit["verified_count"] == 3
+        assert audit["total_records"] == 3
+
+        # /api/ledger should return exactly 3 retained records
+        st, body, _ = fetch_url(f"{base_url}/api/ledger")
+        assert st == 200
+        records = json.loads(body.decode("utf-8"))
+        assert len(records) == 3
+        assert records[0]["id"] == 5
+        assert records[2]["id"] == 3
+    finally:
+        server.stop()

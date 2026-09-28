@@ -34,10 +34,20 @@ dataset/
 models/checkpoints/*.pt
 models/checkpoints/*.pth
 models/checkpoints/*.joblib
+models/checkpoints/*.npz
+models/onnx/*.onnx
 !models/checkpoints/world_model_v1.pt
 !models/checkpoints/ensemble_logreg.joblib
 !models/checkpoints/scaler.joblib
 !models/checkpoints/.gitkeep
+!models/onnx/.gitkeep
+
+# Daemon-specific sensitive files
+shieldnet_daemon/data/
+shieldnet_daemon/dist/
+shieldnet_daemon/build/
+shieldnet_daemon/build_spec/
+shieldnet_daemon/scripts/_debug_*.py
 
 
 # IDE
@@ -62,3 +72,5 @@ scratch/
 .env
 *.db
 *.sqlite
+.ipc_token
+*.ipc_token

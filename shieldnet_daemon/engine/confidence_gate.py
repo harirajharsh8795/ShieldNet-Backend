@@ -120,19 +120,24 @@ class ConfidenceGate:
         self,
         wm_step_output: Dict[str, Any],
         current_state: np.ndarray,
-        k_step_rollout: Optional[List[float]] = None
+        k_step_rollout: Optional[Union[List[float], Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
         """
         Evaluates the confidence gate on a single window.
         
+        Scans both the immediate next-step prediction and the autoregressive K-step
+        forward rollout. An alert is raised if either the immediate step OR any
+        of the K predicted future steps crosses the threat confidence threshold.
+        The earliest step that crosses the threshold is reported as the triggering step.
+        
         Args:
             wm_step_output: Output from ONNXInferenceEngine.predict_step().
             current_state: Array of shape (84,) representing latest state S_t.
-            k_step_rollout: Optional K=5 rollout threat probabilities.
+            k_step_rollout: Optional K=5 rollout threat probabilities or full rollout dict.
             
         Returns:
             Dict containing final gated detection, blending action, probabilities,
-            and binary 'is_flagged' decision for downstream SHAP / Ledger.
+            triggering step info, and binary 'is_flagged' decision for downstream SHAP / Ledger.
         """
         p_wm = np.asarray(wm_step_output["class_probs"], dtype=np.float32)
         p_lr = self.predict_logreg_proba(current_state)
@@ -163,28 +168,107 @@ class ConfidenceGate:
         mitre_stage = int(wm_step_output.get("mitre_stage", 0))
         mitre_tactic = MITRE_STAGES.get(mitre_stage, "Normal Operations")
 
-        # Binary flagging decision (high-precision gate):
-        # Flag ONLY if threat probability >= threshold AND predicted class is non-benign.
-        # Using AND (not OR) avoids false-positive alerts on uncertain-but-likely-benign windows.
-        is_flagged = bool((threat_prob >= self.threat_threshold) and (pred_class_idx != 0))
+        # Binary flagging decision on immediate step (step 1 / t+1):
+        # Flag if threat probability >= threshold AND predicted class is non-benign.
+        step1_flagged = bool((threat_prob >= self.threat_threshold) and (pred_class_idx != 0))
 
-        # Determine alert severity
+        # Parse rollout trajectory inputs (handles float list or full rollout dict)
+        if isinstance(k_step_rollout, dict):
+            rollout_probs = [float(p) for p in k_step_rollout.get("k_step_rollout", [])]
+            rollout_mitre = k_step_rollout.get("mitre_trajectory", [])
+            rollout_classes = k_step_rollout.get("predicted_classes", [])
+            rollout_states = k_step_rollout.get("predicted_states", None)
+        elif isinstance(k_step_rollout, (list, tuple)):
+            rollout_probs = [float(p) for p in k_step_rollout]
+            rollout_mitre = []
+            rollout_classes = []
+            rollout_states = None
+        else:
+            rollout_probs = []
+            rollout_mitre = []
+            rollout_classes = []
+            rollout_states = None
+
+        is_flagged = False
+        triggering_step = None
+        triggering_step_ahead = None
+        alert_threat_prob = threat_prob
+        alert_class = pred_class_label
+        alert_mitre_stage = mitre_stage
+        alert_mitre_tactic = mitre_tactic
+
+        if step1_flagged:
+            is_flagged = True
+            triggering_step = 1
+            triggering_step_ahead = "t+1"
+            alert_threat_prob = threat_prob
+        elif rollout_probs:
+            # Scan across all K steps of the rollout for the earliest forward threshold crossing
+            for idx, p_step in enumerate(rollout_probs):
+                step_num = idx + 1
+                # If step_num is 1, it was already evaluated in Step 4a above
+                if step_num == 1:
+                    continue
+
+                forward_class = rollout_classes[idx] if idx < len(rollout_classes) else None
+                forward_mitre = int(rollout_mitre[idx]) if idx < len(rollout_mitre) else None
+
+                # If the forward step was explicitly predicted as BENIGN, it is not an attack
+                if forward_class == "BENIGN":
+                    continue
+
+                # If the forward step is at MITRE stage 0 (Normal Operations) and current traffic is benign, skip
+                if forward_mitre == 0 and pred_class_idx == 0:
+                    continue
+
+                if p_step >= self.threat_threshold:
+                    # If forward_class was provided, it must be a recognized attack class
+                    if forward_class is not None and (forward_class not in ATTACK_CLASSES or forward_class == "BENIGN"):
+                        continue
+
+                    is_flagged = True
+                    triggering_step = step_num
+                    triggering_step_ahead = f"t+{step_num}"
+                    alert_threat_prob = float(p_step)
+
+                    if forward_class in ATTACK_CLASSES and forward_class != "BENIGN":
+                        alert_class = forward_class
+                    elif pred_class_idx != 0:
+                        alert_class = pred_class_label
+                    else:
+                        highest_attack_idx = int(np.argmax(p_blended[1:]) + 1)
+                        alert_class = ATTACK_CLASSES[highest_attack_idx]
+
+                    if forward_mitre is not None:
+                        alert_mitre_stage = forward_mitre
+                        alert_mitre_tactic = MITRE_STAGES.get(forward_mitre, f"Stage {forward_mitre}")
+                    elif idx < len(rollout_mitre):
+                        alert_mitre_stage = int(rollout_mitre[idx])
+                        alert_mitre_tactic = MITRE_STAGES.get(alert_mitre_stage, f"Stage {alert_mitre_stage}")
+                    break
+
+        alert_class_idx = ATTACK_CLASSES.index(alert_class) if alert_class in ATTACK_CLASSES else pred_class_idx
+
+        # Determine alert severity based on the triggering alert parameters
         if not is_flagged:
             severity = "CLEAN"
-        elif threat_prob >= 0.85 or mitre_stage >= 4:
+        elif alert_threat_prob >= 0.85 or alert_mitre_stage >= 4:
             severity = "HIGH"
-        elif threat_prob >= 0.50 or mitre_stage >= 2:
+        elif alert_threat_prob >= 0.50 or alert_mitre_stage >= 2:
             severity = "MEDIUM"
         else:
             severity = "LOW"
 
         return {
             "is_flagged": is_flagged,
-            "threat_probability": round(threat_prob, 4),
-            "predicted_class": pred_class_label,
-            "predicted_class_idx": pred_class_idx,
-            "mitre_stage": mitre_stage,
-            "mitre_tactic": mitre_tactic,
+            "triggering_step": triggering_step,
+            "triggering_step_ahead": triggering_step_ahead,
+            "threat_probability": round(alert_threat_prob, 4),
+            "immediate_threat_probability": round(threat_prob, 4),
+            "predicted_class": alert_class,
+            "predicted_class_idx": alert_class_idx,
+            "mitre_stage": alert_mitre_stage,
+            "mitre_tactic": alert_mitre_tactic,
             "severity": severity,
             "gating_action": gating_action,
             "wm_confidence": round(conf_wm, 4),
@@ -192,6 +276,6 @@ class ConfidenceGate:
             "blended_probs": p_blended,
             "wm_probs": p_wm,
             "lr_probs": p_lr,
-            "k_step_rollout": k_step_rollout or wm_step_output.get("k_step_rollout", []),
+            "k_step_rollout": rollout_probs if rollout_probs else (wm_step_output.get("k_step_rollout", [])),
             "timestamp": time.time(),
         }

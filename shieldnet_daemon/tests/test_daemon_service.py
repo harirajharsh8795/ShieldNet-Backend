@@ -251,3 +251,118 @@ def test_traffic_simulator_generators():
     assert len(fwd_bot) == 5
     for p in fwd_bot:
         assert p.payload_length == 32  # Constant 32-byte encrypted heartbeat
+
+
+def test_daemon_k_step_forward_alerting_trigger(temp_daemon_env):
+    """
+    Verifies that the running daemon triggers an alert when immediate traffic is benign,
+    but the forward K-step rollout forecast crosses the threshold at step 3 or 4.
+    Confirms that the triggering step is logged in the alert, status, and ledger.
+    """
+    daemon = temp_daemon_env
+    daemon.start(block=False)
+
+    original_predict_step = daemon.inference_engine.predict_step
+    original_rollout = daemon.inference_engine.rollout
+
+    benign_wm_probs = np.zeros(13, dtype=np.float32)
+    benign_wm_probs[0] = 0.95
+    benign_wm_probs[1] = 0.05
+
+    def mock_predict_step(seq):
+        res = original_predict_step(seq)
+        res["class_probs"] = benign_wm_probs
+        res["predicted_class_label"] = "BENIGN"
+        res["predicted_class_idx"] = 0
+        res["mitre_stage"] = 0
+        res["infiltration_prob"] = 0.15
+        return res
+
+    def mock_rollout(seq, k_steps=5):
+        return {
+            "k_step_rollout": [0.15, 0.25, 0.89, 0.92, 0.95],
+            "mitre_trajectory": [0, 1, 3, 4, 5],
+            "predicted_classes": ["BENIGN", "BENIGN", "DDoS", "DDoS", "DDoS"],
+            "predicted_states": np.zeros((k_steps, 84), dtype=np.float32),
+            "k_steps": k_steps,
+        }
+
+    daemon.inference_engine.predict_step = mock_predict_step
+    daemon.inference_engine.rollout = mock_rollout
+
+    try:
+        # Ingest packets to form a flow sequence
+        pkts = generate_benign_traffic(num_packets=30)
+        daemon.inject_packets(pkts)
+
+        # Wait for daemon processing loop
+        time.sleep(2.5)
+
+        # Check that the daemon raised the alert based on forward step 3
+        records = daemon.ledger.get_recent_records(limit=10)
+        assert len(records) > 0, "Alert must be raised when forward rollout crosses threshold at step 3"
+
+        alert = records[0]
+        assert alert.threat_probability == 0.89
+        assert alert.prediction == "DDoS"
+
+        # Check status and last_alert
+        st = daemon.get_status()
+        assert st["last_alert"] is not None
+        assert st["last_alert"]["triggering_step"] == 3
+        assert st["last_alert"]["triggering_step_ahead"] == "t+3"
+
+        # Check SHAP summary in the ledger record has triggering step
+        shap_data = json.loads(alert.shap_summary)
+        assert shap_data["triggering_step"] == 3
+        assert shap_data["triggering_step_ahead"] == "t+3"
+
+    finally:
+        daemon.inference_engine.predict_step = original_predict_step
+        daemon.inference_engine.rollout = original_rollout
+        daemon.stop()
+
+
+def test_daemon_telemetry_summary_and_verbose_gating(tmp_path):
+    """Verifies that get_telemetry_summary() returns minimal status info and verbose is gated properly."""
+    db_path = tmp_path / "summary_ledger.db"
+    status_path = tmp_path / "summary_status.json"
+
+    # Default configuration: verbose must be False, console_status True
+    cfg_default = DaemonConfig(
+        db_path=db_path,
+        status_path=status_path,
+        mock_mode=True,
+    )
+    assert cfg_default.verbose is False
+    assert cfg_default.console_status is True
+
+    daemon = ShieldNetDaemon(cfg_default)
+    try:
+        summary = daemon.get_telemetry_summary()
+        assert "state" in summary
+        assert "packets" in summary
+        assert "flows" in summary
+        assert "alerts" in summary
+        assert "threat_prob" in summary
+        assert "threat_level" in summary
+        assert summary["packets"] == 0
+        assert summary["alerts"] == 0
+        assert summary["threat_prob"] == 0.0
+        assert summary["threat_level"] == "Nominal"
+
+        # Explicitly configure with verbose=True
+        cfg_verbose = DaemonConfig(
+            db_path=tmp_path / "verb_ledger.db",
+            status_path=tmp_path / "verb_status.json",
+            mock_mode=True,
+            verbose=True,
+        )
+        assert cfg_verbose.verbose is True
+        daemon_verbose = ShieldNetDaemon(cfg_verbose)
+        assert daemon_verbose.config.verbose is True
+    finally:
+        if daemon._running:
+            daemon.stop()
+
+

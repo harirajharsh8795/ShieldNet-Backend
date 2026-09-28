@@ -160,5 +160,94 @@ def test_end_to_end_onnx_and_confidence_gate(onnx_engine, confidence_gate):
     assert len(gate_out["k_step_rollout"]) == 5
 
 
+def test_k_step_rollout_forward_alert_step_3(confidence_gate):
+    """
+    Verifies that when immediate step (t+1) is clean/benign, but the K-step rollout
+    crosses the threshold at forward step 3 (t+3), the confidence gate raises an alert
+    and correctly reports triggering_step=3 and triggering_step_ahead='t+3'.
+    """
+    wm_probs = np.zeros(13, dtype=np.float32)
+    wm_probs[0] = 0.95   # BENIGN on immediate step
+    wm_probs[1] = 0.05
+
+    wm_step_out = {
+        "class_probs": wm_probs,
+        "mitre_stage": 0,
+        "predicted_next_state": np.zeros(84, dtype=np.float32),
+    }
+    current_state = np.zeros(84, dtype=np.float32)
+
+    # Threshold is 0.80 by default. Steps 1 and 2 are low, Step 3 crosses at 0.85
+    rollout_traj = {
+        "k_step_rollout": [0.10, 0.25, 0.85, 0.90, 0.92],
+        "mitre_trajectory": [0, 1, 3, 4, 5],
+        "predicted_classes": ["BENIGN", "BENIGN", "DDoS", "DDoS", "DDoS"],
+    }
+
+    eval_res = confidence_gate.evaluate_window(wm_step_out, current_state, k_step_rollout=rollout_traj)
+
+    assert eval_res["is_flagged"] is True, "Alert must trigger on forward step 3"
+    assert eval_res["triggering_step"] == 3, f"Expected triggering step 3, got {eval_res['triggering_step']}"
+    assert eval_res["triggering_step_ahead"] == "t+3"
+    assert eval_res["threat_probability"] == 0.85
+    assert eval_res["predicted_class"] == "DDoS"
+    assert eval_res["mitre_stage"] == 3
+    assert eval_res["severity"] == "HIGH"
+
+
+def test_k_step_rollout_forward_alert_step_4(confidence_gate):
+    """
+    Verifies that when immediate step (t+1) and steps 2-3 are clean, but forward step 4
+    crosses the threshold, the alert triggers with triggering_step=4.
+    """
+    wm_probs = np.zeros(13, dtype=np.float32)
+    wm_probs[0] = 0.98   # BENIGN on immediate step
+    wm_probs[2] = 0.02
+
+    wm_step_out = {
+        "class_probs": wm_probs,
+        "mitre_stage": 0,
+        "predicted_next_state": np.zeros(84, dtype=np.float32),
+    }
+    current_state = np.zeros(84, dtype=np.float32)
+
+    # Threshold is 0.80 by default. Only Step 4 crosses at 0.88
+    rollout_list = [0.05, 0.12, 0.35, 0.88, 0.92]
+
+    eval_res = confidence_gate.evaluate_window(wm_step_out, current_state, k_step_rollout=rollout_list)
+
+    assert eval_res["is_flagged"] is True, "Alert must trigger on forward step 4"
+    assert eval_res["triggering_step"] == 4, f"Expected triggering step 4, got {eval_res['triggering_step']}"
+    assert eval_res["triggering_step_ahead"] == "t+4"
+    assert eval_res["threat_probability"] == 0.88
+    assert eval_res["severity"] == "HIGH"
+
+
+def test_k_step_rollout_all_below_threshold_clean(confidence_gate):
+    """
+    Verifies that when all K steps in rollout stay below threshold, no alert is raised.
+    """
+    wm_probs = np.zeros(13, dtype=np.float32)
+    wm_probs[0] = 0.98   # BENIGN on immediate step
+    wm_probs[2] = 0.02
+
+    wm_step_out = {
+        "class_probs": wm_probs,
+        "mitre_stage": 0,
+        "predicted_next_state": np.zeros(84, dtype=np.float32),
+    }
+    current_state = np.zeros(84, dtype=np.float32)
+
+    # All below threshold 0.80
+    rollout_list = [0.05, 0.10, 0.20, 0.35, 0.45]
+
+    eval_res = confidence_gate.evaluate_window(wm_step_out, current_state, k_step_rollout=rollout_list)
+
+    assert eval_res["is_flagged"] is False
+    assert eval_res["triggering_step"] is None
+    assert eval_res["triggering_step_ahead"] is None
+    assert eval_res["severity"] == "CLEAN"
+
+
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

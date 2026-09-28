@@ -346,10 +346,11 @@ def run_simulation(scenario: str, target_daemon: bool = False, count: int = 50):
 
     logger.info("Generated %d synthetic packets successfully.", len(packets))
 
-    if target_daemon:
-        from daemon.ipc_bridge import IPCClient
-        token_file = PROJECT_DIR / "data" / ".ipc_token"
+    token_file = PROJECT_DIR / "data" / ".ipc_token"
+    should_inject = target_daemon or token_file.exists()
 
+    if should_inject:
+        from daemon.ipc_bridge import IPCClient
         try:
             client = IPCClient(token_path=token_file)
             resp = client.inject_packets(packets)
@@ -362,12 +363,14 @@ def run_simulation(scenario: str, target_daemon: bool = False, count: int = 50):
             else:
                 logger.error("[IPC] Daemon returned error: %s", resp.get("error", "Unknown error"))
         except (ConnectionRefusedError, ConnectionError, FileNotFoundError, OSError) as exc:
-            logger.warning(
-                "[IPC] Could not connect to running daemon on 127.0.0.1:49152 (%s). "
-                "Ensure the daemon is running in demo mode: "
-                "'shieldnet daemon run --mock --enable-ipc' (or python cli.py daemon run --mock --enable-ipc).",
-                exc,
-            )
+            if target_daemon:
+                logger.warning(
+                    "[IPC] Could not connect to running daemon on 127.0.0.1:49152 (%s). "
+                    "Ensure the daemon is running in demo mode: 'python cli.py daemon run --mock'.",
+                    exc,
+                )
+            else:
+                logger.info("[Simulate] Daemon IPC bridge not running; generated %d packets offline.", len(packets))
 
 
 if __name__ == "__main__":

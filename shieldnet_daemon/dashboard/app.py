@@ -59,27 +59,53 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("%s - - [%s] %s", self.address_string(), self.log_date_time_string(), format % args)
 
+    def _validate_host_header(self) -> bool:
+        """Validates that incoming Host header matches loopback to prevent DNS rebinding attacks."""
+        host_header = self.headers.get("Host", "")
+        if not host_header:
+            return True
+        host_name = host_header.split(":")[0].strip().lower()
+        if host_name not in ("127.0.0.1", "localhost", "::1"):
+            logger.warning("[Security] Rejected request with suspicious Host header: %s", host_header)
+            return False
+        return True
+
+    def _apply_security_headers(self):
+        """Injects strict defensive HTTP security headers into all responses."""
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Security-Policy", "default-src 'self' 'unsafe-inline' data:; connect-src 'self';")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+
+        # Restrict CORS to localhost only (prevents malicious websites from querying local API)
+        origin = self.headers.get("Origin", "")
+        if origin:
+            parsed = urlparse(origin)
+            if parsed.hostname in ("127.0.0.1", "localhost", "::1"):
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Vary", "Origin")
+
     def _send_json(self, data: Any, status_code: int = 200):
-        """Sends a JSON response with proper headers."""
+        """Sends a JSON response with defensive security headers."""
         try:
             body = json.dumps(data, indent=2).encode("utf-8")
             self.send_response(status_code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            self._apply_security_headers()
             self.end_headers()
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError):
             pass
 
     def _send_html(self, html_content: str, status_code: int = 200):
-        """Sends an HTML response."""
+        """Sends an HTML response with defensive security headers."""
         body = html_content.encode("utf-8")
         self.send_response(status_code)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+        self._apply_security_headers()
         self.end_headers()
         self.wfile.write(body)
 
@@ -87,8 +113,24 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
         """Sends a standardized JSON error message."""
         self._send_json({"error": message, "status": status_code}, status_code=status_code)
 
+    def do_OPTIONS(self):
+        """Handles CORS preflight strictly for localhost origins."""
+        if not self._validate_host_header():
+            self.send_response(403)
+            self.end_headers()
+            return
+        self.send_response(204)
+        self._apply_security_headers()
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.end_headers()
+
     def do_GET(self):
-        """Dispatches incoming GET requests to appropriate handlers."""
+        """Dispatches incoming GET requests after verifying Host header authenticity."""
+        if not self._validate_host_header():
+            self._send_error("Forbidden: Invalid Host header (DNS Rebinding Defense)", 403)
+            return
+
         parsed = urlparse(self.path)
         path = parsed.path
         query = parse_qs(parsed.query)
@@ -133,12 +175,16 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
                 "message": "Daemon status heartbeat not found. Daemon may not be running.",
                 "total_packets_captured": 0,
                 "total_alerts": 0,
+                "latest_forecast": [],
             })
             return
 
         try:
             with open(self.status_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
+
+            if "latest_forecast" not in data:
+                data["latest_forecast"] = []
 
             pid = data.get("pid")
             is_alive = False
@@ -162,6 +208,7 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
             self._send_json({
                 "status": "ERROR",
                 "process_alive": False,
+                "latest_forecast": [],
                 "error": str(exc),
             })
 
@@ -195,6 +242,22 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
                 # Omit full 84-vector in list view to keep payload sub-millisecond
                 d["shap_vector"] = None
                 d["has_shap"] = r.shap_vector is not None
+
+                # Extract triggering step and K-step forecast summary
+                triggering_step = 1
+                triggering_step_ahead = "t+1"
+                k_step_forecast = []
+                if r.shap_summary:
+                    try:
+                        s_data = json.loads(r.shap_summary)
+                        triggering_step = s_data.get("triggering_step", 1)
+                        triggering_step_ahead = s_data.get("triggering_step_ahead", f"t+{triggering_step}")
+                        k_step_forecast = s_data.get("k_step_forecast", [])
+                    except Exception:
+                        pass
+                d["triggering_step"] = triggering_step
+                d["triggering_step_ahead"] = triggering_step_ahead
+                d["k_step_forecast"] = k_step_forecast
                 results.append(d)
 
             self._send_json(results)
@@ -225,6 +288,25 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
                 return
 
             res = record.to_dict()
+
+            # Extract triggering step, forecast rollout, and tier 2 corroboration
+            triggering_step = 1
+            triggering_step_ahead = "t+1"
+            k_step_forecast = []
+            tier2_corroboration = None
+            if record.shap_summary:
+                try:
+                    s_data = json.loads(record.shap_summary)
+                    triggering_step = s_data.get("triggering_step", 1)
+                    triggering_step_ahead = s_data.get("triggering_step_ahead", f"t+{triggering_step}")
+                    k_step_forecast = s_data.get("k_step_forecast", [])
+                    tier2_corroboration = s_data.get("tier2_corroboration", None)
+                except Exception:
+                    pass
+            res["triggering_step"] = triggering_step
+            res["triggering_step_ahead"] = triggering_step_ahead
+            res["k_step_forecast"] = k_step_forecast
+            res["tier2_corroboration"] = tier2_corroboration
 
             # Compute top SHAP feature drivers
             top_drivers = []
@@ -321,6 +403,12 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
             stats["attack_distribution"] = attack_dist
             stats["mitre_distribution"] = mitre_dist
             stats["severity_distribution"] = sev_dist
+            stats["ledger_capacity"] = {
+                "max_records": stats.get("max_records"),
+                "total_records": stats.get("total_records", 0),
+                "pruned_records": stats.get("pruned_records", 0),
+                "retention_policy": f"Capped at {stats.get('max_records')} rows" if stats.get("max_records") else "Unlimited",
+            }
             self._send_json(stats)
         except Exception as exc:
             logger.error("Error aggregating stats: %s", exc)

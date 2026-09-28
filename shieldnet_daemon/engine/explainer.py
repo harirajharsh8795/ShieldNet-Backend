@@ -211,6 +211,8 @@ class GatedSHAPExplainer:
             "threat_probability": round(threat_prob, 4),
             "mitre_stage": mitre_stage,
             "mitre_tactic": mitre_tactic,
+            "triggering_step": gate_result.get("triggering_step", 1),
+            "triggering_step_ahead": gate_result.get("triggering_step_ahead", "t+1"),
             "top_features": [
                 {
                     "rank": f["rank"],

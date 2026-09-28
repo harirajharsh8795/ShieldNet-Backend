@@ -56,6 +56,19 @@ def test_cli_argument_parser_subcommands():
     assert args.daemon_action == "run"
     assert args.mock is True
     assert args.interface == "eth0"
+    assert args.verbose is False
+    assert args.debug is False
+
+    # 1b. Daemon run with --verbose and --debug
+    args_verb = parser.parse_args(["daemon", "run", "--verbose"])
+    assert args_verb.verbose is True
+    assert args_verb.debug is False
+
+    args_dbg = parser.parse_args(["daemon", "run", "-v"])
+    assert args_dbg.verbose is True
+
+    args_debug_flag = parser.parse_args(["daemon", "run", "--debug"])
+    assert args_debug_flag.debug is True
 
     # 2. Daemon status
     args_st = parser.parse_args(["daemon", "status"])
@@ -81,7 +94,20 @@ def test_cli_argument_parser_subcommands():
     assert args_aud.command == "audit"
     assert args_aud.db_path == "test.db"
 
-    # 6. Version command
+    # 6. Peer subcommand (Tier 2 cross-node threat intel)
+    args_p_exp = parser.parse_args(["peer", "export", "--record-id", "42", "--out", "sig.json", "--node-id", "test_peer"])
+    assert args_p_exp.command == "peer"
+    assert args_p_exp.peer_action == "export"
+    assert args_p_exp.record_id == 42
+    assert args_p_exp.out == "sig.json"
+    assert args_p_exp.node_id == "test_peer"
+
+    args_p_ver = parser.parse_args(["peer", "verify", "--file", "sig.json"])
+    assert args_p_ver.command == "peer"
+    assert args_p_ver.peer_action == "verify"
+    assert args_p_ver.file == "sig.json"
+
+    # 7. Version command
     args_ver = parser.parse_args(["version"])
     assert args_ver.command == "version"
 

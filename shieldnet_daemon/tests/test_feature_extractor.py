@@ -138,7 +138,7 @@ def test_rolling_flow_buffer_bidirectional():
     buffer = RollingFlowBuffer(window_seconds=1.0, flow_timeout=10.0, context_length=3)
     t = 100.0
 
-    # Ingest forward packet
+    # Ingest forward packet (SYN)
     pkt_fwd = PacketMetadata(
         timestamp=t, src_ip="10.10.10.1", dst_ip="10.10.10.2",
         src_port=12345, dst_port=443, protocol=6,
@@ -147,7 +147,7 @@ def test_rolling_flow_buffer_bidirectional():
     )
     key_fwd = buffer.ingest_packet(pkt_fwd)
 
-    # Ingest reverse packet
+    # Ingest reverse packet (SYN-ACK)
     pkt_bwd = PacketMetadata(
         timestamp=t + 0.01, src_ip="10.10.10.2", dst_ip="10.10.10.1",
         src_port=443, dst_port=12345, protocol=6,
@@ -165,7 +165,34 @@ def test_rolling_flow_buffer_bidirectional():
     assert flow.packets[0].direction == 0  # Forward
     assert flow.packets[1].direction == 1  # Backward
 
-    # Step window to generate temporal evaluation
+    # Add more packets to meet MIN_PACKETS_FOR_EVAL=4 threshold
+    pkt_ack = PacketMetadata(
+        timestamp=t + 0.1, src_ip="10.10.10.1", dst_ip="10.10.10.2",
+        src_port=12345, dst_port=443, protocol=6,
+        total_length=64, payload_length=0, header_length=64,
+        tcp_flags=0x10, tcp_window=29200, seq_num=11, ack_num=101, ttl=64
+    )
+    buffer.ingest_packet(pkt_ack)
+
+    pkt_data = PacketMetadata(
+        timestamp=t + 0.2, src_ip="10.10.10.1", dst_ip="10.10.10.2",
+        src_port=12345, dst_port=443, protocol=6,
+        total_length=500, payload_length=436, header_length=64,
+        tcp_flags=0x18, tcp_window=29200, seq_num=11, ack_num=101, ttl=64
+    )
+    buffer.ingest_packet(pkt_data)
+
+    pkt_resp = PacketMetadata(
+        timestamp=t + 0.3, src_ip="10.10.10.2", dst_ip="10.10.10.1",
+        src_port=443, dst_port=12345, protocol=6,
+        total_length=1200, payload_length=1136, header_length=64,
+        tcp_flags=0x18, tcp_window=65535, seq_num=101, ack_num=447, ttl=128
+    )
+    buffer.ingest_packet(pkt_resp)
+
+    assert len(flow.packets) == 5
+
+    # Step window to generate temporal evaluation (t+0.5 gives 0.5s age > MIN_FLOW_AGE_SEC)
     evals = buffer.step_window(current_time=t + 0.5)
     assert len(evals) == 1
     eval_item = evals[0]
@@ -176,6 +203,7 @@ def test_rolling_flow_buffer_bidirectional():
     # Aggregate host sequence test
     agg_seq = buffer.get_aggregate_host_sequence()
     assert agg_seq.shape == (1, 3, 84), "Aggregate host sequence must be (1, 3, 84)"
+
 
 
 def test_frozen_scaler_guard():

@@ -54,76 +54,104 @@ class PacketMetadata:
 
 
 def parse_scapy_packet(pkt: Any, flow_direction_hint: int = 0) -> Optional[PacketMetadata]:
-    """Parses a Scapy packet into a standardized PacketMetadata object."""
+    """Parses a Scapy packet into a standardized PacketMetadata object.
+
+    Supports both IPv4 (``IP`` layer) and IPv6 (``IPv6`` layer).  For IPv6,
+    the hop-limit field is mapped to *ttl*, the next-header field to *proto*,
+    and ``ip_flags`` / ``frag_offset`` are left at zero (no IP fragmentation
+    field in the fixed IPv6 header).
+    """
+    if pkt is None or not hasattr(pkt, "haslayer"):
+        return None
+
     try:
-        from scapy.layers.inet import IP, TCP, UDP, ICMP
-    except ImportError:
-        # If scapy is not installed, parse via layer inspection if compatible
+        # ── Determine network-layer type ───────────────────────────────────
+        is_ipv4 = pkt.haslayer("IP")
+        is_ipv6 = (not is_ipv4) and pkt.haslayer("IPv6")
+
+        if not (is_ipv4 or is_ipv6):
+            return None  # Not an IP packet (ARP, etc.) — discard
+
+        total_len = int(len(pkt))
+        src_port = 0
+        dst_port = 0
+        payload_len = 0
+        tcp_flags = 0
+        tcp_win = 0
+        seq = 0
+        ack = 0
+
+        # ── IPv4 header fields ─────────────────────────────────────────────
+        if is_ipv4:
+            ip = pkt["IP"]
+            proto = int(ip.proto)
+            src_ip = str(ip.src)
+            dst_ip = str(ip.dst)
+            ttl = int(ip.ttl)
+            ip_flags = int(ip.flags)
+            frag_offset = int(ip.frag)
+            header_len = int(ip.ihl * 4)
+
+        # ── IPv6 header fields ─────────────────────────────────────────────
+        else:
+            ip6 = pkt["IPv6"]
+            proto = int(ip6.nh)          # Next-header maps to protocol (6=TCP, 17=UDP, 58=ICMPv6)
+            src_ip = str(ip6.src)
+            dst_ip = str(ip6.dst)
+            ttl = int(ip6.hlim)          # Hop Limit is the IPv6 equivalent of TTL
+            ip_flags = 0                 # IPv6 has no fragmentation flags in the fixed header
+            frag_offset = 0
+            header_len = 40              # Fixed IPv6 header is always 40 bytes
+
+        # ── Transport layer inspection (shared by IPv4 + IPv6) ────────────
+        if pkt.haslayer("TCP"):
+            tcp = pkt["TCP"]
+            src_port = int(tcp.sport)
+            dst_port = int(tcp.dport)
+            tcp_win = int(tcp.window)
+            tcp_flags = int(tcp.flags)
+            seq = int(tcp.seq)
+            ack = int(tcp.ack)
+            tcp_hdr_len = int(tcp.dataofs * 4) if hasattr(tcp, "dataofs") and tcp.dataofs else 20
+            header_len += tcp_hdr_len
+            payload_len = max(0, total_len - header_len)
+        elif pkt.haslayer("UDP"):
+            udp = pkt["UDP"]
+            src_port = int(udp.sport)
+            dst_port = int(udp.dport)
+            header_len += 8
+            payload_len = max(0, total_len - header_len)
+        elif pkt.haslayer("ICMP"):
+            header_len += 8
+            payload_len = max(0, total_len - header_len)
+        elif pkt.haslayer("ICMPv6EchoRequest") or pkt.haslayer("ICMPv6EchoReply"):
+            header_len += 8
+            payload_len = max(0, total_len - header_len)
+
+        pkt_time = float(getattr(pkt, "time", 0.0))
+
+        return PacketMetadata(
+            timestamp=pkt_time,
+            src_ip=src_ip,
+            dst_ip=dst_ip,
+            src_port=src_port,
+            dst_port=dst_port,
+            protocol=proto,
+            total_length=total_len,
+            payload_length=payload_len,
+            header_length=header_len,
+            direction=flow_direction_hint,
+            tcp_flags=tcp_flags,
+            tcp_window=tcp_win,
+            seq_num=seq,
+            ack_num=ack,
+            ttl=ttl,
+            ip_flags=ip_flags,
+            frag_offset=frag_offset,
+        )
+    except Exception:
+        # Gracefully discard corrupted or malformed network frames
         return None
-
-    if not pkt.haslayer(IP):
-        return None
-
-    ip = pkt[IP]
-    proto = int(ip.proto)
-    src_ip = str(ip.src)
-    dst_ip = str(ip.dst)
-    ttl = int(ip.ttl)
-    ip_flags = int(ip.flags)
-    frag_offset = int(ip.frag)
-    total_len = int(len(pkt))
-
-    src_port = 0
-    dst_port = 0
-    payload_len = 0
-    header_len = int(ip.ihl * 4)
-    tcp_flags = 0
-    tcp_win = 0
-    seq = 0
-    ack = 0
-
-    if pkt.haslayer(TCP):
-        tcp = pkt[TCP]
-        src_port = int(tcp.sport)
-        dst_port = int(tcp.dport)
-        tcp_win = int(tcp.window)
-        tcp_flags = int(tcp.flags)
-        seq = int(tcp.seq)
-        ack = int(tcp.ack)
-        tcp_hdr_len = int(tcp.dataofs * 4) if hasattr(tcp, "dataofs") and tcp.dataofs else 20
-        header_len += tcp_hdr_len
-        payload_len = max(0, total_len - header_len)
-    elif pkt.haslayer(UDP):
-        udp = pkt[UDP]
-        src_port = int(udp.sport)
-        dst_port = int(udp.dport)
-        header_len += 8
-        payload_len = max(0, total_len - header_len)
-    elif pkt.haslayer(ICMP):
-        header_len += 8
-        payload_len = max(0, total_len - header_len)
-
-    pkt_time = float(getattr(pkt, "time", 0.0))
-
-    return PacketMetadata(
-        timestamp=pkt_time,
-        src_ip=src_ip,
-        dst_ip=dst_ip,
-        src_port=src_port,
-        dst_port=dst_port,
-        protocol=proto,
-        total_length=total_len,
-        payload_length=payload_len,
-        header_length=header_len,
-        direction=flow_direction_hint,
-        tcp_flags=tcp_flags,
-        tcp_window=tcp_win,
-        seq_num=seq,
-        ack_num=ack,
-        ttl=ttl,
-        ip_flags=ip_flags,
-        frag_offset=frag_offset,
-    )
 
 
 def compute_flow_features(packets: List[PacketMetadata]) -> np.ndarray:

@@ -62,8 +62,9 @@ class LedgerRecord:
 class ActionLedger:
     """
     Manages the offline SQLite action ledger with tamper-evident cryptographic hash-chaining.
+    Supports row-capping and rolling checkpoint anchoring.
     """
-    def __init__(self, db_path: Optional[Union[str, Path]] = None):
+    def __init__(self, db_path: Optional[Union[str, Path]] = None, max_records: Optional[int] = None):
         if db_path is None:
             default_dir = Path(__file__).resolve().parent.parent / "data"
             default_dir.mkdir(parents=True, exist_ok=True)
@@ -72,6 +73,30 @@ class ActionLedger:
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
 
         self._init_database()
+
+        with self._get_connection() as conn:
+            if max_records is not None:
+                self.max_records = max_records
+                conn.execute(
+                    "INSERT INTO ledger_metadata (key, value) VALUES ('max_records', ?) "
+                    "ON CONFLICT(key) DO UPDATE SET value = excluded.value;",
+                    (str(max_records),),
+                )
+                conn.commit()
+            else:
+                cur = conn.execute("SELECT value FROM ledger_metadata WHERE key = 'max_records';")
+                row = cur.fetchone()
+                if row:
+                    try:
+                        self.max_records = int(row["value"])
+                    except Exception:
+                        self.max_records = 10000
+                else:
+                    self.max_records = 10000
+                    conn.execute(
+                        "INSERT INTO ledger_metadata (key, value) VALUES ('max_records', '10000');"
+                    )
+                    conn.commit()
 
     def _get_connection(self) -> sqlite3.Connection:
         """Establishes an SQLite connection with WAL mode and row factory."""
@@ -83,7 +108,7 @@ class ActionLedger:
         return conn
 
     def _init_database(self):
-        """Initializes the action_ledger table and indexes if not present."""
+        """Initializes the action_ledger and metadata tables and indexes if not present."""
         with self._get_connection() as conn:
             conn.execute("""
             CREATE TABLE IF NOT EXISTS action_ledger (
@@ -102,8 +127,15 @@ class ActionLedger:
                 source TEXT DEFAULT 'live_sniffer'
             );
             """)
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS ledger_metadata (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );
+            """)
             conn.execute("CREATE INDEX IF NOT EXISTS idx_ledger_timestamp ON action_ledger (timestamp);")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_ledger_hash ON action_ledger (record_hash);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_ledger_prediction ON action_ledger (prediction);")
             # Migrate table if source column doesn't exist
             cursor = conn.execute("PRAGMA table_info(action_ledger);")
             cols = [col["name"] for col in cursor.fetchall()]
@@ -200,6 +232,11 @@ class ActionLedger:
             conn.commit()
             new_id = cursor.lastrowid
 
+        # Auto-prune if max_records is configured
+        if self.max_records is not None and self.max_records > 0:
+            if new_id % 10 == 0 or self.count_records() > self.max_records:
+                self.prune_records(self.max_records)
+
         return LedgerRecord(
             id=new_id,
             timestamp=timestamp,
@@ -215,6 +252,67 @@ class ActionLedger:
             record_hash=rec_hash,
             source=source
         )
+
+    def prune_records(self, keep_count: int) -> int:
+        """
+        Prunes older records to cap the ledger at keep_count rows while preserving
+        cryptographic verification via a rolling checkpoint anchor.
+        
+        Returns:
+            Number of pruned records.
+        """
+        if keep_count <= 0:
+            return 0
+
+        with self._get_connection() as conn:
+            cursor = conn.execute("SELECT COUNT(*) FROM action_ledger;")
+            total = cursor.fetchone()[0]
+            if total <= keep_count:
+                return 0
+
+            prune_count = total - keep_count
+
+            # Find the cutoff row: the oldest row that WILL BE KEPT
+            cursor = conn.execute(
+                "SELECT id, prev_hash FROM action_ledger ORDER BY id DESC LIMIT 1 OFFSET ?;",
+                (keep_count - 1,)
+            )
+            cutoff_row = cursor.fetchone()
+            if cutoff_row is None:
+                return 0
+
+            cutoff_id = cutoff_row["id"]
+            checkpoint_anchor = cutoff_row["prev_hash"]
+
+            # Store the rolling checkpoint anchor
+            conn.execute(
+                "INSERT INTO ledger_metadata (key, value) VALUES ('checkpoint_anchor_hash', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value;",
+                (checkpoint_anchor,)
+            )
+
+            # Update cumulative pruned count
+            cursor = conn.execute("SELECT value FROM ledger_metadata WHERE key = 'pruned_records_count';")
+            pruned_meta = cursor.fetchone()
+            old_pruned = int(pruned_meta["value"]) if pruned_meta else 0
+            new_pruned = old_pruned + prune_count
+            conn.execute(
+                "INSERT INTO ledger_metadata (key, value) VALUES ('pruned_records_count', ?) "
+                "ON CONFLICT(key) DO UPDATE SET value = excluded.value;",
+                (str(new_pruned),)
+            )
+
+            # Delete rows older than cutoff_id
+            conn.execute("DELETE FROM action_ledger WHERE id < ?;", (cutoff_id,))
+            conn.commit()
+
+            # Passive WAL checkpoint
+            try:
+                conn.execute("PRAGMA wal_checkpoint(PASSIVE);")
+            except Exception:
+                pass
+
+        return prune_count
 
     def get_records(self, limit: int = 100, offset: int = 0) -> List[LedgerRecord]:
         """Retrieves paginated records in chronological order."""
@@ -254,8 +352,16 @@ class ActionLedger:
         count = self.count_records()
         is_valid, verified_cnt, error = self.verify_integrity()
         latest = self.get_latest_record()
+
+        with self._get_connection() as conn:
+            cur = conn.execute("SELECT value FROM ledger_metadata WHERE key = 'pruned_records_count';")
+            p_row = cur.fetchone()
+            pruned_count = int(p_row["value"]) if p_row else 0
+
         return {
             "total_records": count,
+            "max_records": self.max_records,
+            "pruned_records": pruned_count,
             "chain_valid": is_valid,
             "verified_records": verified_cnt,
             "latest_record_id": latest.id if latest else None,
@@ -265,7 +371,7 @@ class ActionLedger:
 
     def verify_integrity(self) -> Tuple[bool, int, Optional[str]]:
         """
-        Cryptographically verifies the entire hash chain from Genesis to latest.
+        Cryptographically verifies the entire hash chain from Genesis/Checkpoint to latest.
         
         Returns:
             Tuple of (is_valid: bool, verified_count: int, error_details: Optional[str])
@@ -274,10 +380,21 @@ class ActionLedger:
             cursor = conn.execute("SELECT * FROM action_ledger ORDER BY id ASC;")
             rows = cursor.fetchall()
 
+            # Retrieve checkpoint anchor if ledger was previously pruned
+            cursor = conn.execute("SELECT value FROM ledger_metadata WHERE key = 'checkpoint_anchor_hash';")
+            meta_row = cursor.fetchone()
+            checkpoint_anchor = meta_row["value"] if meta_row else None
+
         if not rows:
             return True, 0, None
 
-        expected_prev_hash = GENESIS_HASH
+        first_prev = rows[0]["prev_hash"]
+        if first_prev == GENESIS_HASH:
+            expected_prev_hash = GENESIS_HASH
+        elif checkpoint_anchor is not None and first_prev == checkpoint_anchor:
+            expected_prev_hash = checkpoint_anchor
+        else:
+            expected_prev_hash = checkpoint_anchor if checkpoint_anchor else GENESIS_HASH
 
         for idx, row in enumerate(rows):
             row_id = row["id"]
@@ -338,3 +455,48 @@ class ActionLedger:
             record_hash=row["record_hash"],
             source=row_source
         )
+
+    def export_threat_signature(self, record_id: int, node_id: str = "shieldnet-node-local") -> Optional[Dict[str, Any]]:
+        """
+        Exports a tamper-evident, zero-IP threat signature for a given ledger record.
+        Strictly contains 84-dim SHAP attribution vector, MITRE classification, and SHA-256 hash.
+        """
+        record = self.get_record_by_id(record_id)
+        if record is None:
+            return None
+
+        # Parse top_drivers from shap_summary if available
+        top_drivers = []
+        if record.shap_summary:
+            try:
+                summary_data = json.loads(record.shap_summary)
+                top_drivers = summary_data.get("top_features", [])
+            except Exception:
+                top_drivers = []
+
+        from engine.corroboration import CrossNodeCorroborator
+        corroborator = CrossNodeCorroborator(node_id=node_id)
+        shap_vec = record.shap_vector if record.shap_vector is not None else np.zeros(84, dtype=np.float32)
+        sig = corroborator.export_signature(
+            prediction=record.prediction,
+            threat_probability=record.threat_probability,
+            mitre_stage=record.mitre_stage,
+            mitre_tactic=record.mitre_tactic,
+            shap_vector=shap_vec,
+            top_drivers=top_drivers,
+            record_hash=record.record_hash,
+            prev_hash=record.prev_hash,
+            timestamp=record.timestamp,
+        )
+        return sig.to_dict()
+
+    @staticmethod
+    def verify_signature_payload(payload: Union[str, Dict[str, Any]]) -> Tuple[bool, str]:
+        """
+        Verifies cryptographic integrity and zero-IP privacy compliance of a threat signature payload.
+        """
+        from engine.corroboration import CrossNodeCorroborator
+        corroborator = CrossNodeCorroborator()
+        is_valid, msg, _ = corroborator.import_signature_payload(payload)
+        return is_valid, msg
+

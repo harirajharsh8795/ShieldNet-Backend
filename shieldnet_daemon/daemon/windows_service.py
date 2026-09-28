@@ -127,13 +127,17 @@ def stop_daemon() -> bool:
         return False
 
 
-def run_daemon(interface: Optional[str] = None, interval: float = 1.0, mock: bool = False):
-    """Starts the daemon service in the current foreground process."""
-    logger.info("Starting ShieldNet background detection daemon...")
+def run_daemon(interface: Optional[str] = None, interval: float = 1.0, mock: bool = False, verbose: bool = False):
+    """Starts the daemon service in the current foreground process with production hardening."""
+    logger.info("Starting ShieldNet background detection daemon in production posture...")
     config = DaemonConfig(
         interface=interface,
         evaluation_interval=interval,
         mock_mode=mock,
+        verbose=verbose,
+        enable_ipc=False,  # Strict production invariant: IPC injection is disabled
+        enforce_production_security=True,
+        verify_integrity=True,
     )
     daemon = ShieldNetDaemon(config)
     daemon.start(block=True)
@@ -248,6 +252,8 @@ if __name__ == "__main__":
     run_parser.add_argument("--interface", type=str, default=None, help="Network interface")
     run_parser.add_argument("--interval", type=float, default=1.0, help="Evaluation interval")
     run_parser.add_argument("--mock", action="store_true", help="Run in mock/injection mode")
+    run_parser.add_argument("--verbose", "-v", action="store_true", help="Verbose debug output")
+    run_parser.add_argument("--debug", action="store_true", help="Alias for --verbose")
 
     # Status command
     subparsers.add_parser("status", help="Show current daemon status")
@@ -264,7 +270,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.command == "run":
-        run_daemon(interface=args.interface, interval=args.interval, mock=args.mock)
+        is_verbose = getattr(args, "verbose", False) or getattr(args, "debug", False)
+        run_daemon(interface=args.interface, interval=args.interval, mock=args.mock, verbose=is_verbose)
     elif args.command == "status":
         print_status()
     elif args.command == "stop":

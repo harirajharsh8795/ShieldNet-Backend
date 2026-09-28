@@ -388,6 +388,96 @@
       font-weight: 700;
     }
 
+    /* ─── K=5 Forward Threat Trajectory Radar ─── */
+    .forecast-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .forecast-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 550px) {
+      .forecast-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .forecast-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .forecast-card.trigger-active {
+      border-color: var(--amber);
+      box-shadow: 0 0 16px var(--amber-glow);
+      background: rgba(30, 20, 10, 0.6);
+    }
+
+    .forecast-card.trigger-critical {
+      border-color: var(--red);
+      box-shadow: 0 0 16px var(--red-glow);
+      background: rgba(35, 12, 18, 0.6);
+    }
+
+    .forecast-step-badge {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .forecast-trigger-tag {
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      animation: pulse 1.5s infinite;
+    }
+
+    .forecast-prob-val {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .forecast-class-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .forecast-mitre-tag {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     /* ─── Ledger Table ─── */
     .ledger-section {
       background: var(--bg-card);
@@ -676,6 +766,17 @@
     </div>
   </div>
 
+  <!-- K=5 Forward Threat Trajectory Radar -->
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="section-title">
+      <span>AUTOREGRESSIVE K=5 FORWARD THREAT TRAJECTORY (LATENT ROLLOUT)</span>
+      <span id="forecast-status-label">Continuous Lookahead: t+1 to t+5</span>
+    </div>
+    <div class="forecast-grid" id="forecast-trajectory-grid">
+      <!-- Dynamically populated via JS -->
+    </div>
+  </div>
+
   <!-- Middle Layout -->
   <div class="dashboard-layout">
     <!-- Attack & MITRE Breakdown -->
@@ -709,12 +810,20 @@
           <span class="crypto-val valid" id="audit-valid-status">VERIFIED INTACT</span>
         </div>
         <div class="crypto-field">
-          <span class="crypto-key">Genesis Anchor:</span>
-          <span class="crypto-val hash">0000000000000000000000000000000000000000000000000000000000000000</span>
+          <span class="crypto-key">Genesis / Rolling Anchor:</span>
+          <span class="crypto-val hash" id="audit-anchor-hash">0000000000000000000000000000000000000000000000000000000000000000</span>
         </div>
         <div class="crypto-field">
-          <span class="crypto-key">Chained Blocks:</span>
+          <span class="crypto-key">Retained Chained Blocks:</span>
           <span class="crypto-val" id="audit-block-count">0 verified records</span>
+        </div>
+        <div class="crypto-field">
+          <span class="crypto-key">Ledger Retention Policy:</span>
+          <span class="crypto-val" id="audit-retention-limit">Capped at 10,000 rows</span>
+        </div>
+        <div class="crypto-field">
+          <span class="crypto-key">Pruned Historical Blocks:</span>
+          <span class="crypto-val" id="audit-pruned-count">0 pruned</span>
         </div>
         <div class="crypto-field">
           <span class="crypto-key">Latest Tip Hash:</span>
@@ -730,7 +839,7 @@
         </div>
       </div>
       <div style="margin-top: 14px; font-size: 11px; color: var(--text-dim); font-family: var(--font-mono); line-height: 1.5;">
-        Every alert is mathematically linked to the digest of the prior event via deterministic SHA-256 hash chaining. Any tampering or deletion breaks cryptographic verification instantly.
+        Every alert is mathematically linked to the digest of the prior event via deterministic SHA-256 hash chaining. When capped, older records are cleanly pruned while preserving full mathematical verification anchored at the rolling checkpoint.
       </div>
     </div>
   </div>
@@ -748,6 +857,7 @@
             <th>ID</th>
             <th>Timestamp (UTC)</th>
             <th>Threat Class</th>
+            <th>Trigger Horizon</th>
             <th>Probability</th>
             <th>MITRE Tactic</th>
             <th>Severity</th>
@@ -757,7 +867,7 @@
         </thead>
         <tbody id="ledger-tbody">
           <tr>
-            <td colspan="8" class="empty-state">Loading ledger records...</td>
+            <td colspan="9" class="empty-state">Loading ledger records...</td>
           </tr>
         </tbody>
       </table>
@@ -784,9 +894,24 @@
     <!-- Threat Summary -->
     <div style="margin: 16px 0; display: flex; gap: 12px; flex-wrap: wrap;">
       <div class="status-pill">Classification: <strong id="modal-threat-class" style="color: var(--red);">--</strong></div>
+      <div class="status-pill">Trigger Horizon: <strong id="modal-threat-trigger" style="color: var(--amber);">--</strong></div>
       <div class="status-pill">Confidence: <strong id="modal-threat-prob">--</strong></div>
       <div class="status-pill">MITRE Tactic: <strong id="modal-threat-mitre">--</strong></div>
       <div class="status-pill">Severity: <strong id="modal-threat-severity">--</strong></div>
+    </div>
+
+    <!-- K=5 Forecast Rollout for this alert event -->
+    <div class="section-title" style="margin-top: 20px;">
+      <span>K=5 AUTOREGRESSIVE ROLLOUT AT DETECTION EVENT</span>
+      <span id="modal-trigger-indicator">Triggering Step</span>
+    </div>
+    <div class="forecast-grid" id="modal-forecast-grid" style="margin-top: 10px;">
+      <!-- Populated via JS -->
+    </div>
+
+    <!-- Tier 2 Corroboration Badge if present -->
+    <div id="modal-tier2-container" style="display: none; margin-top: 16px;">
+      <!-- Populated via JS -->
     </div>
 
     <!-- Top Feature Drivers -->
@@ -828,6 +953,75 @@
     updateLedgerUI(ledgerData);
   }
 
+  function renderForecastGrid(containerId, forecastList, isModal = false) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!forecastList || forecastList.length === 0) {
+      // Render 5 standby cards
+      let html = '';
+      for (let i = 1; i <= 5; i++) {
+        html += `
+          <div class="forecast-card" style="opacity: 0.65;">
+            <div class="forecast-step-badge">
+              <span>STEP t+${i}</span>
+              <span style="font-size: 10px; color: var(--text-dim);">STANDBY</span>
+            </div>
+            <div class="forecast-prob-val" style="color: var(--text-dim);">--%</div>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div class="forecast-class-name">Benign / Nominal</div>
+            <div class="forecast-mitre-tag">Stage 0: Normal Operations</div>
+          </div>
+        `;
+      }
+      container.innerHTML = html;
+      return;
+    }
+
+    container.innerHTML = forecastList.map((step) => {
+      const probPct = (step.threat_probability * 100).toFixed(1);
+      const isCritical = step.threat_probability >= 0.85;
+      const isElevated = step.threat_probability >= 0.50;
+      const isTrigger = !!step.is_trigger;
+
+      let cardClass = 'forecast-card';
+      if (isTrigger) {
+        cardClass += isCritical ? ' trigger-critical' : ' trigger-active';
+      }
+
+      let probColor = 'var(--green)';
+      let barGrad = 'linear-gradient(90deg, #10b981, #00e5ff)';
+      if (isCritical) {
+        probColor = 'var(--red)';
+        barGrad = 'linear-gradient(90deg, #f59e0b, #ef4444)';
+      } else if (isElevated) {
+        probColor = 'var(--amber)';
+        barGrad = 'linear-gradient(90deg, #00e5ff, #f59e0b)';
+      }
+
+      const triggerTag = isTrigger
+        ? `<span class="forecast-trigger-tag">&#x26A0; TRIGGER (${step.step_ahead})</span>`
+        : `<span style="font-size: 10px; color: var(--text-dim); font-family: var(--font-mono);">${step.step_ahead}</span>`;
+
+      return `
+        <div class="${cardClass}">
+          <div class="forecast-step-badge">
+            <span>STEP ${step.step_ahead}</span>
+            ${triggerTag}
+          </div>
+          <div class="forecast-prob-val" style="color: ${probColor};">${probPct}%</div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width: ${Math.min(100, probPct)}%; background: ${barGrad};"></div>
+          </div>
+          <div class="forecast-class-name" title="${step.predicted_class}"><strong>${step.predicted_class}</strong></div>
+          <div class="forecast-mitre-tag" title="${step.mitre_tactic}">Stage ${step.mitre_stage}: ${step.mitre_tactic}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
   function updateStatusUI(data) {
     const dot = document.getElementById('daemon-dot');
     const text = document.getElementById('daemon-status-text');
@@ -840,6 +1034,8 @@
       metricStatus.className = 'card-value red';
       document.getElementById('metric-mode').textContent = 'INACTIVE';
       document.getElementById('metric-pid').textContent = '--';
+      renderForecastGrid('forecast-trajectory-grid', []);
+      document.getElementById('forecast-status-label').textContent = 'Daemon Offline (Standby)';
       return;
     }
 
@@ -866,6 +1062,18 @@
     if (data.total_packets_captured > 0) {
       const ratio = ((data.total_alerts / data.total_packets_captured) * 100).toFixed(2);
       document.getElementById('metric-threat-ratio').textContent = `${ratio}%`;
+    }
+
+    // Render continuous K=5 forward threat trajectory
+    const forecast = data.latest_forecast || (data.last_alert ? data.last_alert.k_step_forecast : []);
+    renderForecastGrid('forecast-trajectory-grid', forecast, false);
+    if (forecast && forecast.length > 0) {
+      const trigStep = forecast.find(f => f.is_trigger);
+      document.getElementById('forecast-status-label').textContent = trigStep
+        ? `Alert Triggered at ${trigStep.step_ahead} (${(trigStep.threat_probability * 100).toFixed(1)}% - ${trigStep.predicted_class})`
+        : `Monitoring K=5 Trajectory (Nominal)`;
+    } else {
+      document.getElementById('forecast-status-label').textContent = `Continuous Lookahead: t+1 to t+5`;
     }
   }
 
@@ -897,9 +1105,25 @@
     }
 
     document.getElementById('metric-blocks').textContent = (data.total_records || 0).toLocaleString();
-    document.getElementById('audit-block-count').textContent = `${data.total_records || 0} chained blocks`;
+    document.getElementById('audit-block-count').textContent = `${(data.total_records || 0).toLocaleString()} retained records`;
     document.getElementById('audit-tip-hash').textContent = data.latest_record_hash || 'None';
     document.getElementById('audit-timestamp').textContent = new Date().toISOString();
+
+    // Ledger capacity and rolling checkpoint anchor
+    const cap = data.ledger_capacity || {};
+    if (cap.retention_policy) {
+      document.getElementById('audit-retention-limit').textContent = cap.retention_policy;
+    }
+    const prunedCount = cap.pruned_records !== undefined ? cap.pruned_records : (data.pruned_records || 0);
+    document.getElementById('audit-pruned-count').textContent = `${prunedCount.toLocaleString()} pruned`;
+
+    if (data.checkpoint_anchor_hash) {
+      document.getElementById('audit-anchor-hash').textContent = data.checkpoint_anchor_hash;
+    } else if (prunedCount > 0) {
+      document.getElementById('audit-anchor-hash').textContent = 'Rolling Checkpoint Verified';
+    } else {
+      document.getElementById('audit-anchor-hash').textContent = '0000000000000000000000000000000000000000000000000000000000000000';
+    }
 
     // Attack classifications chart
     const threatLabel = document.getElementById('threat-count-label');
@@ -960,7 +1184,7 @@
   function updateLedgerUI(records) {
     const tbody = document.getElementById('ledger-tbody');
     if (!records || records.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No threat records stored in ledger yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-state">No threat records stored in ledger yet.</td></tr>';
       return;
     }
 
@@ -973,11 +1197,18 @@
         ? '<span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.5); font-size: 10px; margin-left: 5px;">SIMULATED</span>'
         : '';
 
+      const triggerStepAhead = r.triggering_step_ahead || (r.triggering_step ? `t+${r.triggering_step}` : 't+1');
+      const isEarlyForward = (r.triggering_step && r.triggering_step > 1);
+      const horizonBadge = isEarlyForward
+        ? `<span class="badge" style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); font-weight: 700;">LOOKAHEAD ${triggerStepAhead}</span>`
+        : `<span class="badge badge-medium">IMMEDIATE ${triggerStepAhead}</span>`;
+
       return `
         <tr>
           <td><strong>#${r.id}</strong></td>
           <td>${r.iso_time || new Date(r.timestamp * 1000).toISOString()}</td>
           <td><span class="badge badge-high">${r.prediction}</span>${sourceBadge}</td>
+          <td>${horizonBadge}</td>
           <td><strong>${probPct}</strong></td>
           <td><span class="badge badge-mitre">Stage ${r.mitre_stage}: ${r.mitre_tactic}</span></td>
           <td><span class="badge ${sevClass}">${r.severity}</span></td>
@@ -1000,9 +1231,43 @@
       ? ' <span class="badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc; border: 1px solid rgba(139, 92, 246, 0.5); font-size: 11px; margin-left: 6px;">SIMULATED</span>'
       : '';
     document.getElementById('modal-threat-class').innerHTML = `${record.prediction}${modalSourceBadge}`;
+
+    const triggerStepAhead = record.triggering_step_ahead || (record.triggering_step ? `t+${record.triggering_step}` : 't+1');
+    document.getElementById('modal-threat-trigger').textContent = triggerStepAhead;
+    document.getElementById('modal-trigger-indicator').textContent = `Trigger Horizon: ${triggerStepAhead}`;
     document.getElementById('modal-threat-prob').textContent = `${(record.threat_probability * 100).toFixed(1)}%`;
     document.getElementById('modal-threat-mitre').textContent = `Stage ${record.mitre_stage}: ${record.mitre_tactic}`;
     document.getElementById('modal-threat-severity').textContent = record.severity;
+
+    // Render K=5 forecast rollout
+    renderForecastGrid('modal-forecast-grid', record.k_step_forecast || [], true);
+
+    // Tier 2 Corroboration Display
+    const corrobContainer = document.getElementById('modal-tier2-container');
+    if (record.tier2_corroboration && record.tier2_corroboration.is_corroborated) {
+      const tc = record.tier2_corroboration;
+      corrobContainer.style.display = 'block';
+      corrobContainer.innerHTML = `
+        <div class="crypto-box" style="border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); margin: 14px 0;">
+          <div style="font-weight: 700; color: var(--green); margin-bottom: 6px;">&#x2713; TIER 2 CROSS-NODE CONFIDENCE CORROBORATION INTACT</div>
+          <div class="crypto-field">
+            <span class="crypto-key">Corroborating Peer:</span>
+            <span class="crypto-val">${tc.corroborating_node_id}</span>
+          </div>
+          <div class="crypto-field">
+            <span class="crypto-key">SHAP Cosine Similarity:</span>
+            <span class="crypto-val" style="color: var(--cyan);">${tc.max_similarity.toFixed(4)} (Threshold: ${tc.similarity_threshold})</span>
+          </div>
+          <div class="crypto-field">
+            <span class="crypto-key">Corroboration Confidence Boost:</span>
+            <span class="crypto-val valid">+${((tc.boosted_probability - tc.raw_probability) * 100).toFixed(2)}% (${(tc.raw_probability * 100).toFixed(1)}% &rarr; ${(tc.boosted_probability * 100).toFixed(1)}%)</span>
+          </div>
+        </div>
+      `;
+    } else {
+      corrobContainer.style.display = 'none';
+      corrobContainer.innerHTML = '';
+    }
 
     // Feature drivers
     const drivers = record.top_drivers || [];

@@ -1,36 +1,136 @@
 {
-  "pid": 24428,
-  "status": "RUNNING",
-  "mode": "MOCK_INJECTION",
-  "start_time": 1789302210.1036859,
-  "uptime_seconds": 370.75,
-  "uptime_formatted": "00:06:10",
-  "total_packets_captured": 290,
+  "pid": 16976,
+  "status": "STOPPED",
+  "mode": "LIVE_SNIFFING",
+  "start_time": 1790604606.3867946,
+  "uptime_seconds": 15.84,
+  "uptime_formatted": "00:00:15",
+  "total_packets_captured": 112,
   "total_packets_dropped": 0,
-  "active_flows": 0,
-  "total_evaluations": 122,
-  "total_alerts": 66,
-  "last_heartbeat": "2026-09-13T17:59:40.855726",
-  "memory_rss_mb": 216.56,
-  "cpu_percent": 2.3,
+  "active_flows": 23,
+  "total_evaluations": 19,
+  "total_alerts": 8,
+  "last_heartbeat": "2026-09-28T19:40:22.229566",
+  "memory_rss_mb": 233.57,
+  "cpu_percent": 60.4,
   "ledger_db_path": "D:\\sih-backend\\shieldnet_daemon\\data\\ledger.db",
   "last_alert": {
-    "record_id": 170,
-    "timestamp": "2026-09-13T12:27:01Z",
-    "prediction": "Rare-Attack",
-    "threat_probability": 0.9156,
-    "mitre_stage": 0,
-    "mitre_tactic": "Normal Operations",
+    "record_id": 386,
+    "timestamp": "2026-09-28T14:10:22Z",
+    "prediction": "DDoS",
+    "threat_probability": 0.9916,
+    "mitre_stage": 1,
+    "mitre_tactic": "TA0043: Reconnaissance",
     "severity": "HIGH",
-    "top_driver": "Min Packet Length",
-    "record_hash": "e907f0f54d99338e..."
+    "top_driver": "Total Fwd Packets",
+    "record_hash": "22ddec3228847a5f...",
+    "triggering_step": 1,
+    "triggering_step_ahead": "t+1",
+    "k_step_forecast": [
+      {
+        "step": 1,
+        "step_ahead": "t+1",
+        "threat_probability": 0.9901,
+        "predicted_class": "DDoS",
+        "mitre_stage": 1,
+        "mitre_tactic": "TA0043: Reconnaissance",
+        "is_trigger": true
+      },
+      {
+        "step": 2,
+        "step_ahead": "t+2",
+        "threat_probability": 0.9838,
+        "predicted_class": "DDoS",
+        "mitre_stage": 1,
+        "mitre_tactic": "TA0043: Reconnaissance",
+        "is_trigger": false
+      },
+      {
+        "step": 3,
+        "step_ahead": "t+3",
+        "threat_probability": 0.9606,
+        "predicted_class": "DDoS",
+        "mitre_stage": 0,
+        "mitre_tactic": "Normal Operations",
+        "is_trigger": false
+      },
+      {
+        "step": 4,
+        "step_ahead": "t+4",
+        "threat_probability": 0.8485,
+        "predicted_class": "PortScan",
+        "mitre_stage": 0,
+        "mitre_tactic": "Normal Operations",
+        "is_trigger": false
+      },
+      {
+        "step": 5,
+        "step_ahead": "t+5",
+        "threat_probability": 0.73,
+        "predicted_class": "PortScan",
+        "mitre_stage": 0,
+        "mitre_tactic": "Normal Operations",
+        "is_trigger": false
+      }
+    ]
   },
+  "latest_forecast": [
+    {
+      "step": 1,
+      "step_ahead": "t+1",
+      "threat_probability": 0.1035,
+      "predicted_class": "BENIGN",
+      "mitre_stage": 0,
+      "mitre_tactic": "Normal Operations",
+      "is_trigger": false
+    },
+    {
+      "step": 2,
+      "step_ahead": "t+2",
+      "threat_probability": 0.0603,
+      "predicted_class": "BENIGN",
+      "mitre_stage": 0,
+      "mitre_tactic": "Normal Operations",
+      "is_trigger": false
+    },
+    {
+      "step": 3,
+      "step_ahead": "t+3",
+      "threat_probability": 0.0284,
+      "predicted_class": "BENIGN",
+      "mitre_stage": 0,
+      "mitre_tactic": "Normal Operations",
+      "is_trigger": false
+    },
+    {
+      "step": 4,
+      "step_ahead": "t+4",
+      "threat_probability": 0.0198,
+      "predicted_class": "BENIGN",
+      "mitre_stage": 0,
+      "mitre_tactic": "Normal Operations",
+      "is_trigger": false
+    },
+    {
+      "step": 5,
+      "step_ahead": "t+5",
+      "threat_probability": 0.0162,
+      "predicted_class": "BENIGN",
+      "mitre_stage": 0,
+      "mitre_tactic": "Normal Operations",
+      "is_trigger": false
+    }
+  ],
+  "last_threat_probability": 0.088,
+  "last_predicted_class": "BENIGN",
   "ledger_stats": {
-    "total_records": 170,
+    "total_records": 386,
+    "max_records": 10000,
+    "pruned_records": 0,
     "chain_valid": true,
-    "verified_records": 170,
-    "latest_record_id": 170,
-    "latest_record_hash": "e907f0f54d99338e...",
+    "verified_records": 386,
+    "latest_record_id": 386,
+    "latest_record_hash": "22ddec3228847a5f...",
     "integrity_error": null
   }
 }

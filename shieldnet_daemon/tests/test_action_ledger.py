@@ -12,6 +12,7 @@ Validates:
 """
 
 from pathlib import Path
+import json
 import sqlite3
 import time
 import numpy as np
@@ -174,5 +175,86 @@ def test_wal_mode_concurrency(temp_ledger):
         assert len(records) == i + 1
 
 
+def test_ledger_row_capping_and_pruning(tmp_path):
+    """Verifies that ActionLedger enforces max_records ceiling and prunes oldest entries."""
+    db_file = tmp_path / "capped_ledger.db"
+    capped_ledger = ActionLedger(db_path=db_file, max_records=5)
+
+    # Insert 15 sequential records
+    for i in range(15):
+        capped_ledger.append_record(
+            prediction=f"Attack_{i+1}",
+            threat_probability=0.80 + (i * 0.01),
+            mitre_stage=1 + (i % 5),
+            mitre_tactic="Test Tactic",
+            severity="HIGH",
+            shap_summary=json.dumps({"step": i+1}),
+        )
+
+    # Must be capped at exactly 5 records
+    assert capped_ledger.count_records() == 5
+    stats = capped_ledger.get_ledger_stats()
+    assert stats["total_records"] == 5
+    assert stats["max_records"] == 5
+    assert stats["pruned_records"] == 10
+
+    # Retained records must be the latest 5 (IDs 11 to 15)
+    records = capped_ledger.get_records(limit=10)
+    assert len(records) == 5
+    assert records[0].id == 11
+    assert records[-1].id == 15
+
+
+def test_pruned_ledger_cryptographic_verification(tmp_path):
+    """Verifies that cryptographic verification remains intact after row-pruning via checkpoint anchor."""
+    db_file = tmp_path / "pruned_verified_ledger.db"
+    ledger = ActionLedger(db_path=db_file, max_records=4)
+
+    for i in range(12):
+        ledger.append_record(
+            prediction="DDoS",
+            threat_probability=0.95,
+            mitre_stage=5,
+            mitre_tactic="Impact",
+            severity="CRITICAL",
+            shap_summary=json.dumps({"batch": i}),
+        )
+
+    assert ledger.count_records() == 4
+    is_valid, verified_cnt, error = ledger.verify_integrity()
+    assert is_valid is True
+    assert verified_cnt == 4
+    assert error is None
+
+
+def test_pruned_ledger_tamper_detection(tmp_path):
+    """Verifies that data tampering in a pruned ledger is immediately flagged."""
+    db_file = tmp_path / "pruned_tamper_ledger.db"
+    ledger = ActionLedger(db_path=db_file, max_records=4)
+
+    for i in range(10):
+        ledger.append_record(
+            prediction="PortScan",
+            threat_probability=0.88,
+            mitre_stage=1,
+            mitre_tactic="Discovery",
+            severity="HIGH",
+            shap_summary="{}",
+        )
+
+    latest = ledger.get_latest_record()
+    assert latest is not None
+
+    # Tamper with the latest record in the database directly
+    with ledger._get_connection() as conn:
+        conn.execute("UPDATE action_ledger SET threat_probability = 0.1234 WHERE id = ?;", (latest.id,))
+        conn.commit()
+
+    is_valid, verified_cnt, error = ledger.verify_integrity()
+    assert is_valid is False
+    assert f"Data tampering detected at record ID {latest.id}" in error
+
+
 if __name__ == "__main__":
     pytest.main(["-v", __file__])
+
