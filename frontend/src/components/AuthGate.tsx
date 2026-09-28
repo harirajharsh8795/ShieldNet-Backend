@@ -30,14 +30,39 @@ export function AuthGate() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Public routes that must NEVER trigger login gate
+  const isPublicPage =
+    location.pathname === "/" ||
+    location.pathname === "/about" ||
+    location.pathname === "/architecture" ||
+    location.pathname === "/explainability" ||
+    location.pathname.startsWith("/explainability") ||
+    location.pathname.startsWith("/dashboard/explainability") ||
+    location.pathname === "/baseline" ||
+    location.pathname === "/compare" ||
+    location.pathname.startsWith("/baseline") ||
+    location.pathname.startsWith("/compare") ||
+    location.pathname.startsWith("/dashboard/baseline") ||
+    location.pathname === "/certificate" ||
+    location.pathname.startsWith("/dashboard/certificate") ||
+    location.pathname === "/section65b" ||
+    location.pathname === "/section63";
+
   // Auth gate applies ONLY to Live Demo and its operational tools (NetFlow sniffer, PCAP ingestion, K-step rollout, SOAR, Blockchain)
   const isProtectedPage =
-    location.pathname.startsWith("/dashboard") ||
-    location.pathname === "/live" ||
-    location.pathname === "/upload" ||
-    location.pathname === "/simulation" ||
-    location.pathname === "/alerts" ||
-    location.pathname === "/blockchain";
+    !isPublicPage &&
+    (location.pathname === "/dashboard" ||
+      location.pathname === "/dashboard/" ||
+      location.pathname.startsWith("/dashboard/live") ||
+      location.pathname.startsWith("/dashboard/simulation") ||
+      location.pathname.startsWith("/dashboard/alerts") ||
+      location.pathname.startsWith("/dashboard/blockchain") ||
+      location.pathname.startsWith("/dashboard/upload") ||
+      location.pathname === "/live" ||
+      location.pathname === "/upload" ||
+      location.pathname === "/simulation" ||
+      location.pathname === "/alerts" ||
+      location.pathname === "/blockchain");
 
   const handleDismiss = React.useCallback(() => {
     closeAuthModal();

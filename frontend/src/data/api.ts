@@ -1657,6 +1657,24 @@ export async function fetchModelBenchmarkMatrix(): Promise<any> {
         "GRU replaces the separate cell state and hidden state with a single hidden state, merging forget and input gates into an update gate. For temporal network flow data, this reduces parameter overhead by ~24.4%, accelerates per-step gradient backpropagation, and significantly lowers the risk of catastrophic overfitting on sparse zero-day attack classes."
     },
     models: {
+      fused_sota: {
+        name: "ShieldNet SOTA Fused Sentinel (World Model + Latent Stacking)",
+        category: "Hybrid Neural Dynamics + Cost-Sensitive Tabular Stacking",
+        total_parameters: 260904,
+        parameter_label: "260.9K + GBDT",
+        overall_accuracy: 0.9928,
+        balanced_accuracy: 0.9064,
+        training_time_relative: "104.2s (Offline GPU/CPU pipeline)",
+        inference_latency_ms_batch_1: 1.18,
+        inference_latency_ms_batch_64: 2.58,
+        macro_f1: 0.7553,
+        weighted_f1: 0.9928,
+        precision: 0.9928,
+        recall: 0.9928,
+        false_positive_rate: 0.0035,
+        brier_score: 0.0072,
+        status: "SOTA Enterprise Champion"
+      },
       logistic_regression: {
         name: "Logistic Regression (Baseline)",
         category: "Linear / Static",

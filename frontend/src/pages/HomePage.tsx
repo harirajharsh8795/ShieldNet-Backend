@@ -9,7 +9,6 @@ import {
   Radio,
   Terminal,
   Zap,
-  ShieldCheck,
 } from "lucide-react";
 import { MITREStageBadge } from "../components/MITREStageBadge";
 import { ProbabilityTimeline } from "../components/ProbabilityTimeline";
@@ -100,13 +99,6 @@ export function HomePage() {
               Ingest PCAP / CSV
             </Link>
 
-            <Link
-              to="/certificate"
-              className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/15 px-4 py-3 text-sm font-semibold text-amber-300 transition-all hover:bg-amber-500/25 hover:border-amber-400 active:scale-[0.98] shadow-md shadow-amber-500/10"
-            >
-              <ShieldCheck size={16} className="text-amber-400" />
-              Sec 65B Certificate
-            </Link>
 
             <Link
               to="/compare"

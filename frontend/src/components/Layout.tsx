@@ -20,34 +20,43 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Home", end: true },
   { to: "/about", label: "About", end: false },
   { to: "/architecture", label: "Architecture", end: false },
-  { to: "/dashboard/explainability", label: "Explainability", icon: Eye, end: false },
-  { to: "/dashboard/baseline", label: "Baseline Comparison", icon: BarChart3, end: false },
+  { to: "/explainability", label: "Explainability", icon: Eye, end: false },
+  { to: "/baseline", label: "Baseline Comparison", icon: BarChart3, end: false },
   { to: "/dashboard", label: "Live Demo", end: false },
 ];
 
 // Auth gate applies ONLY to Live Demo and its operational tools (NetFlow sniffer, PCAP ingestion, K-step rollout, SOAR, Blockchain)
 export const isLiveDemoRoute = (pathname: string): boolean => {
-  // Publicly accessible pages (No login required)
+  // Publicly accessible pages (NEVER ask for login!)
   if (
     pathname === "/" ||
     pathname === "/about" ||
     pathname === "/architecture" ||
     pathname === "/explainability" ||
-    pathname === "/dashboard/explainability" ||
+    pathname.startsWith("/explainability") ||
+    pathname.startsWith("/dashboard/explainability") ||
     pathname === "/baseline" ||
     pathname === "/compare" ||
-    pathname === "/dashboard/baseline" ||
+    pathname.startsWith("/baseline") ||
+    pathname.startsWith("/compare") ||
+    pathname.startsWith("/dashboard/baseline") ||
     pathname === "/certificate" ||
-    pathname === "/dashboard/certificate" ||
+    pathname.startsWith("/dashboard/certificate") ||
     pathname === "/section65b" ||
     pathname === "/section63"
   ) {
     return false;
   }
 
-  // Restricted operational Live Demo routes
+  // Restricted operational Live Demo routes ONLY
   return (
-    pathname.startsWith("/dashboard") ||
+    pathname === "/dashboard" ||
+    pathname === "/dashboard/" ||
+    pathname.startsWith("/dashboard/live") ||
+    pathname.startsWith("/dashboard/simulation") ||
+    pathname.startsWith("/dashboard/alerts") ||
+    pathname.startsWith("/dashboard/blockchain") ||
+    pathname.startsWith("/dashboard/upload") ||
     pathname === "/live" ||
     pathname === "/upload" ||
     pathname === "/simulation" ||
@@ -78,6 +87,12 @@ export function Layout({ children }: { children: ReactNode }) {
     if (end) {
       return location.pathname === to;
     }
+    if (to === "/explainability") {
+      return location.pathname.startsWith("/explainability") || location.pathname.startsWith("/dashboard/explainability");
+    }
+    if (to === "/baseline") {
+      return location.pathname.startsWith("/baseline") || location.pathname.startsWith("/compare") || location.pathname.startsWith("/dashboard/baseline");
+    }
     if (to === "/certificate") {
       return (
         location.pathname === "/certificate" ||
@@ -87,11 +102,14 @@ export function Layout({ children }: { children: ReactNode }) {
     }
     if (to === "/dashboard") {
       return (
-        location.pathname.startsWith("/dashboard") &&
-        !location.pathname.startsWith("/dashboard/explainability") &&
-        !location.pathname.startsWith("/dashboard/baseline") &&
-        !location.pathname.startsWith("/dashboard/certificate") &&
-        !(location.pathname === "/dashboard/blockchain" && location.search.includes("tab=certificate"))
+        location.pathname === "/dashboard" ||
+        location.pathname.startsWith("/dashboard/live") ||
+        location.pathname.startsWith("/dashboard/simulation") ||
+        location.pathname.startsWith("/dashboard/alerts") ||
+        location.pathname.startsWith("/dashboard/blockchain") ||
+        location.pathname.startsWith("/dashboard/upload") ||
+        location.pathname === "/live" ||
+        location.pathname === "/upload"
       );
     }
     return location.pathname === to || location.pathname.startsWith(`${to}/`);
@@ -255,8 +273,8 @@ export function Layout({ children }: { children: ReactNode }) {
               <Link to="/" className="hover:text-[var(--color-text-primary)]">Home</Link>
               <Link to="/about" className="hover:text-[var(--color-text-primary)]">About</Link>
               <Link to="/architecture" className="hover:text-[var(--color-text-primary)]">Architecture</Link>
-              <Link to="/dashboard/explainability" onClick={(e) => handleNavClick(e, "/dashboard/explainability")} className="hover:text-[var(--color-text-primary)]">Explainability</Link>
-              <Link to="/dashboard/baseline" onClick={(e) => handleNavClick(e, "/dashboard/baseline")} className="hover:text-[var(--color-text-primary)]">Baseline Comparison</Link>
+              <Link to="/explainability" className="hover:text-[var(--color-text-primary)]">Explainability</Link>
+              <Link to="/baseline" className="hover:text-[var(--color-text-primary)]">Baseline Comparison</Link>
               <Link to="/dashboard" onClick={(e) => handleNavClick(e, "/dashboard")} className="hover:text-[var(--color-text-primary)]">Live Demo</Link>
             </div>
           </div>

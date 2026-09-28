@@ -27,7 +27,7 @@ export function ComparePage() {
     { metric: "Brier Score (Calibration)", logreg: "0.0418", plain_lstm: "0.0245", gru_attention: "0.0118", advantage: "Lowest calibration error (0.0072 SOTA)" },
   ];
 
-  const models = benchmarkData?.models || {
+  const DEFAULT_MODELS: Record<string, any> = {
     fused_sota: {
       name: "ShieldNet SOTA Fused Sentinel (World Model + Latent Stacking)",
       category: "Hybrid Neural Dynamics + Cost-Sensitive Tabular Stacking",
@@ -94,7 +94,17 @@ export function ComparePage() {
     }
   };
 
-  const selectedModel = models[selectedModelKey] || models.fused_sota;
+  const models: Record<string, any> = {
+    ...DEFAULT_MODELS,
+    ...(benchmarkData?.models || {})
+  };
+
+  const selectedModel =
+    models[selectedModelKey] ||
+    models.fused_sota ||
+    models.gru_attention ||
+    Object.values(models)[0] ||
+    DEFAULT_MODELS.fused_sota;
 
   return (
     <div className="w-full flex flex-col gap-6 pb-12">
@@ -188,25 +198,25 @@ export function ComparePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl border bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
         <div>
           <div className="text-[11px] font-mono uppercase text-[var(--color-text-muted)]">Model Architecture</div>
-          <div className="text-base font-bold text-[var(--color-text-primary)] mt-1">{selectedModel.name}</div>
-          <div className="text-xs text-[var(--color-text-secondary)]">{selectedModel.category}</div>
+          <div className="text-base font-bold text-[var(--color-text-primary)] mt-1">{selectedModel?.name}</div>
+          <div className="text-xs text-[var(--color-text-secondary)]">{selectedModel?.category}</div>
         </div>
         <div>
           <div className="text-[11px] font-mono uppercase text-[var(--color-text-muted)]">Parameters &amp; Overhead</div>
           <div className="text-base font-bold text-[var(--color-accent)] mt-1">
-            {typeof selectedModel.total_parameters === "number" ? selectedModel.total_parameters.toLocaleString() : selectedModel.total_parameters}
+            {typeof selectedModel?.total_parameters === "number" ? selectedModel.total_parameters.toLocaleString() : (selectedModel?.total_parameters ?? "N/A")}
           </div>
-          <div className="text-xs text-[var(--color-text-secondary)]">Training: {selectedModel.training_time_relative}</div>
+          <div className="text-xs text-[var(--color-text-secondary)]">Training: {selectedModel?.training_time_relative ?? "N/A"}</div>
         </div>
         <div>
           <div className="text-[11px] font-mono uppercase text-[var(--color-text-muted)]">Macro F1 (All Classes)</div>
-          <div className="text-base font-bold text-[var(--color-normal)] mt-1">{selectedModel.macro_f1}</div>
-          <div className="text-xs text-[var(--color-text-secondary)]">Threat Precision: {selectedModel.precision}</div>
+          <div className="text-base font-bold text-[var(--color-normal)] mt-1">{selectedModel?.macro_f1 ?? "N/A"}</div>
+          <div className="text-xs text-[var(--color-text-secondary)]">Threat Precision: {selectedModel?.precision ?? "N/A"}</div>
         </div>
         <div>
           <div className="text-[11px] font-mono uppercase text-[var(--color-text-muted)]">Probability Brier Score</div>
-          <div className="text-base font-bold text-[var(--color-text-primary)] mt-1">{selectedModel.brier_score}</div>
-          <div className="text-xs text-[var(--color-text-secondary)]">FPR: {selectedModel.false_positive_rate}</div>
+          <div className="text-base font-bold text-[var(--color-text-primary)] mt-1">{selectedModel?.brier_score ?? "N/A"}</div>
+          <div className="text-xs text-[var(--color-text-secondary)]">FPR: {selectedModel?.false_positive_rate ?? "N/A"}</div>
         </div>
       </div>
 
