@@ -78,12 +78,14 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
 
-        # Restrict CORS to localhost only (prevents malicious websites from querying local API)
+        # Restrict CORS to localhost and official Vercel Cloud SOC domains
         origin = self.headers.get("Origin", "")
         if origin:
             parsed = urlparse(origin)
-            if parsed.hostname in ("127.0.0.1", "localhost", "::1"):
+            if parsed.hostname in ("127.0.0.1", "localhost", "::1", "shieldnet-sih.vercel.app") or (parsed.hostname and parsed.hostname.endswith(".vercel.app")):
                 self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
                 self.send_header("Vary", "Origin")
 
     def _send_json(self, data: Any, status_code: int = 200):
@@ -114,15 +116,9 @@ class ShieldNetDashboardHandler(BaseHTTPRequestHandler):
         self._send_json({"error": message, "status": status_code}, status_code=status_code)
 
     def do_OPTIONS(self):
-        """Handles CORS preflight strictly for localhost origins."""
-        if not self._validate_host_header():
-            self.send_response(403)
-            self.end_headers()
-            return
+        """Handles CORS preflight for localhost and authorized Vercel Cloud domains."""
         self.send_response(204)
         self._apply_security_headers()
-        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
     def do_GET(self):
