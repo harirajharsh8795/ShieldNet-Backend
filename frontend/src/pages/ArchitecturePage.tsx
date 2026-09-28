@@ -53,6 +53,12 @@ const ARCHITECTURE_TABS = [
     tag: "Multi-Node Blockchain",
   },
   {
+    id: "sota99",
+    label: "SOTA99 L40S Neural Stacking",
+    icon: Zap,
+    tag: "99.75% Acc · 99.43% F1",
+  },
+  {
     id: "auth",
     label: "Enterprise OAuth2 / Keycloak IdP",
     icon: Lock,
@@ -90,15 +96,23 @@ export function ArchitecturePage() {
         </div>
 
         <div className="flex flex-wrap gap-2.5 shrink-0 font-mono text-xs">
-          <div className="rounded-xl border px-4 py-3 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+          <div className="rounded-xl border px-3.5 py-2.5 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+            <div className="text-[var(--color-text-muted)] text-[10px]">THREAT ACCURACY</div>
+            <div className="mt-0.5 font-bold text-[var(--color-accent)]">99.75% (354K Seqs)</div>
+          </div>
+          <div className="rounded-xl border px-3.5 py-2.5 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+            <div className="text-[var(--color-text-muted)] text-[10px]">MACRO F1</div>
+            <div className="mt-0.5 font-bold text-[var(--color-normal)]">99.43% (+25.09%)</div>
+          </div>
+          <div className="rounded-xl border px-3.5 py-2.5 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+            <div className="text-[var(--color-text-muted)] text-[10px]">FALSE POSITIVES</div>
+            <div className="mt-0.5 font-bold text-[var(--color-normal)]">0.28% FPR (Target &lt;0.5%)</div>
+          </div>
+          <div className="rounded-xl border px-3.5 py-2.5 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
             <div className="text-[var(--color-text-muted)] text-[10px]">PARAMETERS</div>
-            <div className="mt-0.5 font-bold text-[var(--color-accent)]">260,904</div>
+            <div className="mt-0.5 font-bold text-[var(--color-text-primary)]">260.9K + GBDT</div>
           </div>
-          <div className="rounded-xl border px-4 py-3 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
-            <div className="text-[var(--color-text-muted)] text-[10px]">LATENCY (K=5)</div>
-            <div className="mt-0.5 font-bold text-[var(--color-normal)]">4.03 ms</div>
-          </div>
-          <div className="rounded-xl border px-4 py-3 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+          <div className="rounded-xl border px-3.5 py-2.5 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
             <div className="text-[var(--color-text-muted)] text-[10px]">DEPLOYMENT</div>
             <div className="mt-0.5 font-bold text-[var(--color-elevated)]">100% Offline (C4)</div>
           </div>
@@ -501,6 +515,85 @@ export function ArchitecturePage() {
                   <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 font-mono text-[11px] text-cyan-300">
                     Block_Hash = SHA256(Prev_Hash || MerkleRoot(Telemetry_DPI) || XAI_Attribution)
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === "sota99" && (
+            <motion.div
+              key="sota99"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="grid grid-cols-1 gap-6 lg:grid-cols-2"
+            >
+              <div className="flex flex-col gap-4">
+                <h3 className="text-base font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
+                  <Zap className="text-[var(--color-accent)]" size={18} />
+                  L40S Sovereign GPU Training &amp; 668-Dim Latent Stacking
+                </h3>
+                <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
+                  Trained on an enterprise NVIDIA L40S (28GB VRAM) across <strong>354,566 real enterprise NetFlow sequences</strong>. ShieldNet extracts the continuous hidden dynamics tensor <code className="text-cyan-400">h_t \in \mathbb&#123;R&#125;^&#123;128&#125;</code> and temporal attention context, concatenates instantaneous flow-physics, and stacks them into a 668-dimensional latent vector passed to a cost-sensitive GBDT champion.
+                </p>
+
+                <div className="rounded-xl border p-4 font-mono text-xs bg-[var(--color-base)] text-[var(--color-text-primary)] space-y-2" style={{ borderColor: "var(--color-border)" }}>
+                  <div className="text-[var(--color-accent)] uppercase text-[10px] font-bold">
+                    Empirical Milestone Results (FINAL_BENCHMARK_SOTA99.json):
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
+                    <div className="rounded border p-2 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+                      <div className="text-[var(--color-text-muted)] text-[10px]">THREAT ACCURACY</div>
+                      <div className="text-sm font-bold text-[var(--color-accent)]">99.75%</div>
+                    </div>
+                    <div className="rounded border p-2 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+                      <div className="text-[var(--color-text-muted)] text-[10px]">MACRO F1 SCORE</div>
+                      <div className="text-sm font-bold text-[var(--color-normal)]">99.43% (+25.09%)</div>
+                    </div>
+                    <div className="rounded border p-2 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+                      <div className="text-[var(--color-text-muted)] text-[10px]">FALSE POSITIVE RATE</div>
+                      <div className="text-sm font-bold text-[var(--color-normal)]">0.28% (Mandate &lt;0.50%)</div>
+                    </div>
+                    <div className="rounded border p-2 bg-[var(--color-panel-raised)]" style={{ borderColor: "var(--color-border)" }}>
+                      <div className="text-[var(--color-text-muted)] text-[10px]">MITRE ATT&amp;CK ACC</div>
+                      <div className="text-sm font-bold text-[var(--color-accent)]">99.88%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border p-5 bg-[var(--color-panel-raised)] flex flex-col justify-between" style={{ borderColor: "var(--color-border)" }}>
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)] mb-3">
+                    Champion Artifacts &amp; Checkpoints
+                  </h4>
+                  <div className="space-y-2.5 font-mono text-xs">
+                    <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: "var(--color-border)" }}>
+                      <span className="text-[var(--color-text-secondary)]">Neural World Model</span>
+                      <span className="font-bold text-[var(--color-accent)]">world_model_sota99_champion.pt (26.1 MB)</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: "var(--color-border)" }}>
+                      <span className="text-[var(--color-text-secondary)]">Latent Stacking GBDT</span>
+                      <span className="font-bold text-[var(--color-normal)]">lgb_latent_champion.joblib (3.4 MB)</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: "var(--color-border)" }}>
+                      <span className="text-[var(--color-text-secondary)]">StandardScaler Weights</span>
+                      <span className="font-bold text-[var(--color-text-primary)]">scaler_sota99.joblib (78 Features)</span>
+                    </div>
+                    <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: "var(--color-border)" }}>
+                      <span className="text-[var(--color-text-secondary)]">Autoregressive Horizon</span>
+                      <span className="font-bold text-[var(--color-elevated)]">K = 1 to 10 Forward Steps</span>
+                    </div>
+                    <div className="flex items-center justify-between" style={{ borderColor: "var(--color-border)" }}>
+                      <span className="text-[var(--color-text-secondary)]">Huber Transition Loss</span>
+                      <span className="font-bold text-[var(--color-normal)]">0.0960 (Learned Physics)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded border border-[var(--color-normal)]/30 bg-[var(--color-normal)]/10 p-2.5 font-mono text-[11px] text-[var(--color-normal)] flex items-center gap-2">
+                  <CheckCircle2 size={14} />
+                  <span>Outperforms static Logistic Regression by +25.09% Macro F1 on identical 3.5 Lakh sequences.</span>
                 </div>
               </div>
             </motion.div>
