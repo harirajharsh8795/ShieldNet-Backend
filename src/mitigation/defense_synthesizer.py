@@ -101,6 +101,90 @@ class SovereignDefenseSynthesizer:
         }
     }
 
+    # ─── CAPEC Attack Pattern Cross-Reference (PS Requirement: CAPEC/CVE/NVD) ────
+    # Maps attack classes to MITRE CAPEC IDs for the complete kill-chain response:
+    # Detected Class → MITRE ATT&CK → CAPEC Pattern → CVE → Firewall Rule
+    CAPEC_MAP: Dict[str, List[Dict[str, str]]] = {
+        "SSH-Patator": [
+            {"id": "CAPEC-70",  "name": "Try Common Usernames / Passwords",     "phase": "Credential Access"},
+            {"id": "CAPEC-49",  "name": "Password Brute Forcing",                "phase": "Credential Access"},
+            {"id": "CAPEC-556", "name": "Replace File Extension Handler",        "phase": "Persistence"},
+        ],
+        "FTP-Patator": [
+            {"id": "CAPEC-70",  "name": "Try Common Usernames / Passwords",     "phase": "Credential Access"},
+            {"id": "CAPEC-194", "name": "Fake the Source of Data",              "phase": "Reconnaissance"},
+            {"id": "CAPEC-60",  "name": "Reusing Session IDs",                  "phase": "Initial Access"},
+        ],
+        "Web Attack - Brute Force": [
+            {"id": "CAPEC-49",  "name": "Password Brute Forcing",               "phase": "Credential Access"},
+            {"id": "CAPEC-62",  "name": "Cross-Site Request Forgery",           "phase": "Initial Access"},
+            {"id": "CAPEC-600", "name": "Credential Stuffing",                  "phase": "Credential Access"},
+        ],
+        "Web Attack - XSS": [
+            {"id": "CAPEC-86",  "name": "XSS Through HTTP Request Headers",     "phase": "Exploitation"},
+            {"id": "CAPEC-198", "name": "XSS Targeting Error Pages",            "phase": "Exploitation"},
+            {"id": "CAPEC-32",  "name": "XSS via HTTP Query Strings",           "phase": "Exploitation"},
+        ],
+        "Web Attack - SQL Injection": [
+            {"id": "CAPEC-66",  "name": "SQL Injection",                        "phase": "Exploitation"},
+            {"id": "CAPEC-7",   "name": "Blind SQL Injection",                  "phase": "Exploitation"},
+            {"id": "CAPEC-110", "name": "SQL Injection through SOAP Parameter", "phase": "Exploitation"},
+        ],
+        "PortScan": [
+            {"id": "CAPEC-300", "name": "Port Scanning",                        "phase": "Reconnaissance"},
+            {"id": "CAPEC-287", "name": "TCP SYN Scan",                         "phase": "Reconnaissance"},
+            {"id": "CAPEC-285", "name": "ICMP Echo Request Ping",              "phase": "Reconnaissance"},
+        ],
+        "Bot": [
+            {"id": "CAPEC-556", "name": "Replace File Extension Handler",       "phase": "C2 Persistence"},
+            {"id": "CAPEC-66",  "name": "SQL Injection (Exfil Tunnel)",         "phase": "Exfiltration"},
+            {"id": "CAPEC-501", "name": "Android Intent Hijacking (C2 Beacon)","phase": "Command & Control"},
+            {"id": "CAPEC-498", "name": "Probe iOS Screenshots",               "phase": "Collection"},
+        ],
+        "DDoS": [
+            {"id": "CAPEC-125", "name": "Flooding",                             "phase": "Impact"},
+            {"id": "CAPEC-469", "name": "HTTP DoS",                             "phase": "Impact"},
+            {"id": "CAPEC-192", "name": "Protocol Analysis",                   "phase": "Reconnaissance"},
+        ],
+        "DoS Hulk": [
+            {"id": "CAPEC-469", "name": "HTTP DoS",                             "phase": "Impact"},
+            {"id": "CAPEC-125", "name": "Flooding",                             "phase": "Impact"},
+        ],
+        "DoS GoldenEye": [
+            {"id": "CAPEC-469", "name": "HTTP DoS",                             "phase": "Impact"},
+            {"id": "CAPEC-125", "name": "Flooding",                             "phase": "Impact"},
+        ],
+        "DoS slowloris": [
+            {"id": "CAPEC-469", "name": "HTTP DoS",                             "phase": "Impact"},
+            {"id": "CAPEC-125", "name": "Flooding",                             "phase": "Impact"},
+        ],
+        "DoS Slowhttptest": [
+            {"id": "CAPEC-469", "name": "HTTP DoS",                             "phase": "Impact"},
+        ],
+        "Rare-Attack": [
+            {"id": "CAPEC-586", "name": "Object Injection",                    "phase": "Exploitation"},
+            {"id": "CAPEC-248", "name": "Command Injection",                   "phase": "Execution"},
+            {"id": "CAPEC-22",  "name": "Exploiting Trust in Client",           "phase": "Lateral Movement"},
+        ],
+        "Infiltration": [
+            {"id": "CAPEC-22",  "name": "Exploiting Trust in Client",           "phase": "Lateral Movement"},
+            {"id": "CAPEC-248", "name": "Command Injection",                   "phase": "Execution"},
+            {"id": "CAPEC-560", "name": "Use of Known Domain Credentials",     "phase": "Lateral Movement"},
+        ],
+    }
+
+    def get_capec_enrichment(self, predicted_class: str) -> List[Dict[str, str]]:
+        """Returns CAPEC attack patterns associated with this attack class.
+
+        The PS explicitly references CAPEC as a public knowledge base for enrichment.
+        This method connects the World Model's prediction to the CAPEC taxonomy,
+        giving defenders a structured attack pattern context beyond just a class label.
+        """
+        return self.CAPEC_MAP.get(predicted_class, [
+            {"id": "CAPEC-1",  "name": "Accessing Functionality Not Properly Constrained by ACLs", "phase": "Exploitation"}
+        ])
+
+
     def generate_defense_artifacts(self,
                                    predicted_class: str,
                                    confidence: float,
@@ -192,6 +276,13 @@ class SovereignDefenseSynthesizer:
 ```
 """
 
+        capec_patterns = self.get_capec_enrichment(predicted_class)
+        capec_primary = capec_patterns[0] if capec_patterns else {"id": "CAPEC-1", "name": "Generic Attack Pattern", "phase": "Exploitation"}
+        capec_list_str = "\n".join(
+            f"  - [{p['id']}] {p['name']} ({p['phase']})"
+            for p in capec_patterns
+        )
+
         return {
             "incident_id": incident_id,
             "timestamp": timestamp_str,
@@ -203,5 +294,10 @@ class SovereignDefenseSynthesizer:
             "target_port": port,
             "cve_id": cve_data["cve_id"],
             "cvss_score": cve_data["cvss"],
-            "remediation_advisory": cve_data["remediation"]
+            "remediation_advisory": cve_data["remediation"],
+            # CAPEC enrichment — PS requirement: CAPEC/CVE/NVD knowledge bases
+            "capec_patterns": capec_patterns,
+            "capec_primary_id": capec_primary["id"],
+            "capec_primary_name": capec_primary["name"],
+            "capec_primary_phase": capec_primary["phase"],
         }

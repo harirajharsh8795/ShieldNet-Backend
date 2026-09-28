@@ -129,7 +129,7 @@ def evaluate_world_model(model: WorldModel,
     y_pred = np.array(all_preds)
     
     report = classification_report(
-        y_true, y_pred, target_names=class_names, output_dict=True, zero_division=0
+        y_true, y_pred, labels=np.arange(len(class_names)), target_names=class_names, output_dict=True, zero_division=0
     )
     cm = confusion_matrix(y_true, y_pred, labels=np.arange(len(class_names)))
     bal_acc = balanced_accuracy_score(y_true, y_pred)

@@ -472,7 +472,7 @@ def get_sample_sessions():
     return cached_sample_sessions
 
 @app.post("/api/predict-sequence")
-def predict_sequence(req: PredictRequest):
+def predict_sequence(req: PredictRequest, user: Dict[str, Any] = Depends(get_current_user)):
     """Executes live forward predictive simulation via Dual-Engine Ensemble."""
     if world_model is None:
         raise HTTPException(status_code=500, detail="World Model checkpoint not loaded.")
@@ -642,9 +642,31 @@ def predict_sequence(req: PredictRequest):
 
     # 7. Out-of-Distribution & Feature Drift Guard (ML Credibility)
     ood_res = ood_detector.evaluate_vector(last_step[0])
-    if ood_res.get("is_ood", False):
-        penalty = ood_res.get("confidence_penalty", 0.20)
-        threat_prob = round(max(0.05, threat_prob * (1.0 - penalty)), 4)
+    # 8. Persistent Database Recording (Priority 2 Fix: SQLite State Retention)
+    incident_id = f"inc_{int(time.time() * 1000)}"
+    if threat_prob >= 0.50 and pred_class_name != "BENIGN":
+        try:
+            ev_hash = hash_bytes_sha256(f"{incident_id}-{pred_class_name}-{req.host_ip}".encode())
+            db_manager.save_incident(
+                incident_id=incident_id,
+                threat_type=pred_class_name,
+                severity=severity,
+                confidence=threat_prob,
+                evidence_name=f"stream_{req.host_ip}.pcap",
+                evidence_hash=ev_hash,
+                mitre_stage=pred_stage_idx,
+                mitre_tactic=MITRE_STAGE_MAP.get(pred_stage_idx, {}).get("tactic", "Unknown"),
+                status="DETECTED",
+                mitigation_action=defense_artifacts.get("primary_action", {}).get("type", "Rate Limit & Monitor"),
+                target_ip="192.168.10.50",
+                details={
+                    "host_ip": req.host_ip,
+                    "top_driver": top_driver_name,
+                    "k_step_max_threat": max([r["threat_probability"] for r in rollout_trajectory]) if rollout_trajectory else threat_prob
+                }
+            )
+        except Exception as e_db:
+            print(f"Warning: Failed to persist incident {incident_id} to DB: {e_db}")
 
     return {
         "timestamp": pd.Timestamp.now().isoformat(),
@@ -672,7 +694,7 @@ def predict_sequence(req: PredictRequest):
 
 
 @app.post("/api/explain")
-def explain_prediction(req: ExplainRequest):
+def explain_prediction(req: ExplainRequest, user: Dict[str, Any] = Depends(get_current_user)):
     """Computes Dual-Engine feature attributions & forensic driver summary."""
     if dual_explainer is None:
         raise HTTPException(status_code=500, detail="Explainer not initialized.")
@@ -722,7 +744,7 @@ def explain_prediction(req: ExplainRequest):
     }
 
 @app.post("/api/mitigate")
-def simulate_mitigation(req: MitigateRequest):
+def simulate_mitigation(req: MitigateRequest, user: Dict[str, Any] = Depends(get_current_user)):
     """Executes parallel counterfactual trajectory rollouts under alternative security interventions."""
     if cf_engine is None:
         raise HTTPException(status_code=500, detail="Counterfactual Engine not initialized.")
@@ -1162,6 +1184,27 @@ def dispatch_sentinel_alert(req: SentinelAlertRequest):
             "delivered_at": ts
         }
         
+    # Persist alert dispatch to Database (Priority 2 Fix)
+    disp_inc_id = f"disp_{int(time.time() * 1000)}"
+    try:
+        ev_hash = hash_bytes_sha256(f"{disp_inc_id}-{req.attack_type}-{req.target_asset}".encode())
+        db_manager.save_incident(
+            incident_id=disp_inc_id,
+            threat_type=req.attack_type,
+            severity="CRITICAL",
+            confidence=req.threat_probability,
+            evidence_name=f"alert_{req.target_asset.replace(' ', '_')}.json",
+            evidence_hash=ev_hash,
+            mitre_stage=req.mitre_stage,
+            mitre_tactic=MITRE_STAGE_MAP.get(req.mitre_stage, {}).get("tactic", "Impact"),
+            status="ALERT_DISPATCHED",
+            mitigation_action=firewall_rules.get("linux_iptables", "iptables -A INPUT -j DROP"),
+            target_ip=req.target_ip,
+            details={"dispatches": dispatches, "firewall_rules": firewall_rules}
+        )
+    except Exception as e_disp_db:
+        print(f"Warning: Failed to persist dispatch {disp_inc_id} to DB: {e_disp_db}")
+
     return {
         "status": "DISPATCH_SUCCESSFUL",
         "timestamp": ts,
@@ -1200,19 +1243,20 @@ async def login(req: LoginRequest):
         "user": user
     }
 
-@app.get("/api/auth/me")
-async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_user)):
-    """Returns currently authenticated user profile."""
-    return user
 
 # -------------------------------------------------------------
 # 2. PERSISTENT DATABASE STORAGE (Weakness 2.1)
 # -------------------------------------------------------------
 @app.get("/api/incidents")
-async def get_persistent_incidents(limit: int = 50):
+async def get_persistent_incidents(limit: int = 50, status: Optional[str] = None):
     """Retrieves persistent incidents from SQLite/PostgreSQL database."""
-    records = db_manager.get_all_incidents(limit=limit)
-    return {"incidents": records, "total": len(records)}
+    records = db_manager.get_all_incidents(limit=limit, status=status)
+    return {
+        "status": "SUCCESS",
+        "incidents": records,
+        "total": len(records),
+        "database_backend": "SQLite (models/checkpoints/shieldnet_persistent.db) with SQLAlchemy ORM"
+    }
 
 @app.get("/api/incidents/{incident_id}")
 async def get_incident_detail(incident_id: str):
@@ -1253,7 +1297,7 @@ class EvidenceRegisterRequest(BaseModel):
     raw_evidence_base64: Optional[str] = None
 
 @app.post("/api/evidence/register")
-async def register_evidence(req: EvidenceRegisterRequest):
+async def register_evidence(req: EvidenceRegisterRequest, user: Dict[str, Any] = Depends(get_current_user)):
     """
     Registers an incident and commits its multi-artifact SHA-256 hashes
     (Evidence, Model Weights, Prediction Vector, XAI attribution) to the SIERL blockchain.
