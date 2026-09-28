@@ -39,6 +39,24 @@ export function AuthGate() {
     location.pathname === "/alerts" ||
     location.pathname === "/blockchain";
 
+  const handleDismiss = React.useCallback(() => {
+    closeAuthModal();
+    // When backing out without login, ALWAYS return safely to the Landing Page (/)
+    navigate("/");
+  }, [closeAuthModal, navigate]);
+
+  // Keyboard Escape listener to safely return to Landing Page
+  // RULES OF HOOKS: All hooks MUST execute unconditionally before any return!
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleDismiss();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleDismiss]);
+
   // 1. If already authenticated and modal is not explicitly triggered, do not render
   if (isAuthenticated && !isAuthModalOpen) {
     return null;
@@ -49,23 +67,6 @@ export function AuthGate() {
   if (!isAuthenticated && !isProtectedPage && !isAuthModalOpen) {
     return null;
   }
-
-  const handleDismiss = () => {
-    closeAuthModal();
-    // When backing out without login, ALWAYS return safely to the Landing Page (/)
-    navigate("/");
-  };
-
-  // Keyboard Escape listener to safely return to Landing Page
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        handleDismiss();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
   return (
     <div
