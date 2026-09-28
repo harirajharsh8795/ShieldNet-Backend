@@ -10,7 +10,7 @@ import { BlockchainAuditPage } from "./BlockchainAuditPage";
 const tabs = [
   { to: "/dashboard", label: "Multi-Modal Telemetry Ingestion", icon: Upload, end: true },
   { to: "/dashboard/live", label: "Live Network Sniffer", icon: Radio },
-  { to: "/dashboard/simulation", label: "Continuous Trajectory Forecasting (K=5)", icon: Activity },
+  { to: "/dashboard/simulation", label: "Continuous Trajectory Forecasting (K=10)", icon: Activity },
   { to: "/dashboard/alerts", label: "Autonomous SOAR & Alert Sentinel", icon: Bell, highlight: true },
   { to: "/dashboard/blockchain", label: "SIERL Immutable Consortium Ledger", icon: Lock },
   { to: "/certificate", label: "📜 Section 63 / 65B Certificate", icon: ShieldCheck, highlight: true },

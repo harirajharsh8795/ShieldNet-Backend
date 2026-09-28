@@ -1332,7 +1332,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
                 </div>
                 <div>
                   <span className="text-slate-400 text-[10px] block uppercase">Lookahead Horizon:</span>
-                  <span className="text-cyan-400 font-bold">K=5 Steps (+50s Lookahead)</span>
+                  <span className="text-cyan-400 font-bold">K=1 to 10 Steps (100s Lookahead)</span>
                 </div>
               </div>
 
@@ -1357,7 +1357,7 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
                   <div className="p-3 rounded-lg bg-black/60 border border-blue-500/20">
                     <div className="text-[10px] uppercase text-blue-400 font-bold mb-1 flex items-center justify-between">
                       <span>2. Frozen Neural World Model Weights Hash:</span>
-                      <span className="text-[9px] text-slate-400">Bi-GRU + Attention (21.52M Params)</span>
+                      <span className="text-[9px] text-slate-400">3-Layer GRU (H=512) + Latent Stacking GBDT</span>
                     </div>
                     <code className="text-blue-300 text-[11px] break-all select-all font-mono block">
                       {modelHashVal}

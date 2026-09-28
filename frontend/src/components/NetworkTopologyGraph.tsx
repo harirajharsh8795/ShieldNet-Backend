@@ -447,7 +447,7 @@ export function NetworkTopologyGraph() {
         </div>
         <div className="p-2.5 rounded-lg border bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
           <div className="text-[10px] text-[var(--color-text-muted)]">K-STEP PROJECTION HORIZON</div>
-          <div className="font-bold text-emerald-400 mt-0.5">+50s Lead Time Warning</div>
+          <div className="font-bold text-emerald-400 mt-0.5">+100s Lead Time Warning (K=10)</div>
         </div>
       </div>
     </div>

@@ -281,16 +281,16 @@ export function UploadPage() {
             <div className="text-[var(--color-text-muted)] text-[10px] flex items-center gap-1.5 mb-1">
               <Cpu size={12} className="text-purple-400" /> NEURAL WORLD MODEL
             </div>
-            <div className="font-bold text-[var(--color-text-primary)]">Attention-Augmented GRU</div>
-            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">21.52M Parameters (Grand Omni)</div>
+            <div className="font-bold text-[var(--color-text-primary)]">3-Layer GRU (H=512)</div>
+            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">8-Head Attn + 668-Dim Latent GBDT</div>
           </div>
 
           <div className="p-3 rounded-lg border bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
             <div className="text-[var(--color-text-muted)] text-[10px] flex items-center gap-1.5 mb-1">
               <Radio size={12} className="text-emerald-400" /> FORWARD SIMULATION
             </div>
-            <div className="font-bold text-emerald-400">K=5 Latent Horizon (+50s)</div>
-            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">Autoregressive Rollout &lt;15ms</div>
+            <div className="font-bold text-emerald-400">K=1 to 10 Horizon (100s)</div>
+            <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">Autoregressive Rollout &lt;1.18ms</div>
           </div>
 
           <div className="p-3 rounded-lg border bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>

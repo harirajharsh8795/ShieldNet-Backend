@@ -74,7 +74,7 @@ const ACTION_PROFILES: Record<string, ActionProfile> = {
     cost: 0.00,
     trajectory: [0.88, 0.92, 0.96, 0.98, 0.99],
     commandPreview: "# Zero active intervention - Threat telemetry stream only",
-    explanation: "Passive monitoring. Warning: Unmitigated trajectory projects full system compromise (MITRE T1048 Exfiltration) within K=5."
+    explanation: "Passive monitoring. Warning: Unmitigated trajectory projects full system compromise (MITRE T1048 Exfiltration) within K=10 forward steps."
   }
 };
 
@@ -336,9 +336,9 @@ export function DefenseSandboxPanel({
             <div className="flex items-center justify-between text-[9px] font-mono text-[var(--color-text-muted)] border-t border-white/5 pt-1">
               <span>T (Now)</span>
               <span>T+1 (+10s)</span>
-              <span>T+2 (+20s)</span>
               <span>T+3 (+30s)</span>
               <span>T+5 (+50s)</span>
+              <span>T+10 (+100s)</span>
             </div>
           </div>
 

@@ -222,7 +222,7 @@ export function SimulationPage() {
               onClick={() => setDisplayMode("timeline")}
               className={`px-2.5 py-1 rounded-md transition-colors ${displayMode === "timeline" ? "bg-[var(--color-accent)] text-slate-950 font-bold" : "text-[var(--color-text-secondary)]"}`}
             >
-              Timeline (K=5)
+              Timeline (K=10)
             </button>
             <button
               onClick={() => setDisplayMode("topology")}
@@ -334,7 +334,7 @@ export function SimulationPage() {
       {/* Main Grid: Forecast Timeline & Side Panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-6">
-          {/* Main Forecast View: Timeline (K=5) or Subnet Lateral Traversal Topology */}
+          {/* Main Forecast View: Timeline (K=10) or Subnet Lateral Traversal Topology */}
           {displayMode === "topology" ? (
             <NetworkTopologyVisualizer
               attackerIp={currentSession?.host_ip}

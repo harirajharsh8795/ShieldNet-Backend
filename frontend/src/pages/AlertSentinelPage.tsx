@@ -354,7 +354,7 @@ export function AlertSentinelPage() {
     const remediationLink = `${currentOrigin}/dashboard/alerts?attack=${preset.id}&target=${encodeURIComponent(targetIp)}`;
     const iptablesRule = `iptables -I INPUT 1 -s ${preset.attackerIp} -d ${targetIp} -j DROP -m comment --comment 'ShieldNet Auto-Block ${preset.name}'`;
 
-    const whatsappMsg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${targetAsset}\n🌐 *Target IP*: \`${targetIp}\`\n⚔️ *Threat*: ${preset.name}\n📈 *Confidence*: ${(preset.threatProbability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=5 (<30s to breach)\n\n🛡️ *ACTION REQUIRED*:\n1. Click link to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remediationLink}\n\n2. Firewall Drop Command:\n\`${iptablesRule}\``;
+    const whatsappMsg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${targetAsset}\n🌐 *Target IP*: \`${targetIp}\`\n⚔️ *Threat*: ${preset.name}\n📈 *Confidence*: ${(preset.threatProbability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=10 (100s lookahead)\n\n🛡️ *ACTION REQUIRED*:\n1. Click link to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remediationLink}\n\n2. Firewall Drop Command:\n\`${iptablesRule}\``;
 
     const cleanNum = whatsappNumber.replace(/[^0-9]/g, "");
     const phoneWithPlus = cleanNum.startsWith("+") ? cleanNum : `+${cleanNum}`;
@@ -1027,7 +1027,7 @@ export function AlertSentinelPage() {
                 </div>
                 <div className="text-[11px] text-white">Target Mobile: <strong className="text-emerald-300">{whatsappNumber}</strong></div>
                 <div className="text-[10px] text-emerald-200/80 mt-1 line-clamp-2">
-                  Payload: 🚨 [SHIELDNET ALERT] {activeAttack.name} detected on {targetAsset} ({targetIp}). Confidence: {(activeAttack.threatProbability * 100).toFixed(1)}%. Horizon: K=5. Stop/Block link embedded.
+                  Payload: 🚨 [SHIELDNET ALERT] {activeAttack.name} detected on {targetAsset} ({targetIp}). Confidence: {(activeAttack.threatProbability * 100).toFixed(1)}%. Horizon: K=10. Stop/Block link embedded.
                 </div>
               </div>
 
@@ -1072,7 +1072,7 @@ export function AlertSentinelPage() {
                         const currentOrigin = typeof window !== "undefined" ? window.location.origin : "https://shieldnet-sih.vercel.app";
                         const remLink = `${currentOrigin}/dashboard/alerts?attack=${activeAttack.id}&target=${encodeURIComponent(targetIp)}`;
                         const iptablesRule = `iptables -I INPUT 1 -s ${activeAttack.attackerIp} -d ${targetIp} -j DROP -m comment --comment 'ShieldNet Auto-Block ${activeAttack.name}'`;
-                        const msg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${targetAsset}\n🌐 *Target IP*: \`${targetIp}\`\n⚔️ *Threat*: ${activeAttack.name}\n📈 *Confidence*: ${(activeAttack.threatProbability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=5 (<30s to breach)\n\n🛡️ *ACTION REQUIRED*:\n1. Click link to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remLink}\n\n2. Firewall Drop Command:\n\`${iptablesRule}\``;
+                        const msg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${targetAsset}\n🌐 *Target IP*: \`${targetIp}\`\n⚔️ *Threat*: ${activeAttack.name}\n📈 *Confidence*: ${(activeAttack.threatProbability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=10 (100s lookahead)\n\n🛡️ *ACTION REQUIRED*:\n1. Click link to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remLink}\n\n2. Firewall Drop Command:\n\`${iptablesRule}\``;
                         window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, "_blank");
                       }}
                       className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-md transition-all active:scale-95 cursor-pointer"
@@ -1153,7 +1153,7 @@ export function AlertSentinelPage() {
                 BREACH RISK: {(activeAttack.threatProbability * 100).toFixed(1)}%
               </span>
               <span className="text-[11px] text-rose-300">
-                Forecast Horizon: K=5 Rollout (&lt;30s to breach)
+                Forecast Horizon: K=10 Rollout (100s lookahead)
               </span>
             </div>
           </div>
@@ -1365,10 +1365,10 @@ export function AlertSentinelPage() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-[var(--color-text-primary)]">
-                      K=5 FORWARD TRAJECTORY RISK FORECAST
+                      K=10 FORWARD TRAJECTORY RISK FORECAST
                     </span>
                     <span className="text-[10px] text-[var(--color-text-muted)]">
-                      State Space: s_t &rarr; s_&#123;t+5&#125;
+                      State Space: s_t &rarr; s_&#123;t+10&#125;
                     </span>
                   </div>
 

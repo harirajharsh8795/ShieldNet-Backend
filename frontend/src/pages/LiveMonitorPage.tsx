@@ -99,7 +99,7 @@ export function LiveMonitorPage() {
 
   // Chart data
   const [timeline, setTimeline] = useState<LiveTelemetryPoint[]>([]);
-  const [kStepRollout, setKStepRollout] = useState<number[]>([0.02, 0.02, 0.03, 0.02, 0.03]);
+  const [kStepRollout, setKStepRollout] = useState<number[]>([0.02, 0.02, 0.03, 0.02, 0.03, 0.03, 0.04, 0.03, 0.04, 0.04]);
 
   // Event Logs
   const [eventLogs, setEventLogs] = useState<LiveEventLog[]>([
@@ -228,13 +228,18 @@ export function LiveMonitorPage() {
         stage = "Reconnaissance";
       }
 
-      // Rollout projection for K=5
+      // Rollout projection for K=1..10
       const newRollout = [
         Math.min(0.999, +(currentP + 0.02).toFixed(3)),
-        Math.min(0.999, +(currentP + 0.05).toFixed(3)),
-        Math.min(0.999, +(currentP + 0.09).toFixed(3)),
-        Math.min(0.999, +(currentP + 0.12).toFixed(3)),
-        Math.min(0.999, +(currentP + 0.15).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.04).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.07).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.10).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.13).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.16).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.19).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.22).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.25).toFixed(3)),
+        Math.min(0.999, +(currentP + 0.28).toFixed(3)),
       ];
 
       setPacketsPerSec(pps);
@@ -320,7 +325,7 @@ export function LiveMonitorPage() {
               </span>
             </div>
             <p className="mt-0.5 font-mono text-xs text-[var(--color-text-secondary)]">
-              Continuous Ingestion Engine · Autoregressive K=5 Rollout Horizon (+50s)
+              Continuous Ingestion Engine · Autoregressive K=1 to 10 Rollout Horizon (100s)
             </p>
           </div>
         </div>
@@ -496,7 +501,7 @@ export function LiveMonitorPage() {
               <Cpu size={16} className="text-[var(--color-accent)]" />
             </div>
             <p className="mt-1 font-mono text-xs text-[var(--color-text-secondary)]">
-              World Model Autoregressive Rollout (+50s Horizon).
+              World Model Autoregressive Rollout (100s Horizon, K=1 to 10 Steps).
             </p>
           </div>
 

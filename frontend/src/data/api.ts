@@ -1260,7 +1260,7 @@ export async function getDefenseRules(params: {
 ### Executive Forensic Summary
 The ShieldNet Neural World Model detected an evolving threat trajectory targeting Critical Infrastructure asset \`${target}\` originating from \`${host}\`. 
 
-Forward temporal simulation ($K=5$ horizon, $+50\\text{s}$) projected a high-confidence progression towards compromise. Proactive counterfactual intervention was evaluated in latent state space before physical impact.
+Forward temporal simulation ($K=10$ horizon, $+100\\text{s}$) projected a high-confidence progression towards compromise. Proactive counterfactual intervention was evaluated in latent state space before physical impact.
 
 ---
 
@@ -1359,7 +1359,7 @@ export async function dispatchSentinelAlert(payload: SentinelAlertPayload): Prom
   const attackKey = payload.attack_id || "ddos";
   const remediation_link = `${base}/dashboard/alerts?attack=${attackKey}&target=${encodeURIComponent(payload.target_ip)}`;
   const iptablesRule = `iptables -I INPUT 1 -s ${payload.attacker_ip} -d ${payload.target_ip} -j DROP -m comment --comment 'ShieldNet Auto-Block ${payload.attack_type}'`;
-  const whatsappMsg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${payload.target_asset}\n🌐 *Target IP*: \`${payload.target_ip}\`\n⚔️ *Threat*: ${payload.attack_type}\n📈 *Confidence*: ${(payload.threat_probability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=5 (<30s to breach)\n\n🛡️ *ACTION REQUIRED*:\n1. Click to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remediation_link}\n\n2. Firewall Drop Rule:\n\`${iptablesRule}\``;
+  const whatsappMsg = `🚨 *[SHIELDNET CRITICAL DEFENSE ALERT]*\n━━━━━━━━━━━━━━━━━━━━━━━━━\n🎯 *Target Asset*: ${payload.target_asset}\n🌐 *Target IP*: \`${payload.target_ip}\`\n⚔️ *Threat*: ${payload.attack_type}\n📈 *Confidence*: ${(payload.threat_probability * 100).toFixed(1)}%\n⏱️ *Horizon*: K=10 (100s lookahead)\n\n🛡️ *ACTION REQUIRED*:\n1. Click to Stop Attack & Block Adversary IP:\n🔗 *Stop / Block Now*: ${remediation_link}\n\n2. Firewall Drop Rule:\n\`${iptablesRule}\``;
 
   return {
     status: "DISPATCH_SUCCESSFUL",

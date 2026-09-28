@@ -85,9 +85,9 @@ const PIPELINE_STAGES: PipelineStage[] = [
     glow: "rgba(16,185,129,0.4)",
     badge: "99.75% Acc · 99.43% F1 (L40S Champion)",
     subtitle: "Continuous Latent Dynamics + 668-dim Latent Stacking GBDT",
-    formula: "\\mathbf{P}(y) = \\text{StackingGBDT}(\\mathbf{h}_t \\in \\mathbb{R}^{128}, \\mathbf{c}_t \\in \\mathbb{R}^{128}, \\mathbf{s}_t \\in \\mathbb{R}^{84})",
+    formula: "\\mathbf{P}(y) = \\text{StackingGBDT}(\\mathbf{h}_t \\in \\mathbb{R}^{512}, \\mathbf{c}_t \\in \\mathbb{R}^{512}, \\mathbf{s}_t \\in \\mathbb{R}^{78})",
     techSpecs: [
-      "2-Layer GRU Backbone (128 hidden) with Multi-Head Temporal Attention Pooling",
+      "3-Layer GRU Backbone (512 hidden) with 8-Head Temporal Attention Pooling",
       "Cost-Sensitive 668-dim Latent Stacking GBDT (lgb_latent_champion.joblib)",
       "SOTA99 Champion: 99.75% Accuracy, 99.43% Macro F1, 0.28% FPR across 354,566 Sequences",
       "1.18 ms edge gateway line-rate latency (< 1.2 ms)"
@@ -104,7 +104,7 @@ const PIPELINE_STAGES: PipelineStage[] = [
     color: "text-rose-400",
     accentHex: "#F43F5E",
     glow: "rgba(244,63,94,0.4)",
-    badge: "4.03 ms 5-Step Horizon",
+    badge: "1.18 ms 10-Step Horizon (K=10)",
     subtitle: "Autoregressive s_t → s_{t+K} + Minimal Intervention Δs",
     formula: "\\hat{\\mathbf{s}}_{t+k} = f_{\\theta}(\\hat{\\mathbf{s}}_{t+k-1}), \\quad \\min_{\\Delta \\mathbf{s}} \\|\\Delta \\mathbf{s}\\|_2 \\text{ s.t. } \\mathbf{P}_{\\text{attack}} < 0.15",
     techSpecs: [

@@ -149,22 +149,30 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
               </div>
 
               <ol className="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
-                <li>Download the unpacked extension ZIP package.</li>
-                <li>Extract the folder to your computer.</li>
-                <li>In Chrome, navigate to <code className="text-cyan-400">chrome://extensions</code> and enable <strong>Developer mode</strong>.</li>
+                <li>Download the unpacked extension ZIP package below.</li>
+                <li>Extract the ZIP folder to your local machine.</li>
+                <li>In Chrome/Edge/Brave, go to <code className="text-cyan-400">chrome://extensions</code> and enable <strong>Developer mode</strong>.</li>
                 <li>Click <strong>Load unpacked</strong> and select the extracted folder.</li>
-                <li>Pin ShieldNet to your browser toolbar for live health and status alerts.</li>
+                <li>Pin ShieldNet to your browser toolbar for real-time telemetry alerts and control.</li>
               </ol>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
+                <a
+                  href="/shieldnet_extension.zip"
+                  download="shieldnet_extension.zip"
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white hover:brightness-110 transition-all shadow-lg cursor-pointer"
+                >
+                  <Download size={14} />
+                  Download Extension Package (.ZIP)
+                </a>
                 <a
                   href="https://github.com/harirajharsh8795/ShieldNet-Backend/tree/main/browser-extension"
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2.5 text-xs font-bold text-white hover:brightness-110 transition-all shadow-lg"
+                  className="flex items-center justify-center gap-2 w-full rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-xs font-semibold text-blue-300 hover:bg-blue-500/20 transition-all"
                 >
-                  <Download size={14} />
-                  Download Browser Extension Package
+                  <Globe size={13} />
+                  View Extension Source on GitHub
                 </a>
               </div>
             </div>
@@ -185,7 +193,7 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
                 <p className="break-all">{quickCommand}</p>
                 <button
                   onClick={handleCopy}
-                  className="absolute right-2 top-2 rounded bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white transition-colors"
+                  className="absolute right-2 top-2 rounded bg-white/10 p-1.5 text-slate-300 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
                 >
                   {copied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                 </button>

@@ -39,8 +39,8 @@ TACTICAL THREAT INTELLIGENCE & PRE-EMPTIVE INCIDENT MEMO
 ================================================================================
 CLASSIFICATION : RESTRICTED / SOVEREIGN DEFENSE DISPATCH
 DATE/TIME      : ${new Date().toUTCString()}
-ENGINE         : ShieldNet Attention-Augmented GRU World Model (21.52M Trained)
-COMPLIANCE     : NTRO Problem Statement 153 / SIH26153
+ENGINE         : ShieldNet 3-Layer GRU (H=512) World Model + 668-Dim Latent Stacking GBDT
+COMPLIANCE     : NTRO Problem Statement 153 / SIH26153 (99.75% Acc · 99.43% F1)
 
 1. EXECUTIVE THREAT SUMMARY:
 --------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Adversary Host      : ${hostIp} (WAN Ingress)
 Target CII Asset    : ${targetIp} (National SCADA / Core Infrastructure)
 Classified Threat   : ${predictedClass.toUpperCase()}
 MITRE ATT&CK Stage  : ${mitreTactic}
-Forecast Horizon    : K=5 Rollout (+50 seconds ahead of physical damage)
+Forecast Horizon    : K=10 Rollout (+100 seconds ahead of physical damage)
 
 2. AXIOMATIC EVIDENCE DECOMPOSITION (SHAP / LLOYD SHAPLEY ATTRIBUTION):
 --------------------------------------------------------------------------------
@@ -82,19 +82,19 @@ Sovereign Integrity : 100% AIR-GAPPED VERIFIED (Zero Cloud Reliance)
 ================================================================================
 गोपनीयता श्रेणी : प्रतिबंधित / संप्रभु रक्षा प्रेषण
 दिनांक/समय      : ${new Date().toLocaleString("hi-IN")}
-एआई इंजन        : शील्डनेट अटेंशन-संवर्धित जीआरयू वर्ल्ड मॉडल (२१.५२ मिलियन प्रशिक्षित)
+एआई इंजन        : शील्डनेट ३-लेयर जीआरयू वर्ल्ड मॉडल (H=512) + ६६८-आयामी लेटेंट स्टैकिंग
 
 १. मुख्य खतरा सारांश (EXECUTIVE SUMMARY):
 --------------------------------------------------------------------------------
 शील्डनेट न्यूरल वर्ल्ड मॉडल ने महत्वपूर्ण संप्रभु संपत्ति [${targetIp}] पर होने वाले
-गंभीर हमले का वास्तविक क्षति होने से ५० सेकंड पहले ही पूर्वानुमान लगा लिया है।
+गंभीर हमले का वास्तविक क्षति होने से १०० सेकंड पहले ही पूर्वानुमान लगा लिया है।
 हमले की संभावना (Threat Probability): ${(confidence * 100).toFixed(1)}%
 
 हमलावर आईपी        : ${hostIp} (बाहरी नेटवर्क)
 लक्षित बुनियादी ढांचा : ${targetIp} (पावर ग्रिड / बैंकिंग गेटवे)
 पहचाना गया हमला    : ${predictedClass.toUpperCase()}
 एमआईटीआरई चरण      : ${mitreTactic}
-पूर्वानुमान सीमा    : K=5 चरण (अगले 50 सेकंड में पूर्ण समझौते का अनुमान)
+पूर्वानुमान सीमा    : K=10 चरण (अगले 100 सेकंड में पूर्ण समझौते का अनुमान)
 
 २. गणितीय साक्ष्य एवं शैप (SHAP) विश्लेषण:
 --------------------------------------------------------------------------------

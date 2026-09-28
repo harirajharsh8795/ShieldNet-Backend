@@ -84,15 +84,15 @@ function computeBreachEstimate(
     if (!peakProj || peakProj.infiltrationProbability < 0.5) return null;
     const peakIdx = projectedPoints.indexOf(peakProj);
     return {
-      secondsTotal: Math.min((peakIdx + 1) * windowSeconds, 52),  // cap at 52s (K=5 × 7.5 + buffer)
+      secondsTotal: Math.min((peakIdx + 1) * windowSeconds, 100),  // cap at 100s (K=10 × 10s)
       mitreStagePredicted: peakProj.predictedMitreStage,
       peakProbability: peakProj.infiltrationProbability,
     };
   }
 
-  // Cap at realistic maximum: K=5 × 7.5s window = 37.5s → round to 38s
+  // Cap at realistic maximum: K=10 × 10s window = 100s
   const rawSeconds = (breachIdx + 1) * windowSeconds;
-  const cappedSeconds = Math.min(rawSeconds, 52);
+  const cappedSeconds = Math.min(rawSeconds, 100);
 
   return {
     secondsTotal: cappedSeconds,

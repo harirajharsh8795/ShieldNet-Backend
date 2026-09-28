@@ -88,7 +88,7 @@ const SCENARIO_EXPLANATIONS: Record<string, ScenarioExplanation> = {
       { time: "T-24s", source: "LANL Auth Log (Identity)", event: "Service account svc_backup generated anomalous Kerberos TGS ticket for non-standard port", mitre: "T1078 (Valid Accounts)", anomalyScore: "0.78" },
       { time: "T-15s", source: "PCAP (Packet DPI)", event: "TCP Window Size fixed at 64240 bytes with SYN flag repetition to external IP 205.174.165.73", mitre: "T1071.001 (Web Protocols)", anomalyScore: "0.89" },
       { time: "T-05s", source: "NetFlow (Flow)", event: "Periodic 10.0s flow bursts (284 bytes bwd) detected by World Model rolling temporal window", mitre: "T1573 (Encrypted Channel)", anomalyScore: "0.95" },
-      { time: "T+00s", source: "NetFlow (Flow)", event: "World Model forecasts Infiltration stage 4 within K=5 steps. Automated SOAR block triggered", mitre: "TA0011 (Command & Control)", anomalyScore: "0.98" },
+      { time: "T+00s", source: "NetFlow (Flow)", event: "World Model forecasts Infiltration stage 4 within K=10 steps (100s lookahead). Automated SOAR block triggered", mitre: "TA0011 (Command & Control)", anomalyScore: "0.98" },
     ],
     topFeatures: [
       { name: "Bwd Packet Length Mean", category: "Payload", value: "284.5 B", score: 0.38, impact: "elevates_threat" },
