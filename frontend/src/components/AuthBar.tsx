@@ -1,78 +1,61 @@
-import { useState, useEffect } from "react";
-import { Shield, UserCheck, Key, Lock, ChevronDown, CheckCircle2, LogOut } from "lucide-react";
-import { loginOAuth2, fetchEnterprisePersonas, logoutOAuth2 } from "../data/api";
+import { useState, useEffect, useRef } from "react";
+import {
+  Shield,
+  UserCheck,
+  Key,
+  ChevronDown,
+  CheckCircle2,
+  LogOut,
+  UserPlus,
+  LogIn,
+  Building,
+  Check,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { fetchEnterprisePersonas } from "../data/api";
 
 export function AuthBar() {
-  const [currentUser, setCurrentUser] = useState<any>(() => {
-    const saved = localStorage.getItem("shieldnet_user");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          username: "admin@shieldnet.gov.in",
-          display_name: "Chief Information Security Officer (CISO)",
-          role: "CISO_Admin",
-          clearance_level: 5,
-          clearance_label: "Level 5 - Sovereign Defense"
-        };
-  });
-
+  const { user, isAuthenticated, login, logout, openAuthModal, isLoading } = useAuth();
   const [personas, setPersonas] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [customUsername, setCustomUsername] = useState("");
-  const [customPassword, setCustomPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchEnterprisePersonas().then(setPersonas);
+    fetchEnterprisePersonas().then(setPersonas).catch(() => {});
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSelectPersona = async (persona: any) => {
-    setIsAuthenticating(true);
+    setIsSwitching(true);
     setIsOpen(false);
     const pwdMap: Record<string, string> = {
+      "admin@shieldnet.local": "Admin@123",
+      "analyst@shieldnet.local": "Analyst@123",
+      "auditor@shieldnet.local": "Auditor@123",
       "admin@shieldnet.gov.in": "shieldnet2026",
       "analyst@shieldnet.gov.in": "analyst2026",
-      "auditor@shieldnet.gov.in": "auditor2026"
+      "auditor@shieldnet.gov.in": "auditor2026",
     };
-    const password = pwdMap[persona.username] || "shieldnet2026";
+    const password = pwdMap[persona.username] || "Admin@123";
     try {
-      const res = await loginOAuth2(persona.username, password);
-      if (res && res.user) {
-        setCurrentUser(res.user);
-      }
+      await login(persona.username, password);
     } catch (err: any) {
-      console.error("Persona authentication failed:", err);
-      alert(`SSO Authentication failed: ${err?.message || "Invalid credentials"}`);
+      console.error("Persona switch failed:", err);
+      alert(`Persona switch failed: ${err?.message || "Invalid credentials"}`);
     } finally {
-      setIsAuthenticating(false);
+      setIsSwitching(false);
     }
-  };
-
-  const handleCustomLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError("");
-    setIsAuthenticating(true);
-    try {
-      const res = await loginOAuth2(customUsername, customPassword);
-      if (res && res.user) {
-        setCurrentUser(res.user);
-        setIsLoginModalOpen(false);
-        setCustomUsername("");
-        setCustomPassword("");
-      }
-    } catch (err: any) {
-      setLoginError(err?.message || "Invalid credentials or user not authorized in IdP directory.");
-    } finally {
-      setIsAuthenticating(false);
-    }
-  };
-
-  const handleLogout = () => {
-    logoutOAuth2();
-    setCurrentUser(null);
-    setIsOpen(false);
   };
 
   const getRoleColor = (role?: string) => {
@@ -84,26 +67,53 @@ export function AuthBar() {
     return "#8B5CF6"; // Purple
   };
 
+  // If user is not authenticated, render prominent Login and Sign Up triggers
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => openAuthModal("login")}
+          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-cyan-500/15 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500/25 transition-all shadow-sm cursor-pointer"
+        >
+          <LogIn size={13} />
+          <span>Login</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => openAuthModal("signup")}
+          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/25 transition-all shadow-sm cursor-pointer"
+        >
+          <UserPlus size={13} />
+          <span>Sign Up</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative">
-      {/* Active Persona Pill / Button */}
+    <div className="relative" ref={dropdownRef}>
+      {/* Active Persona Pill */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-all hover:bg-[var(--color-panel)]"
+        className="flex items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-medium transition-all hover:bg-[var(--color-panel)] cursor-pointer"
         style={{
           borderColor: "var(--color-border)",
-          backgroundColor: "color-mix(in srgb, var(--color-panel) 85%, transparent)"
+          backgroundColor: "color-mix(in srgb, var(--color-panel) 85%, transparent)",
         }}
-        title="Enterprise SSO / Role-Based Access Control"
+        title={`Authenticated as ${user.display_name} (${user.role})`}
       >
         <div
-          className="flex h-5 w-5 items-center justify-center rounded-full"
-          style={{ backgroundColor: `${getRoleColor(currentUser?.role)}20`, color: getRoleColor(currentUser?.role) }}
+          className="flex h-5 w-5 items-center justify-center rounded-full shrink-0"
+          style={{
+            backgroundColor: `${getRoleColor(user.role)}20`,
+            color: getRoleColor(user.role),
+          }}
         >
-          {currentUser?.role?.includes("CISO") || currentUser?.role?.includes("Admin") ? (
+          {user.role?.includes("CISO") || user.role?.includes("Admin") ? (
             <Shield size={12} />
-          ) : currentUser?.role?.includes("Auditor") ? (
+          ) : user.role?.includes("Auditor") ? (
             <Key size={12} />
           ) : (
             <UserCheck size={12} />
@@ -113,187 +123,182 @@ export function AuthBar() {
         <div className="text-left hidden lg:block">
           <div className="flex items-center gap-1.5 leading-tight">
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {currentUser ? currentUser.role : "Guest SSO"}
+              {user.role}
             </span>
             <span
-              className="inline-block h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: getRoleColor(currentUser?.role) }}
+              className="inline-block h-1.5 w-1.5 rounded-full animate-pulse"
+              style={{ backgroundColor: getRoleColor(user.role) }}
             />
           </div>
-          <div className="text-[10px] text-[var(--color-text-muted)] leading-tight">
-            {currentUser?.clearance_label?.split("-")[0] || "Level 5"}
+          <div className="text-[10px] text-[var(--color-text-muted)] leading-tight font-mono">
+            {user.clearance_label?.split("-")[0]?.trim() || `Level ${user.clearance_level || 5}`}
           </div>
         </div>
 
-        <ChevronDown size={12} className="text-[var(--color-text-muted)]" />
+        <ChevronDown size={12} className="text-[var(--color-text-muted)] shrink-0" />
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-72 rounded-xl border p-2 shadow-2xl z-50 backdrop-blur-md"
+          className="absolute right-0 mt-2 w-80 rounded-2xl border p-3 shadow-2xl z-50 backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-150"
           style={{
-            backgroundColor: "var(--color-panel)",
-            borderColor: "var(--color-border)"
+            backgroundColor: "var(--color-panel, #151b2b)",
+            borderColor: "color-mix(in srgb, var(--color-border) 80%, var(--color-accent) 20%)",
+            boxShadow: "0 20px 40px -15px rgba(0,0,0,0.8), 0 0 25px -5px rgba(34,211,238,0.15)",
           }}
         >
-          <div className="px-3 py-2 border-b" style={{ borderColor: "var(--color-border)" }}>
+          {/* Active Session Header */}
+          <div className="px-2 py-2 border-b" style={{ borderColor: "var(--color-border)" }}>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider font-semibold text-[var(--color-text-muted)]">
-                OAuth2 Enterprise IdP
+              <span className="text-[9.5px] uppercase tracking-wider font-mono font-semibold text-[var(--color-text-muted)]">
+                OAuth2 / Sovereign Session
               </span>
-              <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                <CheckCircle2 size={10} /> OIDC Active
+              <span className="text-[9.5px] text-emerald-400 font-mono flex items-center gap-1">
+                <CheckCircle2 size={10} /> Active Token
               </span>
             </div>
-            <div className="mt-1 text-xs font-semibold text-[var(--color-text-primary)] truncate">
-              {currentUser?.display_name || "Enterprise Session"}
+
+            <div className="mt-1.5 flex items-center gap-2">
+              <div
+                className="flex h-7 w-7 items-center justify-center rounded-lg shrink-0"
+                style={{
+                  backgroundColor: `${getRoleColor(user.role)}25`,
+                  color: getRoleColor(user.role),
+                }}
+              >
+                {user.role?.includes("CISO") || user.role?.includes("Admin") ? (
+                  <Shield size={14} />
+                ) : user.role?.includes("Auditor") ? (
+                  <Key size={14} />
+                ) : (
+                  <UserCheck size={14} />
+                )}
+              </div>
+              <div className="overflow-hidden">
+                <div className="text-xs font-bold text-[var(--color-text-primary)] truncate">
+                  {user.display_name}
+                </div>
+                <div className="text-[10px] font-mono text-[var(--color-text-muted)] truncate">
+                  {user.username}
+                </div>
+              </div>
             </div>
-            <div className="text-[10px] font-mono text-[var(--color-text-muted)] truncate">
-              {currentUser?.username || "offline_demo@shieldnet"}
+
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              <span
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-semibold uppercase tracking-wider"
+                style={{
+                  backgroundColor: `${getRoleColor(user.role)}15`,
+                  color: getRoleColor(user.role),
+                  border: `1px solid ${getRoleColor(user.role)}30`,
+                }}
+              >
+                {user.clearance_label || `Clearance Level ${user.clearance_level}`}
+              </span>
+              {user.department && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] text-[var(--color-text-muted)] border border-[var(--color-border)] truncate max-w-[180px]">
+                  <Building size={9} />
+                  <span className="truncate">{user.department}</span>
+                </span>
+              )}
             </div>
+
+            {/* Permissions summary */}
+            {user.permissions && user.permissions.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {user.permissions.slice(0, 4).map((perm) => (
+                  <span
+                    key={perm}
+                    className="font-mono text-[8.5px] px-1.5 py-0.5 rounded bg-black/30 text-[var(--color-text-muted)] border border-[var(--color-border)]"
+                  >
+                    {perm}
+                  </span>
+                ))}
+                {user.permissions.length > 4 && (
+                  <span className="font-mono text-[8.5px] px-1 py-0.5 rounded text-[var(--color-text-muted)]">
+                    +{user.permissions.length - 4} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="py-1">
-            <div className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">
-              Quick-Switch Persona (RBAC Testing):
+          {/* Persona Switcher Section */}
+          <div className="py-2">
+            <div className="px-2 py-1 text-[9.5px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center justify-between">
+              <span>Switch Active Persona (Evaluation):</span>
+              {isSwitching && <span className="text-cyan-400 font-mono text-[9px]">Switching...</span>}
             </div>
-            {personas.map((p) => {
-              const isSelected = currentUser?.role === p.role;
-              return (
-                <button
-                  key={p.username}
-                  type="button"
-                  onClick={() => handleSelectPersona(p)}
-                  disabled={isAuthenticating}
-                  className="w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg text-left transition-colors hover:bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)]"
-                  style={{
-                    backgroundColor: isSelected
-                      ? "color-mix(in srgb, var(--color-accent) 12%, transparent)"
-                      : "transparent"
-                  }}
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ backgroundColor: getRoleColor(p.role) }}
-                    />
-                    <div>
-                      <div className="font-medium text-[var(--color-text-primary)]">{p.role}</div>
-                      <div className="text-[10px] text-[var(--color-text-muted)]">{p.clearance_label}</div>
+
+            <div className="space-y-1 mt-1">
+              {personas.map((p) => {
+                const isSelected = user.username === p.username || user.role === p.role;
+                return (
+                  <button
+                    key={p.username}
+                    type="button"
+                    onClick={() => handleSelectPersona(p)}
+                    disabled={isSwitching || isLoading}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl text-left transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: isSelected
+                        ? "color-mix(in srgb, var(--color-accent, #22d3ee) 12%, transparent)"
+                        : "transparent",
+                    }}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ backgroundColor: getRoleColor(p.role) }}
+                      />
+                      <div className="truncate">
+                        <div className="font-semibold text-[var(--color-text-primary)] text-[11px] truncate">
+                          {p.role}
+                        </div>
+                        <div className="text-[9.5px] text-[var(--color-text-muted)] truncate font-mono">
+                          {p.username}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  {isSelected && <CheckCircle2 size={14} className="text-emerald-400" />}
-                </button>
-              );
-            })}
+                    {isSelected ? (
+                      <Check size={13} className="text-emerald-400 shrink-0" />
+                    ) : (
+                      <span className="text-[9px] font-mono text-[var(--color-text-muted)]">
+                        L{p.clearance_level}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="border-t pt-1 mt-1" style={{ borderColor: "var(--color-border)" }}>
+          {/* Action Footer */}
+          <div className="border-t pt-2 mt-1 space-y-1" style={{ borderColor: "var(--color-border)" }}>
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
-                setIsLoginModalOpen(true);
+                openAuthModal("signup");
               }}
-              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[color-mix(in_srgb,var(--color-accent)_8%,transparent)] rounded-md"
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
             >
-              <Lock size={12} />
-              Manual OAuth2 Login
+              <UserPlus size={13} className="text-cyan-400" />
+              <span>Enroll New Defense Operator</span>
             </button>
 
-            {currentUser && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-rose-400 hover:bg-rose-500/10 rounded-md"
-              >
-                <LogOut size={12} />
-                Sign Out Session
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Manual Login Modal */}
-      {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div
-            className="w-full max-w-md rounded-2xl border p-6 shadow-2xl"
-            style={{ backgroundColor: "var(--color-panel)", borderColor: "var(--color-border)" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Shield size={20} className="text-[var(--color-accent)]" />
-                <h3 className="text-base font-semibold text-[var(--color-text-primary)]">
-                  Enterprise OAuth2 / OIDC Login
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsLoginModalOpen(false)}
-                className="text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCustomLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Enterprise Username / Email
-                </label>
-                <input
-                  type="text"
-                  value={customUsername}
-                  onChange={(e) => setCustomUsername(e.target.value)}
-                  placeholder="admin@shieldnet.gov.in"
-                  required
-                  className="w-full rounded-lg border px-3 py-2 text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
-                  style={{ backgroundColor: "var(--color-base)", borderColor: "var(--color-border)" }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Password (PBKDF2-HMAC-SHA256)
-                </label>
-                <input
-                  type="password"
-                  value={customPassword}
-                  onChange={(e) => setCustomPassword(e.target.value)}
-                  placeholder="••••••••••••"
-                  required
-                  className="w-full rounded-lg border px-3 py-2 text-xs text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
-                  style={{ backgroundColor: "var(--color-base)", borderColor: "var(--color-border)" }}
-                />
-              </div>
-
-              {loginError && (
-                <div className="text-xs text-rose-400 bg-rose-500/10 p-2 rounded border border-rose-500/20">
-                  {loginError}
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsLoginModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium rounded-lg border text-[var(--color-text-secondary)] hover:bg-[var(--color-panel)]"
-                  style={{ borderColor: "var(--color-border)" }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isAuthenticating}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--color-accent)] text-[var(--color-base)] hover:opacity-90 disabled:opacity-50"
-                >
-                  {isAuthenticating ? "Verifying Token..." : "Authenticate"}
-                </button>
-              </div>
-            </form>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                logout();
+              }}
+              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors font-medium cursor-pointer"
+            >
+              <LogOut size={13} />
+              <span>Lock Terminal &amp; Sign Out</span>
+            </button>
           </div>
         </div>
       )}

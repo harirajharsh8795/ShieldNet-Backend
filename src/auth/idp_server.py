@@ -215,6 +215,40 @@ class EnterpriseIdPServer:
             return user
         return None
 
+    def register_user(self, username: str, password: str, display_name: str,
+                      role: str = "SecOps_Analyst", department: str = "National Cyber Defense") -> Dict[str, Any]:
+        """Registers a new user in the enterprise IdP store with salted PBKDF2 hash."""
+        u_key = username.strip().lower()
+        if u_key in USER_STORE:
+            raise ValueError(f"User '{username}' is already registered.")
+
+        salt = _generate_salt()
+        clearance_level = 5 if "admin" in role.lower() else (4 if "auditor" in role.lower() else 3)
+        clearance_label = "Level 5 - Sovereign Defense" if clearance_level == 5 else (
+            "Level 4 - Forensic Integrity" if clearance_level == 4 else "Level 3 - Operational Analysis"
+        )
+
+        permissions = ["alerts:triage", "alerts:override", "simulation:run", "telemetry:ingest"]
+        if clearance_level >= 5:
+            permissions.extend(["soar:approve", "fabric:endorse", "model:anchor"])
+        if clearance_level == 4:
+            permissions.extend(["ledger:verify", "evidence:audit", "compliance:export"])
+
+        user_record = {
+            "username": username.strip(),
+            "display_name": display_name.strip() or username.split("@")[0].capitalize(),
+            "role": role,
+            "clearance_level": clearance_level,
+            "clearance_label": clearance_label,
+            "salt_b64": base64.b64encode(salt).decode("utf-8"),
+            "hash_b64": _pbkdf2_hash(password, salt),
+            "permissions": permissions,
+            "department": department.strip() or "National Cyber Defense",
+            "mfa_enforced": False
+        }
+        USER_STORE[u_key] = user_record
+        return user_record
+
     def issue_token_pair(self, user: Dict[str, Any]) -> Dict[str, Any]:
         """Issues OAuth2 Access Token and Refresh Token."""
         now = int(time.time())

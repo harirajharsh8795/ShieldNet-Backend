@@ -393,3 +393,7 @@ def get_schema_adapter() -> CrossDatasetSchemaAdapter:
     if _schema_adapter_instance is None:
         _schema_adapter_instance = CrossDatasetSchemaAdapter()
     return _schema_adapter_instance
+
+
+# Convenience Alias
+SchemaAdapter = CrossDatasetSchemaAdapter

@@ -1957,6 +1957,36 @@ async def oauth2_token_endpoint(req: OAuth2LoginRequest):
     return idp_server.issue_token_pair(user)
 
 
+class RegisterRequest(BaseModel):
+    username: str
+    password: str
+    display_name: str
+    role: Optional[str] = "SecOps_Analyst"
+    department: Optional[str] = "National Cyber Defense"
+
+
+@app.post("/api/auth/register")
+@app.post("/api/auth/signup")
+async def register_user_endpoint(req: RegisterRequest):
+    """
+    Registers a new cyber defense operator in the IdP directory
+    with PBKDF2-HMAC-SHA256 salt & issues signed access token.
+    """
+    try:
+        user = idp_server.register_user(
+            username=req.username,
+            password=req.password,
+            display_name=req.display_name,
+            role=req.role or "SecOps_Analyst",
+            department=req.department or "National Cyber Defense"
+        )
+        return idp_server.issue_token_pair(user)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
+
+
 @app.get("/api/auth/me")
 async def get_current_user_profile(user: Dict[str, Any] = Depends(get_current_user)):
     """OIDC UserInfo / Introspection endpoint returning clearance level and RBAC permissions."""

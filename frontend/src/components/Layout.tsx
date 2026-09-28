@@ -5,7 +5,9 @@ import { OfflineStatusBadge } from "./OfflineStatusBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { Sparkle3DBackground } from "./Sparkle3DBackground";
 import { AuthBar } from "./AuthBar";
+import { AuthGate } from "./AuthGate";
 import { DownloadAgentModal } from "./DownloadAgentModal";
+import { useAuth } from "../context/AuthContext";
 
 interface NavItem {
   to: string;
@@ -27,6 +29,16 @@ export function Layout({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, openAuthModal } = useAuth();
+
+  const handleNavClick = (e: React.MouseEvent, _to: string) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      openAuthModal("login");
+      return;
+    }
+    setIsMobileNavOpen(false);
+  };
 
   const isNavActive = (to: string, end?: boolean) => {
     if (end) {
@@ -64,7 +76,18 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b backdrop-blur-md print:hidden" style={{ borderColor: "var(--color-border)", backgroundColor: "color-mix(in srgb, var(--color-base) 88%, transparent)" }}>
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           {/* Left: Brand Identity */}
-          <Link to="/" className="flex items-center gap-3 shrink-0" onClick={() => setIsMobileNavOpen(false)}>
+          <Link
+            to="/"
+            className="flex items-center gap-3 shrink-0"
+            onClick={(e) => {
+              if (!isAuthenticated) {
+                e.preventDefault();
+                openAuthModal("login");
+              } else {
+                setIsMobileNavOpen(false);
+              }
+            }}
+          >
             <div
               className="flex h-9 w-9 items-center justify-center rounded-lg shadow-sm"
               style={{ backgroundColor: "color-mix(in srgb, var(--color-accent) 18%, transparent)", border: "1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)" }}
@@ -85,7 +108,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <Link
                   key={to}
                   to={to}
-                  onClick={() => setIsMobileNavOpen(false)}
+                  onClick={(e) => handleNavClick(e, to)}
                   className={`nav-glow inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                     active
                       ? "active text-[var(--color-accent)] font-semibold shadow-sm"
@@ -143,7 +166,7 @@ export function Layout({ children }: { children: ReactNode }) {
                   <Link
                     key={to}
                     to={to}
-                    onClick={() => setIsMobileNavOpen(false)}
+                    onClick={(e) => handleNavClick(e, to)}
                     className={`nav-glow inline-flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       active
                         ? "active text-[var(--color-accent)] font-semibold"
@@ -168,7 +191,13 @@ export function Layout({ children }: { children: ReactNode }) {
         )}
       </header>
 
-      <main id="main-content" className="relative z-10 mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+      <main
+        id="main-content"
+        className={`relative z-10 mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8 transition-all duration-300 ${
+          !isAuthenticated ? "pointer-events-none select-none blur-md opacity-25 filter grayscale" : ""
+        }`}
+        aria-hidden={!isAuthenticated}
+      >
         {children}
       </main>
 
@@ -189,12 +218,12 @@ export function Layout({ children }: { children: ReactNode }) {
               Offline Neural World Model Architecture (Constraint C4 Compliant)
             </div>
             <div className="flex flex-wrap items-center gap-4 text-[var(--color-text-muted)]">
-              <Link to="/" className="hover:text-[var(--color-text-primary)]">Home</Link>
-              <Link to="/about" className="hover:text-[var(--color-text-primary)]">About</Link>
-              <Link to="/architecture" className="hover:text-[var(--color-text-primary)]">Architecture</Link>
-              <Link to="/dashboard/explainability" className="hover:text-[var(--color-text-primary)]">Explainability</Link>
-              <Link to="/dashboard/baseline" className="hover:text-[var(--color-text-primary)]">Baseline Comparison</Link>
-              <Link to="/dashboard" className="hover:text-[var(--color-text-primary)]">Live Demo</Link>
+              <Link to="/" onClick={(e) => handleNavClick(e, "/")} className="hover:text-[var(--color-text-primary)]">Home</Link>
+              <Link to="/about" onClick={(e) => handleNavClick(e, "/about")} className="hover:text-[var(--color-text-primary)]">About</Link>
+              <Link to="/architecture" onClick={(e) => handleNavClick(e, "/architecture")} className="hover:text-[var(--color-text-primary)]">Architecture</Link>
+              <Link to="/dashboard/explainability" onClick={(e) => handleNavClick(e, "/dashboard/explainability")} className="hover:text-[var(--color-text-primary)]">Explainability</Link>
+              <Link to="/dashboard/baseline" onClick={(e) => handleNavClick(e, "/dashboard/baseline")} className="hover:text-[var(--color-text-primary)]">Baseline Comparison</Link>
+              <Link to="/dashboard" onClick={(e) => handleNavClick(e, "/dashboard")} className="hover:text-[var(--color-text-primary)]">Live Demo</Link>
             </div>
           </div>
         </div>
@@ -204,6 +233,9 @@ export function Layout({ children }: { children: ReactNode }) {
         isOpen={isDownloadModalOpen}
         onClose={() => setIsDownloadModalOpen(false)}
       />
+
+      {/* Mandatory Sovereign Zero-Trust Authentication Gate */}
+      <AuthGate />
     </div>
   );
 }
