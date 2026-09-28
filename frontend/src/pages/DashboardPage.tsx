@@ -13,7 +13,6 @@ const tabs = [
   { to: "/dashboard/simulation", label: "Continuous Trajectory Forecasting (K=10)", icon: Activity },
   { to: "/dashboard/alerts", label: "Autonomous SOAR & Alert Sentinel", icon: Bell, highlight: true },
   { to: "/dashboard/blockchain", label: "SIERL Immutable Consortium Ledger", icon: Lock },
-  { to: "/certificate", label: "📜 Section 63 / 65B Certificate", icon: ShieldCheck, highlight: true },
 ];
 
 export function DashboardPage() {
@@ -24,12 +23,10 @@ export function DashboardPage() {
     if (location.pathname === "/dashboard/live") return <LiveMonitorPage />;
     if (location.pathname === "/dashboard/simulation") return <SimulationPage />;
     if (location.pathname === "/dashboard/alerts") return <AlertSentinelPage />;
-    if (location.pathname === "/dashboard/blockchain") {
-      const isCert = new URLSearchParams(location.search).get("tab") === "certificate";
-      return <BlockchainAuditPage defaultTab={isCert ? "certificate" : undefined} />;
-    }
+    if (location.pathname === "/dashboard/blockchain") return <BlockchainAuditPage />;
     if (location.pathname === "/dashboard/certificate" || location.pathname === "/certificate") {
-      return <BlockchainAuditPage defaultTab="certificate" />;
+      // Redirect or render BlockchainAuditPage
+      return <BlockchainAuditPage />;
     }
     return <UploadPage />;
   };

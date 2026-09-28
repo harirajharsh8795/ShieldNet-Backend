@@ -304,19 +304,15 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <button
-              onClick={() => {
-                setActiveTab("certificate");
-                const target = document.getElementById("section-63-certificate-document") || document.getElementById("section-63-certificate-tab-container");
-                if (target) {
-                  target.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
+            <a
+              href="/certificate.html"
+              target="_blank"
+              rel="noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold font-mono transition-all bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer"
             >
-              <ShieldCheck size={15} />
-              <span>Section 63 / 65B Certificate</span>
-            </button>
+              <FileText size={15} />
+              <span>Official Section 63 White-Paper Certificate (PDF)</span>
+            </a>
             <button
               onClick={loadLedgerData}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-colors hover:bg-white/5"
@@ -445,17 +441,6 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
         >
           <Network size={16} /> Cross-CII Fabric Consortium (Tier-2 Realized)
         </button>
-
-        <button
-          onClick={() => setActiveTab("certificate")}
-          className={`inline-flex items-center gap-2 pb-2 text-sm font-bold border-b-2 transition-all cursor-pointer ${
-            activeTab === "certificate"
-              ? "border-amber-400 text-amber-300 shadow-sm"
-              : "border-transparent text-amber-400/80 hover:text-amber-300"
-          }`}
-        >
-          <ShieldCheck size={16} /> 📜 Section 63 / 65B Certificate
-        </button>
       </div>
 
       {/* TAB 1: BLOCK EXPLORER */}
@@ -572,12 +557,14 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
                     <ShieldCheck size={13} className="text-emerald-400" />
                     BSA 2023 Sec 63 Legal Audit Seal (Court-Admissible)
                   </span>
-                  <button
-                    onClick={() => setCertificateBlock(block)}
+                  <a
+                    href="/certificate.html"
+                    target="_blank"
+                    rel="noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 transition-all cursor-pointer"
                   >
-                    <FileText size={13} /> View Section 63 Certificate
-                  </button>
+                    <FileText size={13} /> View Official Section 63 Certificate (PDF)
+                  </a>
                 </div>
 
                 {/* Firewall Execution Log (if orchestrated) */}
