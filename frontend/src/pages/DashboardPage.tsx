@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Upload, Bell, Radio, Lock, ShieldCheck } from "lucide-react";
+import { Activity, Upload, Bell, Radio, Lock } from "lucide-react";
 import { UploadPage } from "./UploadPage";
 import { SimulationPage } from "./SimulationPage";
 import { LiveMonitorPage } from "./LiveMonitorPage";
