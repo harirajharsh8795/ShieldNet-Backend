@@ -266,8 +266,8 @@ export function AuthGate() {
 function LoginForm({ onSwitchMode }: { onSwitchMode: () => void }) {
   const { login, isLoading, targetPath, setTargetPath, closeAuthModal } = useAuth();
   const navigate = useNavigate();
-  const [username, setUsername] = useState("soc-analyst@ntro.gov.in");
-  const [password, setPassword] = useState("ShieldNet@Defense2026");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
