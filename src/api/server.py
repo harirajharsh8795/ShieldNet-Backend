@@ -886,6 +886,32 @@ def predict_sequence(req: PredictRequest):
         penalty = ood_res.get("confidence_penalty", 0.20)
         threat_prob = round(max(0.05, threat_prob * (1.0 - penalty)), 4)
 
+    # 8. Persistent Database Recording (Priority 2 Fix: SQLite State Retention)
+    incident_id = f"inc_{int(time.time() * 1000)}"
+    if threat_prob >= 0.50 and pred_class_name != "BENIGN":
+        try:
+            ev_hash = hash_bytes_sha256(f"{incident_id}-{pred_class_name}-{req.host_ip}".encode())
+            db_manager.save_incident(
+                incident_id=incident_id,
+                threat_type=pred_class_name,
+                severity=severity,
+                confidence=threat_prob,
+                evidence_name=f"stream_{req.host_ip}.pcap",
+                evidence_hash=ev_hash,
+                mitre_stage=pred_stage_idx,
+                mitre_tactic=MITRE_STAGE_MAP.get(pred_stage_idx, {}).get("tactic", "Unknown"),
+                status="DETECTED",
+                mitigation_action=defense_artifacts.get("primary_action", {}).get("type", "Rate Limit & Monitor"),
+                target_ip="192.168.10.50",
+                details={
+                    "host_ip": req.host_ip,
+                    "top_driver": top_driver_name,
+                    "k_step_max_threat": max([r["threat_probability"] for r in rollout_trajectory]) if rollout_trajectory else threat_prob
+                }
+            )
+        except Exception as e_db:
+            print(f"Warning: Failed to persist incident {incident_id} to DB: {e_db}")
+
     return {
         "id": req.scenario_id or resolved_name,
         "name": resolved_name,

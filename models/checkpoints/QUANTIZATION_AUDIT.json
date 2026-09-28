@@ -1,0 +1,14 @@
+{
+  "timestamp_utc": "2026-09-27T10:50:02Z",
+  "original_checkpoint": "world_model_v1.pt",
+  "quantized_checkpoint": "world_model_v1_quantized.pt",
+  "fp32_size_kb": 1029.26,
+  "int8_size_kb": 292.52,
+  "compression_ratio": 3.52,
+  "fp32_latency_ms": 0.0684,
+  "int8_latency_ms": 0.0823,
+  "class_prediction_agreement_pct": 98.1,
+  "threat_probability_correlation": 0.9987,
+  "continuous_state_mse": 0.000629,
+  "edge_readiness": "CERTIFIED_FOR_TACTICAL_SCADA_GATEWAY"
+}

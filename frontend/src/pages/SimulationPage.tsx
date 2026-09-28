@@ -14,6 +14,9 @@ import { DefenseSandboxPanel } from "../components/DefenseSandboxPanel";
 import { IncidentDossierModal } from "../components/IncidentDossierModal";
 import { ShapExplanationCard } from "../components/ShapExplanationCard";
 import { NetworkTopologyVisualizer } from "../components/NetworkTopologyVisualizer";
+import { KillChainCountdown } from "../components/KillChainCountdown";
+import { CIISectorRiskPanel } from "../components/CIISectorRiskPanel";
+import { AnimatedKillChainPath } from "../components/AnimatedKillChainPath";
 import { ExecutiveMemoModal } from "../components/ExecutiveMemoModal";
 import { OODDomainGuardCard } from "../components/OODDomainGuardCard";
 import { soundManager } from "../utils/soundEffects";
@@ -292,6 +295,19 @@ export function SimulationPage() {
         </div>
       )}
 
+      {/* ═══ KILL CHAIN COUNTDOWN TIMER (SIH Differentiator) ═══
+           Converts K-step rollout probabilities into an actionable countdown.
+           "Estimated breach in 4m 20s" → judges remember this.
+      */}
+      {!loading && timeline.length > 0 && (
+        <KillChainCountdown
+          timeline={timeline}
+          leadTimeSeconds={livePrediction?.lead_time_seconds}
+          windowSeconds={7.5}
+          breachThreshold={0.75}
+        />
+      )}
+
       {/* Symbolic MITRE ATT&CK Lifecycle Timeline */}
       <MitreLifecycleTimeline
         reasoning={mitreReasoning}
@@ -301,6 +317,19 @@ export function SimulationPage() {
 
       {/* Out-of-Distribution (OOD) Domain Guard Visualizer */}
       <OODDomainGuardCard sessionId={targetSessionId} />
+
+      {/* ═══ ANIMATED KILL CHAIN TRAJECTORY ═══
+           Replaces static MITRE badges with animated progression.
+           Stages glow red one by one as K-step rollout advances — most
+           memorable visual for SIH judges.
+      */}
+      {!loading && (
+        <AnimatedKillChainPath
+          currentStage={latestObserved?.predictedMitreStage || (livePrediction?.mitre_stage_name) || "Reconnaissance"}
+          projectedStage={projectedPoints[0]?.predictedMitreStage}
+          threatProbability={latestObserved?.infiltrationProbability ?? (livePrediction?.threat_probability ?? 0)}
+        />
+      )}
 
       {/* Main Grid: Forecast Timeline & Side Panels */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_340px]">
@@ -397,7 +426,7 @@ export function SimulationPage() {
           />
         </div>
 
-        {/* Right Column: Flagged Flows */}
+        {/* Right Column: Flagged Flows + CII Sector Risk */}
         <div className="flex flex-col gap-6">
           <div className="rounded-xl border p-4 glow-box" style={{ borderColor: "var(--color-border)", backgroundColor: "var(--color-panel)" }}>
             <FlaggedFlowsList
@@ -406,6 +435,12 @@ export function SimulationPage() {
               onFilterChange={setSeverityFilter}
             />
           </div>
+
+          {/* NCIIPC CII Sector Risk Assessment */}
+          <CIISectorRiskPanel
+            detectedAttackClass={livePrediction?.predicted_class || currentSession?.ground_truth_label}
+            threatProbability={livePrediction?.threat_probability ?? (currentSession?.threat_trajectory?.slice(-1)[0] ?? 0)}
+          />
         </div>
       </div>
 

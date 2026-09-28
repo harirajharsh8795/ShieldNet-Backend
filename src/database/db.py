@@ -197,10 +197,13 @@ class DatabaseManager:
         finally:
             session.close()
 
-    def get_all_incidents(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_all_incidents(self, limit: int = 50, status: Optional[str] = None) -> List[Dict[str, Any]]:
         session = self.get_session()
         try:
-            records = session.query(IncidentRecord).order_by(IncidentRecord.id.desc()).limit(limit).all()
+            query = session.query(IncidentRecord)
+            if status:
+                query = query.filter_by(status=status)
+            records = query.order_by(IncidentRecord.id.desc()).limit(limit).all()
             return [r.to_dict() for r in records]
         finally:
             session.close()

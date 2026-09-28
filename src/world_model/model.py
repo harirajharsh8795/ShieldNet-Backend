@@ -358,3 +358,114 @@ class WorldModelLoss(nn.Module):
             "mitre_loss": loss_mitre,
             "order_loss": loss_order,
         }
+
+
+# =============================================================================
+# 5. Graph Neural Network (GNN) Hybrid World Model (Pure PyTorch, Zero-Dependency)
+# =============================================================================
+
+class PureGraphSAGELayer(nn.Module):
+    """
+    Pure PyTorch GraphSAGE Layer:
+    h_v = ReLU(W_self * h_v + W_neigh * Mean_{u in N(v)}(h_u))
+    Runs 100% offline without requiring external C++ compiled torch_geometric wheels.
+    """
+    def __init__(self, in_features: int, out_features: int):
+        super().__init__()
+        self.w_self = nn.Linear(in_features, out_features, bias=False)
+        self.w_neigh = nn.Linear(in_features, out_features, bias=True)
+        nn.init.xavier_uniform_(self.w_self.weight)
+        nn.init.xavier_uniform_(self.w_neigh.weight)
+        
+    def forward(self, node_feats: torch.Tensor, adj_matrix: torch.Tensor) -> torch.Tensor:
+        # node_feats: (V, in_features), adj_matrix: (V, V) row-normalized
+        self_proj = self.w_self(node_feats)
+        neigh_agg = torch.matmul(adj_matrix, node_feats)
+        neigh_proj = self.w_neigh(neigh_agg)
+        return F.relu(self_proj + neigh_proj)
+
+
+class EgoGraphEncoder(nn.Module):
+    """
+    Computes host-specific node embeddings via 2-layer GraphSAGE over host-interaction graphs.
+    Extracts the target host node embedding to eliminate global pooling dilution.
+    """
+    def __init__(self, in_features: int = 84, hidden_dim: int = 64, out_dim: int = 32):
+        super().__init__()
+        self.gnn1 = PureGraphSAGELayer(in_features, hidden_dim)
+        self.gnn2 = PureGraphSAGELayer(hidden_dim, out_dim)
+        self.out_dim = out_dim
+        
+    def forward(self, node_feats: torch.Tensor, adj_matrix: torch.Tensor, target_idx: int) -> torch.Tensor:
+        h1 = self.gnn1(node_feats, adj_matrix)
+        h2 = self.gnn2(h1, adj_matrix)
+        return h2[target_idx] # (out_dim,) target host topological embedding
+
+
+class GraphWorldModelV2(nn.Module):
+    """
+    Graph-Augmented Temporal World Model (world_model_graph_v2.pt):
+    Fuses 84-dim physical flow dynamics with 32-dim target-host topological graph embedding (116-dim input).
+    Equipped with 2-layer GRU backbone, Temporal Attention Pooling, and 4 Multi-Task Heads.
+    """
+    def __init__(self,
+                 state_dim: int = 84,
+                 graph_dim: int = 32,
+                 hidden_size: int = 128,
+                 num_layers: int = 2,
+                 dropout: float = 0.2,
+                 num_classes: int = 13,
+                 num_mitre_stages: int = 6,
+                 use_attention: bool = True):
+        super().__init__()
+        self.state_dim = state_dim
+        self.graph_dim = graph_dim
+        self.input_size = state_dim + graph_dim # 116
+        self.hidden_size = hidden_size
+        self.num_classes = num_classes
+        self.num_mitre_stages = num_mitre_stages
+        self.use_attention = use_attention
+        
+        # Recurrent Backbone
+        self.rnn = nn.GRU(
+            input_size=self.input_size,
+            hidden_size=hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            dropout=dropout if num_layers > 1 else 0.0,
+        )
+        
+        # Temporal Attention
+        if self.use_attention:
+            self.attn_pool = TemporalAttentionPooling(hidden_size)
+            
+        # Multi-Task Heads
+        self.state_head = nn.Linear(hidden_size, state_dim) # Predicts next 84-dim state
+        self.class_head = nn.Linear(hidden_size, num_classes)
+        self.mitre_head = nn.Linear(hidden_size, num_mitre_stages)
+        self.order_head = nn.Linear(hidden_size, 1)
+        
+    def forward(self, x_seq: torch.Tensor) -> dict:
+        # x_seq: (B, L, 116)
+        rnn_out, h_n = self.rnn(x_seq)
+        
+        if self.use_attention:
+            context, attn_weights = self.attn_pool(rnn_out)
+        else:
+            context = rnn_out[:, -1, :]
+            attn_weights = torch.zeros(len(x_seq), x_seq.shape[1], device=x_seq.device)
+            
+        pred_state = self.state_head(context)
+        class_logits = self.class_head(context)
+        mitre_logits = self.mitre_head(context)
+        order_logits = self.order_head(context).squeeze(-1)
+        
+        return {
+            "predicted_next_state": pred_state,
+            "class_logits": class_logits,
+            "mitre_logits": mitre_logits,
+            "order_logits": order_logits,
+            "context_vector": context,
+            "attention_weights": attn_weights,
+        }
+
