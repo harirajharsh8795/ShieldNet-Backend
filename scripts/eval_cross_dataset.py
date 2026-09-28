@@ -56,16 +56,20 @@ def main():
     df_unsw = pd.read_csv(unsw_path)
     print(f"UNSW rows loaded:  {len(df_unsw)}")
 
-    # Build 84-dim state vectors from flow columns
-    st_unsw = np.zeros((len(df_unsw), 84), dtype=np.float32)
+    # Build 84-dim state vectors via CrossDatasetSchemaAdapter
+    from src.features.schema_adapter import get_schema_adapter
+    adapter = get_schema_adapter()
+    st_unsw_raw = adapter.adapt_dataframe(df_unsw, source_schema="UNSW_NB15")
+
+    st_unsw = np.zeros_like(st_unsw_raw)
     matched_cols = 0
-    for idx, col in enumerate(flow_cols):
-        if col in df_unsw.columns:
-            vals = pd.to_numeric(df_unsw[col], errors="coerce").fillna(0.0).values
-            vals = np.nan_to_num(vals, nan=0.0, posinf=0.0, neginf=0.0)
-            st_unsw[:, idx] = (vals - np.mean(vals)) / (np.std(vals) + 1e-6)
+    for idx in range(84):
+        col_vals = st_unsw_raw[:, idx]
+        std = np.std(col_vals)
+        if std > 1e-6:
+            st_unsw[:, idx] = np.clip((col_vals - np.mean(col_vals)) / std, -5.0, 5.0)
             matched_cols += 1
-    print(f"Feature columns matched: {matched_cols}/{len(flow_cols)}")
+    print(f"Feature columns adapted & matched: {matched_cols}/84")
 
     # Build L=3 sequences
     n_seq = min(20000, len(st_unsw) - 2)

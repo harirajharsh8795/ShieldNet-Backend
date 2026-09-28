@@ -34,9 +34,9 @@ class CrossDatasetSchemaAdapter:
         self.canonical_columns: List[str] = []
         if self.canonical_columns_path.exists():
             try:
-                with open(self.canonical_columns_path, "r") as f:
+                with open(self.canonical_columns_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                self.canonical_columns = data.get("features", [])[:84]
+                self.canonical_columns = data.get("numeric_features", data.get("features", []))[:84]
             except Exception:
                 pass
                 
@@ -44,38 +44,56 @@ class CrossDatasetSchemaAdapter:
             # Fallback canonical list if file missing
             self.canonical_columns = [f"feat_{i}" for i in range(84)]
 
-        # UNSW-NB15 to CIC-IDS mapping dictionary
+        # Comprehensive UNSW-NB15 to CIC-IDS canonical mapping dictionary
+        # Supports 1-to-many target mapping, unit conversion (dur: s -> us), and standard aliases
         self.unsw_to_canonical = {
-            "dur": "Flow Duration",
-            "spkts": "Total Fwd Packets",
-            "dpkts": "Total Backward Packets",
-            "sbytes": "Total Length of Fwd Packets",
-            "dbytes": "Total Length of Bwd Packets",
-            "smean": "Fwd Packet Length Mean",
-            "dmean": "Bwd Packet Length Mean",
-            "rate": "Flow Packets/s",
-            "sload": "Flow Bytes/s",
-            "sinpkt": "Fwd IAT Mean",
-            "dinpkt": "Bwd IAT Mean",
-            "sjit": "Fwd IAT Std",
-            "djit": "Bwd IAT Std",
-            "swin": "Init_Win_bytes_forward",
-            "dwin": "Init_Win_bytes_backward",
-            "synack": "SYN Flag Count",
-            "ackdat": "ACK Flag Count",
-            "tcprtt": "Active Mean"
+            # Duration & Flow Rates
+            "dur": ["Flow Duration", "Fwd IAT Total", "Bwd IAT Total"],
+            "flow_duration": ["Flow Duration", "Fwd IAT Total", "Bwd IAT Total"],
+            "rate": ["Flow Packets/s"],
+            "sload": ["Flow Bytes/s"],
+            # Packet & Byte Volumes (Forward & Backward)
+            "spkts": ["Total Fwd Packets", "Subflow Fwd Packets", "act_data_pkt_fwd"],
+            "total_fwd_packets": ["Total Fwd Packets", "Subflow Fwd Packets", "act_data_pkt_fwd"],
+            "dpkts": ["Total Backward Packets", "Subflow Bwd Packets"],
+            "total_bwd_packets": ["Total Backward Packets", "Subflow Bwd Packets"],
+            "sbytes": ["Total Length of Fwd Packets", "Subflow Fwd Bytes"],
+            "total_fwd_bytes": ["Total Length of Fwd Packets", "Subflow Fwd Bytes"],
+            "dbytes": ["Total Length of Bwd Packets", "Subflow Bwd Bytes"],
+            "total_bwd_bytes": ["Total Length of Bwd Packets", "Subflow Bwd Bytes"],
+            # Packet Length Distribution
+            "smean": ["Fwd Packet Length Mean", "Fwd Packet Length Max", "Fwd Packet Length Min", "Average Packet Size", "Avg Fwd Segment Size", "Packet Length Mean"],
+            "dmean": ["Bwd Packet Length Mean", "Bwd Packet Length Max", "Bwd Packet Length Min", "Avg Bwd Segment Size"],
+            # Inter-Arrival Times (IAT) & Jitter
+            "sinpkt": ["Fwd IAT Mean", "Flow IAT Mean", "Flow IAT Max", "Fwd IAT Max", "Fwd IAT Min"],
+            "dinpkt": ["Bwd IAT Mean", "Flow IAT Min", "Bwd IAT Max", "Bwd IAT Min"],
+            "sjit": ["Fwd IAT Std", "Flow IAT Std", "Fwd Packet Length Std", "Packet Length Std"],
+            "djit": ["Bwd IAT Std", "Bwd Packet Length Std"],
+            # TCP Flags & Windows
+            "swin": ["Init_Win_bytes_forward", "tcp_window_mean", "tcp_window_min", "tcp_window_max"],
+            "dwin": ["Init_Win_bytes_backward"],
+            "synack": ["SYN Flag Count"],
+            "ackdat": ["ACK Flag Count"],
+            "tcprtt": ["Active Mean", "Active Max", "Active Min"],
+            # Network Layer / Packet-Level Dynamics (Clauses 16, 21, 28)
+            "sttl": ["ttl_mean"],
+            "ttl_mean": ["ttl_mean"],
+            "dttl": ["ttl_variance"],
+            "ttl_variance": ["ttl_variance"],
+            "sloss": ["retransmission_count"],
+            "retransmission_count": ["retransmission_count"]
         }
 
         # CTU-13 / NetFlow to CIC-IDS mapping dictionary
         self.ctu_to_canonical = {
-            "Dur": "Flow Duration",
-            "TotPkts": "Total Fwd Packets",
-            "TotBytes": "Total Length of Fwd Packets",
-            "SrcBytes": "Total Length of Fwd Packets",
-            "DstBytes": "Total Length of Bwd Packets",
-            "SrcPkts": "Total Fwd Packets",
-            "DstPkts": "Total Backward Packets",
-            "Rate": "Flow Packets/s"
+            "Dur": ["Flow Duration"],
+            "TotPkts": ["Total Fwd Packets", "Subflow Fwd Packets"],
+            "TotBytes": ["Total Length of Fwd Packets", "Subflow Fwd Bytes"],
+            "SrcBytes": ["Total Length of Fwd Packets", "Subflow Fwd Bytes"],
+            "DstBytes": ["Total Length of Bwd Packets", "Subflow Bwd Bytes"],
+            "SrcPkts": ["Total Fwd Packets", "Subflow Fwd Packets"],
+            "DstPkts": ["Total Backward Packets", "Subflow Bwd Packets"],
+            "Rate": ["Flow Packets/s"]
         }
 
     def detect_schema(self, columns: List[str]) -> str:
@@ -116,12 +134,34 @@ class CrossDatasetSchemaAdapter:
 
         # 2. UNSW-NB15 Adaptation
         elif source_schema == "UNSW_NB15":
-            mapping = self.unsw_to_canonical
-            mapped_targets = {}
-            for src_col, target_col in mapping.items():
+            mapped_targets: Dict[str, np.ndarray] = {}
+            for src_col, target_cols in self.unsw_to_canonical.items():
                 if src_col in df.columns:
                     val = pd.to_numeric(df[src_col], errors="coerce").fillna(0.0).values
-                    mapped_targets[target_col] = val
+                    val = np.nan_to_num(val, nan=0.0, posinf=0.0, neginf=0.0)
+                    if src_col in ("dur", "flow_duration"):
+                        # If duration is in seconds (max < 1000s), convert to microseconds
+                        if len(val) > 0 and float(np.nanmax(val)) < 1000.0:
+                            val = val * 1e6
+                    if isinstance(target_cols, str):
+                        target_cols = [target_cols]
+                    for target_col in target_cols:
+                        mapped_targets[target_col] = val
+
+            # Derived mathematical features from available UNSW telemetry
+            if "spkts" in df.columns and "dpkts" in df.columns:
+                spkts = pd.to_numeric(df["spkts"], errors="coerce").fillna(0.0).values
+                dpkts = pd.to_numeric(df["dpkts"], errors="coerce").fillna(0.0).values
+                mapped_targets["Down/Up Ratio"] = np.nan_to_num(dpkts / (spkts + 1e-6), nan=0.0)
+                
+                if "dur" in df.columns:
+                    dur_s = pd.to_numeric(df["dur"], errors="coerce").fillna(0.0).values
+                    mapped_targets["Fwd Packets/s"] = np.nan_to_num(spkts / (dur_s + 1e-6), nan=0.0)
+                    mapped_targets["Bwd Packets/s"] = np.nan_to_num(dpkts / (dur_s + 1e-6), nan=0.0)
+
+            if "sjit" in df.columns:
+                sjit = pd.to_numeric(df["sjit"], errors="coerce").fillna(0.0).values
+                mapped_targets["Packet Length Variance"] = np.nan_to_num(sjit ** 2, nan=0.0)
 
             for i, target_col in enumerate(self.canonical_columns):
                 if target_col in mapped_targets:
@@ -132,12 +172,14 @@ class CrossDatasetSchemaAdapter:
 
         # 3. CTU-13 Adaptation
         elif source_schema == "CTU_13":
-            mapping = self.ctu_to_canonical
             mapped_targets = {}
-            for src_col, target_col in mapping.items():
+            for src_col, target_cols in self.ctu_to_canonical.items():
                 if src_col in df.columns:
                     val = pd.to_numeric(df[src_col], errors="coerce").fillna(0.0).values
-                    mapped_targets[target_col] = val
+                    if isinstance(target_cols, str):
+                        target_cols = [target_cols]
+                    for target_col in target_cols:
+                        mapped_targets[target_col] = val
 
             for i, target_col in enumerate(self.canonical_columns):
                 if target_col in mapped_targets:
