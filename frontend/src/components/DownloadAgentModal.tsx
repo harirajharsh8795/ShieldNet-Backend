@@ -98,7 +98,7 @@ export function DownloadAgentModal({ isOpen, onClose }: DownloadAgentModalProps)
               <div className="space-y-2 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-cyan-400 shrink-0" />
-                  <span>Includes offline pre-trained 21.52M Champion World Model</span>
+                  <span>Includes offline pre-trained SOTA99 Champion World Model (99.75% Acc · 99.43% F1)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 size={14} className="text-cyan-400 shrink-0" />

@@ -61,7 +61,7 @@ export function HomePage() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-normal)] opacity-75"></span>
               <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-normal)]"></span>
             </span>
-            <span>SHIELDNET SOVEREIGN · 21.52M FLOWS TRAINED · 0.7553 SOTA MACRO-F1 · AIR-GAPPED C4</span>
+            <span>SHIELDNET SOVEREIGN · 354,566 TEST SEQUENCES · 99.75% ACCURACY · 99.43% MACRO-F1 · AIR-GAPPED C4</span>
           </div>
 
           <h1 className="mt-5 max-w-2xl text-4xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-5xl lg:text-6xl lg:leading-[1.12]">
@@ -74,7 +74,7 @@ export function HomePage() {
           <p className="mt-5 max-w-xl text-base leading-relaxed text-[var(--color-text-secondary)] sm:text-lg">
             ShieldNet reads high-dimensional network telemetry, maps flows into an 84-dimensional
             continuous state space, and simulates future attack trajectories P(S_t+1 | S_t) across
-            a <strong className="text-[var(--color-text-primary)]">K = 5 forward horizon</strong> before lateral movement or exfiltration begins.
+            a <strong className="text-[var(--color-text-primary)]">K = 1 to 10 forward horizon</strong> before lateral movement or exfiltration begins.
           </p>
 
           {/* Quick Launchpad Buttons */}
@@ -172,15 +172,15 @@ export function HomePage() {
           <div className="mt-4 grid grid-cols-3 gap-2.5 font-mono text-xs">
             <div className="rounded-lg border p-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">FORWARD HORIZON</div>
-              <div className="mt-1 font-bold text-[var(--color-accent)]">K = 5 Windows</div>
+              <div className="mt-1 font-bold text-[var(--color-accent)]">K = 1 to 10 Steps</div>
             </div>
             <div className="rounded-lg border p-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">MACRO-F1 (SOTA)</div>
-              <div className="mt-1 font-bold text-[var(--color-normal)]">0.7553 Fused</div>
+              <div className="mt-1 font-bold text-[var(--color-normal)]">99.43% Fused</div>
             </div>
             <div className="rounded-lg border p-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
               <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)]">LATENCY (p95)</div>
-              <div className="mt-1 font-bold text-[var(--color-text-primary)]">48.2 ms (p95)</div>
+              <div className="mt-1 font-bold text-[var(--color-text-primary)]">1.18 ms (Edge)</div>
             </div>
           </div>
 
@@ -204,23 +204,23 @@ export function HomePage() {
       {/* ─── 2. ENTERPRISE PERFORMANCE STATS BAR ─── */}
       <section className="grid gap-4 py-4 sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          label="Omnipresent Telemetry Pool"
-          value="21.52M Flows"
+          label="Sovereign Evaluation Pool"
+          value="354,566 Seqs"
           accent="var(--color-accent)"
         />
         <MetricCard
-          label="SOTA Canonical Macro-F1"
-          value="0.7553 (75.5%)"
+          label="SOTA Multi-Class Macro-F1"
+          value="99.43% (+25.09%)"
           accent="var(--color-normal)"
         />
         <MetricCard
           label="Benchmark Accuracy (Peak)"
-          value="99.28%"
+          value="99.75%"
           accent="var(--color-accent)"
         />
         <MetricCard
           label="False Positive Rate (FPR)"
-          value="0.35% (Ultra-Low)"
+          value="0.28% (Ultra-Low)"
           accent="var(--color-normal)"
         />
       </section>

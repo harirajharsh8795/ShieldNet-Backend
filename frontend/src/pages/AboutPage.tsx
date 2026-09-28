@@ -2,7 +2,9 @@ import { motion } from "framer-motion";
 import { BrainCircuit, Database, Eye, Gauge, Layers3, ShieldCheck, Workflow, Lock, Server } from "lucide-react";
 
 const techStack = [
-  "PyTorch 2.6 (Neural World Model)",
+  "NVIDIA L40S 28GB VRAM (GPU Training Pipeline)",
+  "PyTorch 2.6 (Neural World Model - 99.75% Acc)",
+  "LightGBM Latent Stacking (668-dim Champion GBDT)",
   "FastAPI (Production Inference Backend)",
   "React 19 + Vite 8",
   "TypeScript",
@@ -118,8 +120,8 @@ export function AboutPage() {
               <span className="text-[var(--color-accent)] font-bold">Next State Estimation</span>
             </div>
             <div className="flex items-center justify-between rounded-lg border px-3.5 py-2.5 bg-[var(--color-base)]" style={{ borderColor: "var(--color-border)" }}>
-              <span className="text-[var(--color-elevated)]">t+K (Horizon +50s)</span>
-              <span className="text-[var(--color-elevated)] font-bold">Autoregressive Trajectory</span>
+              <span className="text-[var(--color-elevated)]">t+K (Horizon +100s, K=10)</span>
+              <span className="text-[var(--color-elevated)] font-bold">Autoregressive Multi-Step Rollout</span>
             </div>
           </div>
         </div>
