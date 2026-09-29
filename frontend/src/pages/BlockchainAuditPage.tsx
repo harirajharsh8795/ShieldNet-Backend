@@ -5,16 +5,22 @@ import {
   Lock,
   Link as LinkIcon,
   FileCheck,
-  Search,
-  Upload,
   Cpu,
-  Terminal,
   UserCheck,
   XCircle,
+  Printer,
+  X,
+  ShieldCheck,
+  FileText,
+  Copy,
   RefreshCw,
+  Terminal,
+  Upload,
+  Search,
+  Shield,
   Network,
-  Server,
-  FileText
+  Zap,
+  Server
 } from "lucide-react";
 import {
   fetchLedgerBlocks,
@@ -53,6 +59,9 @@ export function BlockchainAuditPage({ defaultTab }: BlockchainAuditPageProps = {
   };
 
   const [activeTab, setActiveTab] = useState<"explorer" | "verifier" | "approval" | "model" | "fabric" | "certificate">(getInitialTab());
+  const [selectedCertBlockIndex, setSelectedCertBlockIndex] = useState<number>(0);
+  const [copiedCertHash, setCopiedCertHash] = useState<boolean>(false);
+  const [certificateBlock, setCertificateBlock] = useState<SIERLBlockData | null>(null);
 
   useEffect(() => {
     if (defaultTab) {

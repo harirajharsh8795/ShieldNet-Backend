@@ -302,6 +302,7 @@ export interface LivePredictRequest {
   raw_csv_text?: string;
   k_steps?: number;
   host_ip?: string;
+  state_sequence?: number[][];
 }
 
 export interface LivePredictResponse {
@@ -335,16 +336,27 @@ export interface LivePredictResponse {
 }
 
 export async function predictSequence(req: LivePredictRequest): Promise<LivePredictResponse> {
+  // Backend PredictRequest requires state_sequence (L x 84 dim vectors), k_steps, host_ip
+  // If no raw state sequence is provided, we cannot call the backend meaningfully — throw
+  // so the caller's offline fallback (C4) can handle it gracefully.
+  if (!req.raw_csv_text && !req.state_sequence) {
+    throw new Error("No state_sequence or raw_csv_text provided — using offline fallback (Constraint C4)");
+  }
+  const body: Record<string, unknown> = {
+    k_steps: req.k_steps ?? 10,
+    host_ip: req.host_ip ?? "192.168.10.8",
+  };
+  if (req.state_sequence) {
+    body.state_sequence = req.state_sequence;
+  } else if (req.raw_csv_text) {
+    // Pass as scenario_id for the backend to look up internally
+    body.scenario_id = req.scenario_id;
+    body.k_steps = req.k_steps ?? 10;
+  }
   const res = await fetch(`${API_BASE}/predict-sequence`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      scenario_id: req.scenario_id,
-      filename: req.filename,
-      raw_csv_text: req.raw_csv_text,
-      k_steps: req.k_steps ?? 4,
-      host_ip: req.host_ip ?? "192.168.10.8",
-    }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     throw new Error(`Live model prediction failed: ${res.status} ${res.statusText}`);
@@ -2172,36 +2184,15 @@ export async function signupOAuth2(payload: {
 }
 
 export async function fetchCurrentUserProfile(): Promise<any> {
-  const token = localStorage.getItem("shieldnet_token");
-  if (!token) {
-    const cached = localStorage.getItem("shieldnet_user");
-    return cached ? JSON.parse(cached) : null;
-  }
-  try {
-    const res = await fetch(`${API_BASE}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return data.user;
-    }
-  } catch (e) {
-    console.warn("Fetch profile fallback:", e);
-  }
+  // /api/auth/me is not implemented on the production backend.
+  // Use cached user from localStorage directly (Constraint C4 offline mode).
   const cached = localStorage.getItem("shieldnet_user");
   return cached ? JSON.parse(cached) : null;
 }
 
 export async function fetchEnterprisePersonas(): Promise<any[]> {
-  try {
-    const res = await fetch(`${API_BASE}/auth/personas`);
-    if (res.ok) {
-      const data = await res.json();
-      return data.personas || [];
-    }
-  } catch (e) {
-    console.warn("Fetch personas fallback:", e);
-  }
+  // /api/auth/personas is not implemented on the production backend server.
+  // Return the built-in offline persona list directly (Constraint C4).
   return [
     {
       username: "soc-analyst@ntro.gov.in",
